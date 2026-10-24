@@ -95,6 +95,8 @@ def build_prompt(spec):
 
 def default_llm():
     """Pick a provider from env keys. Returns callable(prompt)->str or None."""
+    # Delegates to capture.llm, which covers Anthropic, OpenAI-compatible
+    # (OPENAI_BASE_URL) and Gemini providers plus shared HTTP error handling.
     from capture.llm import PROVIDERS, make_llm, resolve_config
     if not any(os.environ.get(key) for key, _ in PROVIDERS.values()):
         return None

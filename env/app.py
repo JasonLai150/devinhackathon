@@ -96,8 +96,9 @@ def create_app(spec_path=None, component_dir=None):
 
     @app.after_request
     def _cors_sessions(resp):
-        # Dashboard (served from another localhost port) reads /sessions.
-        if request.path == "/sessions":
+        # Dashboard (served from another localhost port) drives the env API:
+        # /sessions listing + /reset /state /verify for the interactive demo.
+        if request.path in ("/sessions", "/reset", "/state", "/verify"):
             resp.headers["Access-Control-Allow-Origin"] = "*"
         return resp
 

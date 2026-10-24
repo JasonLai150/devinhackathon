@@ -505,3 +505,34 @@ budget instead of waiting for a missing browser control. LLM policy version
 The live experiment above used v2; v3's recovery is covered by the Chromium
 action-interface test and requires a fresh experiment for new learning claims.
 The full regression suite passed 84 tests before this final recovery fix.
+
+---
+
+## 2026-10-24 — Diagnose Claude baseline HTTP 400s
+
+The first credentialed attempt in `.integration/claude-demo/` did not measure
+Claude's task performance. All three trials opened the real product listing
+then failed on the first model request with `HTTP Error 400: Bad Request`.
+There were **zero task failures, zero verified successes, three execution
+errors**. The old summary incorrectly suggested selecting a different task/model.
+The response body was not retained, so the specific provider rejection cannot
+be inferred from those artifacts.
+
+Fixed the shared provider client to include JSON error type/message and request
+ID while redacting configured/sent credentials. Non-JSON error bodies are not
+dumped into artifacts. Added `--preflight --check-provider`, a small request
+to the exact configured model; real experiment commands run this check before
+launching browsers. Baseline execution failures now stop at the first error
+with `status: error`, while valid successful task attempts still produce the
+appropriate insufficient-failure result.
+
+The existing recordings are retained unchanged. The user's terminal owns the
+exported API key; it remains unavailable to this running assistant process.
+The next live action is the provider-check command from `demo-runbook.md`,
+followed by a new experiment directory once the provider accepts requests.
+
+Validation: targeted demo/protocol suite **10 passed, 2 optional browser tests
+skipped**. New checks cover HTTP error details, credential redaction, non-JSON
+responses, the small model probe, and the distinction between execution errors
+and successful baseline episodes. The actual HTTP 400 cause is still awaiting
+the diagnostic request from the user's credentialed terminal.

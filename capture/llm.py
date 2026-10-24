@@ -12,8 +12,9 @@ Env:
 import json
 import os
 import re
+import urllib.error
 import urllib.request
-from urllib.parse import quote
+from urllib.parse import quote, urlsplit
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
@@ -25,6 +26,22 @@ PROVIDERS = {
     "anthropic": ("ANTHROPIC_API_KEY", _ANTHROPIC_DEFAULT),
     "openai": ("OPENAI_API_KEY", _OPENAI_DEFAULT),
 }
+
+
+class ProviderError(RuntimeError):
+    """A provider's HTTP error with safe, useful response details."""
+
+
+def _safe_error_text(value, headers):
+    text = str(value)
+    secrets = [os.environ.get(k) for k in
+               ("GEMINI_API_KEY", "ANTHROPIC_API_KEY", "OPENAI_API_KEY")]
+    secrets.extend(v.removeprefix("Bearer ") for k, v in headers.items()
+                   if k.lower() in ("x-api-key", "x-goog-api-key", "authorization"))
+    for secret in secrets:
+        if secret:
+            text = text.replace(secret, "[REDACTED]")
+    return " ".join(text.split())[:1500]
 
 
 @dataclass(frozen=True)
@@ -99,11 +116,28 @@ def _post(url, headers, payload):
     req = urllib.request.Request(
         url, data=json.dumps(payload).encode(), headers=headers, method="POST"
     )
-    with urllib.request.urlopen(req, timeout=60) as r:
-        return json.load(r)
+    try:
+        with urllib.request.urlopen(
+                req, timeout=int(os.environ.get("LLM_HTTP_TIMEOUT", "120"))) as r:
+            return json.load(r)
+    except urllib.error.HTTPError as error:
+        detail = {}
+        try:
+            body = json.loads(error.read(65536))
+            if isinstance(body, dict) and isinstance(body.get("error"), dict):
+                detail = body["error"]
+        except (ValueError, UnicodeError):
+            pass
+        error_type = _safe_error_text(detail.get("type", "request_failed"), headers)
+        message = _safe_error_text(detail.get("message", "Provider did not return a JSON error message."), headers)
+        request_id = _safe_error_text(error.headers.get("request-id", "") if error.headers else "", headers)
+        raise ProviderError(
+            f"{urlsplit(url).hostname}: HTTP {error.code} ({error_type}): {message}"
+            + (f" [request_id={request_id}]" if request_id else "")
+        ) from None
 
 
-def _anthropic(prompt, config):
+def _anthropic(prompt, config, max_tokens=4096):
     body = _post(
         "https://api.anthropic.com/v1/messages",
         {
@@ -114,16 +148,19 @@ def _anthropic(prompt, config):
         {
             "model": config.model,
             "temperature": config.temperature,
-            "max_tokens": 4096,
+            "max_tokens": max_tokens,
             "messages": [{"role": "user", "content": prompt}],
         },
     )
     return "".join(b.get("text", "") for b in body["content"])
 
 
-def _openai(prompt, config):
+def _openai(prompt, config, max_tokens=None):
+    # OPENAI_BASE_URL permits OpenAI-compatible providers (e.g. Gemini's
+    # https://generativelanguage.googleapis.com/v1beta/openai endpoint).
+    base = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
     body = _post(
-        "https://api.openai.com/v1/chat/completions",
+        base.rstrip("/") + "/chat/completions",
         {
             "authorization": f"Bearer {os.environ['OPENAI_API_KEY']}",
             "content-type": "application/json",
@@ -132,20 +169,24 @@ def _openai(prompt, config):
             "model": config.model,
             "temperature": config.temperature,
             "messages": [{"role": "user", "content": prompt}],
+            **({"max_tokens": max_tokens} if max_tokens is not None else {}),
         },
     )
-    return body["choices"][0]["message"]["content"]
+    # Thinking models can exhaust max_tokens on reasoning and return no content.
+    return body["choices"][0]["message"].get("content") or ""
 
 
-def _gemini(prompt, config):
+def _gemini(prompt, config, max_tokens=None):
     body = _post(
         "https://generativelanguage.googleapis.com/v1beta/models/"
         f"{quote(config.model, safe='')}:generateContent",
         {"x-goog-api-key": os.environ["GEMINI_API_KEY"],
          "Content-Type": "application/json"},
         {"contents": [{"role": "user", "parts": [{"text": prompt}]}],
-         "generationConfig": ({"temperature": config.temperature}
-                              if config.temperature is not None else {})})
+         "generationConfig": {
+             **({"temperature": config.temperature}
+                if config.temperature is not None else {}),
+             **({"maxOutputTokens": max_tokens} if max_tokens is not None else {})}})
     candidates = body.get("candidates", [])
     if not candidates:
         raise RuntimeError("Gemini returned no candidate response")
@@ -157,3 +198,15 @@ def _gemini(prompt, config):
     if not text.strip():
         raise RuntimeError("Gemini returned no answer text")
     return text
+
+
+def check_provider(config):
+    """One tiny request validates the exact configured model before browser work."""
+    calls = {"anthropic": _anthropic, "openai": _openai, "gemini": _gemini}
+    # Probe cheap first; thinking models can burn a small max_tokens budget
+    # on reasoning and return empty content — retry once with headroom.
+    for cap in (16, 1024):
+        response = calls[config.provider]("Reply with only OK.", config, max_tokens=cap)
+        if isinstance(response, str) and response.strip():
+            return {"ok": True, **config.metadata(), "max_output_tokens": cap}
+    raise ProviderError("Provider returned no text during the model check.")

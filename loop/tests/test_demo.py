@@ -214,6 +214,85 @@ def test_dashboard_serves_artifacts_but_not_credentials(tmp_path):
         server.server_close()
         worker.join()
 
+def test_provider_http_error_preserves_details_and_redacts_credentials(monkeypatch):
+    import io
+    import urllib.error
+    from capture import llm
+    secret = "test-secret-not-for-output"
+    monkeypatch.setenv("ANTHROPIC_API_KEY", secret)
+    body = json.dumps({"error": {"type": "invalid_request_error",
+                               "message": f"Credit balance too low; credential {secret}"}}).encode()
+    def reject(request, timeout):
+        raise urllib.error.HTTPError(request.full_url, 400, "Bad Request",
+                                     {"request-id": "req-test"}, io.BytesIO(body))
+    monkeypatch.setattr(llm.urllib.request, "urlopen", reject)
+    with pytest.raises(llm.ProviderError) as exc:
+        llm.make_llm(llm.ModelConfig("anthropic", "test-model"))("observation")
+    message = str(exc.value)
+    assert "HTTP 400" in message and "invalid_request_error" in message
+    assert "Credit balance too low" in message and "req-test" in message
+    assert "[REDACTED]" in message and secret not in message
+
+
+def test_provider_non_json_error_does_not_dump_response_body(monkeypatch):
+    import io
+    import urllib.error
+    from capture import llm
+    def reject(request, timeout):
+        raise urllib.error.HTTPError(request.full_url, 502, "Bad Gateway", {},
+                                     io.BytesIO(b"<html>untrusted proxy debug output</html>"))
+    monkeypatch.setattr(llm.urllib.request, "urlopen", reject)
+    with pytest.raises(llm.ProviderError) as exc:
+        llm._post("https://api.anthropic.com/v1/messages", {}, {})
+    assert "HTTP 502" in str(exc.value)
+    assert "untrusted" not in str(exc.value)
+
+
+def test_provider_probe_checks_configured_model_with_small_output_limit(monkeypatch):
+    from capture import llm
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-placeholder")
+    payloads = []
+    def post(url, headers, payload):
+        payloads.append(payload)
+        return {"content": [{"type": "text", "text": "OK"}]}
+    monkeypatch.setattr(llm, "_post", post)
+    result = llm.check_provider(llm.ModelConfig("anthropic", "chosen-model", 0.7))
+    assert result["ok"]
+    assert payloads[0]["model"] == "chosen-model"
+    assert payloads[0]["temperature"] == 0.7
+    assert payloads[0]["max_tokens"] == 16
+
+
+@pytest.mark.parametrize("execution_error,expected_status,attempts", [
+    ("HTTP 400: invalid_request_error", "error", 1),
+    (None, "blocked", 3),
+])
+def test_baseline_execution_errors_are_not_task_outcomes(
+        tmp_path, monkeypatch, execution_error, expected_status, attempts):
+    from capture.llm import ModelConfig
+    from loop import experiment
+    from loop.agent import EpisodeResult
+
+    class BaselineAgent:
+        agent_id = "browser:llm"
+        metadata = {"provider": "injected-test", "model": "baseline-fixture"}
+        def __init__(self, *args, **kwargs):
+            pass
+        async def run(self, *args, **kwargs):
+            return EpisodeResult(ok=execution_error is None, error=execution_error,
+                                 verification=None if execution_error else
+                                 {"passed": True, "reason": "test success"})
+    monkeypatch.setattr(experiment, "BrowserAgent", BaselineAgent)
+    args = experiment.parser().parse_args(["--out", str(tmp_path / "experiment")])
+    result = asyncio.run(experiment.run(args, ModelConfig("anthropic", "fixture")))
+    assert result["status"] == expected_status
+    assert result["baseline"]["n"] == attempts
+    assert result["baseline"]["task_failures"] == 0
+    if execution_error:
+        assert "Baseline execution failed" in result["reason"]
+        assert "different candidate" not in result["reason"]
+        assert result["baseline"]["execution_errors"] == 1
+
 
 def test_strict_experiment_orchestration_offline(tmp_path, monkeypatch):
     """Test evidence gates using explicit test decisions and real env mutations."""

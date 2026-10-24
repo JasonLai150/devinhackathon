@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReEnvision — demo</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  body { font-size: 15px; }
+  .demo-stage { max-width: 960px; margin: 0 auto 20px; padding: 20px 24px;
+    background: var(--panel); border: 1px solid var(--edge); border-radius: 12px; }
+  .demo-stage h2 { margin: 0 0 4px; font-size: 20px; }
+  .demo-stage .why { color: var(--dim); margin: 0 0 14px; font-size: 13px; }
+  .big { font-size: 18px; font-weight: 700; }
+  .big.ok { color: var(--ok); } .big.bad { color: var(--bad); }
+  .step { min-width: 170px; max-width: 170px; }
+  .step img { width: 170px; }
+  .cells .cell { width: 22px; height: 22px; }
+  canvas { width: 100%; }
+</style>
+</head>
+<body>
+<header style="max-width:960px">
+  <div><h1>ReEnvision</h1>
+    <p class="tagline">Every failure becomes a test. Every test becomes training signal.</p></div>
+  <p class="sub" id="status"></p>
+</header>
+
+<section class="demo-stage">
+  <h2>1 · The failure on the real site</h2>
+  <p class="why">practicesoftwaretesting.com — “add the cheapest product to your cart”</p>
+  <div id="fail"></div>
+</section>
+
+<section class="demo-stage">
+  <h2>2 · Failure becomes a spec</h2>
+  <p class="why">the breaking interaction is isolated; only the slice that broke is rebuilt</p>
+  <div id="spec"></div>
+  <div class="sidebyside" id="sbs"></div>
+</section>
+
+<section class="demo-stage">
+  <h2>3 · The env reproduces it</h2>
+  <p class="why">the same agent fails the same way inside the generated sandbox — round 0, red</p>
+  <div id="repro"></div>
+</section>
+
+<section class="demo-stage">
+  <h2>4 · The agent improves</h2>
+  <p class="why">verified successes distill into a skill note; held-out eval climbs</p>
+  <canvas id="curve" width="880" height="240"></canvas>
+  <pre id="notes" style="max-height:120px;margin-top:10px"></pre>
+</section>
+
+<section class="demo-stage">
+  <h2>5 · Green on the real site</h2>
+  <p class="why">the improved agent goes back and completes the original task</p>
+  <div id="transfer"></div>
+</section>
+
+<section class="demo-stage">
+  <h2>6 · Try the sandbox live</h2>
+  <p class="why">a fresh seeded env per session — click through, then verify against the DB</p>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+    <button id="btn-reset" style="font-size:14px;padding:8px 16px">New session</button>
+    <button id="btn-state" style="font-size:14px;padding:8px 16px">Dump state</button>
+    <button id="btn-verify" style="font-size:14px;padding:8px 16px">Verify task</button>
+    <span id="sess-label" class="muted"></span>
+  </div>
+  <iframe id="envframe" style="width:100%;height:520px;border:1px solid var(--edge);border-radius:8px;background:#fff"></iframe>
+  <pre id="envout" style="max-height:220px;margin-top:10px"></pre>
+</section>
+
+<script>
+const ENV = "http://localhost:5001";
+let SID = null;
+const out = document.getElementById("envout");
+const label = document.getElementById("sess-label");
+
+document.getElementById("btn-reset").onclick = async () => {
+  out.textContent = "creating session…";
+  try {
+    const r = await fetch(ENV + "/reset?seed=" + Math.floor(Math.random()*1000), {method:"POST"});
+    const d = await r.json();
+    SID = d.session_id;
+    label.textContent = "session " + SID + " · seed " + d.seed;
+    document.getElementById("envframe").src = ENV + d.entry_url;
+    out.textContent = "fresh env — paginate, open a product, add to cart, then hit Verify.";
+  } catch (e) { out.textContent = "env offline — start: .venv/bin/python -m env.app"; }
+};
+document.getElementById("btn-state").onclick = async () => {
+  if (!SID) return out.textContent = "no session — click New session first";
+  try {
+    const d = await (await fetch(ENV + "/state?session=" + SID)).json();
+    out.textContent = JSON.stringify({
+      products: (d.tables.products||[]).length,
+      cart_items: d.tables.cart_items,
+      requests: (d.tables.request_log||[]).map(r => r.method+" "+r.path).slice(-8),
+    }, null, 2);
+  } catch { out.textContent = "env offline"; }
+};
+document.getElementById("btn-verify").onclick = async () => {
+  if (!SID) return out.textContent = "no session — click New session first";
+  try {
+    const d = await (await fetch(ENV + "/verify", {method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({task_id:"shop-cheapest", session_id:SID})})).json();
+    out.textContent = JSON.stringify(d, null, 2);
+  } catch { out.textContent = "env offline"; }
+};
+// auto-create a session on load so the iframe is never blank
+document.getElementById("btn-reset").click();
+</script>
+
+<script>
+const A = "../";
+const el = (t, c, x) => { const e = document.createElement(t);
+  if (c) e.className = c; if (x != null) e.textContent = x; return e; };
+const J = async p => { try { const r = await fetch(A+p,{cache:"no-store"});
+  return r.ok ? r.json() : null; } catch { return null; } };
+const JL = async p => { const t = await (async()=>{try{const r=await fetch(A+p,{cache:"no-store"});return r.ok?r.text():null}catch{return null}})();
+  if (!t) return null; const rows = t.trim().split("\n").filter(Boolean).map(JSON.parse);
+  return rows.length && !String(rows[0].reason||"").startsWith("<") ? rows : null; };
+
+function strip(host, steps, failStep) {
+  const s = el("div", "steps");
+  for (const st of steps) {
+    const d = el("div", "step" + (st.i === failStep ? " failstep" : ""));
+    if (st.screenshot_path) { const i = el("img"); i.src = A + st.screenshot_path; d.appendChild(i); }
+    d.appendChild(el("div", "cap", `#${st.i} ${st.action}`));
+    s.appendChild(d);
+  }
+  host.appendChild(s);
+}
+
+async function main() {
+  const [traj, spec, rollouts, metrics, transfer, notes] = await Promise.all([
+    J("fixtures/trajectory.json"), J("fixtures/env_spec.json"),
+    JL("loop/artifacts/rollouts.jsonl") || JL("fixtures/rollouts.jsonl"),
+    J("loop/artifacts/metrics.json") || J("fixtures/metrics.json"),
+    J("fixtures/trajectory_transfer.json"), (async()=>{try{const r=await fetch(A+"loop/artifacts/skill_notes.md");return r.ok?r.text():null}catch{return null}})(),
+  ]);
+
+  // 1 — failure
+  const f = document.getElementById("fail");
+  if (traj) { strip(f, traj.steps, traj.failure_step);
+    f.appendChild(el("p", "big bad", `FAILED — ${traj.checker?.reason || ""}`)); }
+  else f.appendChild(el("p", "missing", "no trajectory"));
+
+  // 2 — spec
+  const s2 = document.getElementById("spec");
+  if (spec) {
+    s2.appendChild(el("p", null, spec.interaction));
+    s2.appendChild(el("p", "muted",
+      `entities: ${Object.keys(spec.entities||{}).join(",")} · ` +
+      `mutation: ${Object.keys(spec.mutations||{}).join(",")} · ` +
+      `stub API: ${(spec.backend_calls||[]).map(c=>c.path).join(",")}`));
+  }
+  const sbs = document.getElementById("sbs");
+  const g1 = el("figure");
+  if (traj?.steps?.[0]?.screenshot_path) { const i = el("img"); i.src = A + traj.steps[0].screenshot_path; g1.appendChild(i); }
+  g1.appendChild(el("figcaption", null, "real site"));
+  const g2 = el("figure");
+  const i2 = el("img"); i2.src = A + "fixtures/shots/env/index.png";
+  i2.onerror = () => i2.replaceWith(el("p","missing","no env shot"));
+  g2.append(i2, el("figcaption", null, "mini-env"));
+  sbs.append(g1, g2);
+
+  // 3 — repro matrix (round 0)
+  const r = document.getElementById("repro");
+  const r0 = (rollouts || []).filter(e => e.round === 0);
+  if (r0.length) {
+    const cells = el("div", "cells");
+    for (const e of r0) cells.appendChild(el("div",
+      "cell " + (e.signature_failure ? "sig" : e.passed ? "pass" : "fail"),
+      ""));
+    r.appendChild(cells);
+    const sig = r0.filter(e => e.signature_failure).length;
+    const fails = r0.filter(e => !e.passed).length;
+    r.appendChild(el("p", "big bad",
+      `${fails}/${r0.length} failed — ${sig}/${fails} match the pagination signature`));
+    r.appendChild(el("p", "muted", r0[0].reason || ""));
+  } else r.appendChild(el("p", "missing", "no rollouts"));
+
+  // 4 — curve
+  const ms = (metrics?.metrics || []);
+  const cv = document.getElementById("curve"), c = cv.getContext("2d"),
+        W = cv.width, H = cv.height, pad = 42;
+  c.fillStyle = "#0b0e13"; c.fillRect(0,0,W,H);
+  c.strokeStyle = "#30363d"; c.fillStyle = "#8b949e"; c.font = "12px Menlo";
+  for (let y = 0; y <= 4; y++) {
+    const py = pad + (H - 2*pad)*y/4;
+    c.beginPath(); c.moveTo(pad,py); c.lineTo(W-pad,py); c.stroke();
+    c.fillText(`${100-y*25}%`, 8, py+4);
+  }
+  if (ms.length) {
+    const x = i => ms.length===1 ? W/2 : pad + (W-2*pad)*i/(ms.length-1);
+    const y = m => pad + (H-2*pad)*(1-m.success_rate);
+    c.strokeStyle = "#58a6ff"; c.lineWidth = 2.5; c.beginPath();
+    ms.forEach((m,i)=>i?c.lineTo(x(i),y(m)):c.moveTo(x(i),y(m))); c.stroke();
+    ms.forEach((m,i)=>{ c.fillStyle={repro:"#f85149",eval:"#58a6ff",transfer:"#3fb950"}[m.phase]||"#8b949e";
+      c.beginPath(); c.arc(x(i),y(m),6,0,7); c.fill();
+      c.fillStyle="#e6edf3"; c.fillText(`r${m.round} ${(m.success_rate*100).toFixed(0)}%`, x(i)-22, Math.max(14,y(m)-12)); });
+  }
+  document.getElementById("notes").textContent = notes || "";
+
+  // 5 — transfer
+  const t = document.getElementById("transfer");
+  if (transfer) { strip(t, transfer.steps, null);
+    t.appendChild(el("p", "big " + (transfer.outcome==="passed"?"ok":"bad"),
+      `${transfer.outcome.toUpperCase()} — ${transfer.checker?.reason||""}`)); }
+  else t.appendChild(el("p","missing","no transfer run"));
+
+  document.getElementById("status").textContent =
+    `${rollouts?.length||0} episodes · recorded artifacts`;
+}
+main();
+</script>
+</body>
+</html>

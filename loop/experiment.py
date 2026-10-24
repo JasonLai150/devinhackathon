@@ -13,7 +13,7 @@ import shutil
 import time
 from pathlib import Path
 
-from capture.llm import resolve_config, make_llm, load_env_file
+from capture.llm import resolve_config, make_llm, check_provider, load_env_file
 from capture.recording import artifact_ref
 from . import config, improve, repro_check, runner, transfer
 from .agent_browser import BrowserAgent
@@ -36,6 +36,11 @@ def preflight(args):
         from playwright.sync_api import sync_playwright
         with sync_playwright() as pw:
             checks["browser"]["ok"] = Path(pw.chromium.executable_path).is_file()
+    if (args.check_provider or not args.preflight) and all(c["ok"] for c in checks.values()):
+        try:
+            checks["provider"] = check_provider(model)
+        except Exception as error:
+            checks["provider"] = {"ok": False, "reason": str(error)}
     return {"ready": all(c["ok"] for c in checks.values()), "checks": checks}, model
 
 
@@ -69,6 +74,12 @@ class Experiment:
         self.manifest.update(status="blocked", reason=reason)
         self.save()
         print(f"BLOCKED: {reason}", flush=True)
+        return self.manifest
+
+    def fail(self, reason):
+        self.manifest.update(status="error", reason=reason)
+        self.save()
+        print(f"ERROR: {reason}", flush=True)
         return self.manifest
 
     def write(self, name, value):
@@ -110,16 +121,27 @@ async def run(args, model):
                 baseline.append({"attempt": attempt, "ok": False,
                                  "error": f"timeout after {args.timeout}s"})
             experiment.write("baseline_trials.json", baseline)
+            m["baseline"] = {
+                "n": len(baseline),
+                "task_failures": sum(bool(r["ok"] and r.get("verification")
+                                          and not r["verification"]["passed"]) for r in baseline),
+                "execution_errors": sum(not r["ok"] or not r.get("verification") for r in baseline),
+            }
+            last = baseline[-1]
+            if not last["ok"] or not last.get("verification"):
+                return experiment.fail(
+                    f"Baseline execution failed: {last.get('error') or 'missing verifier result'}. "
+                    "No conclusion about task difficulty can be drawn from this attempt.")
         failures = [r for r in baseline if r["ok"] and r["verification"]
                     and not r["verification"]["passed"]]
         matching = [r for r in failures if r.get("trajectory_path") and
                     repro_check.real_failure(config.load_json(r["trajectory_path"]))[
                         "failure_kind"] == "pagination_incomplete"]
-        m["baseline"] = {"n": len(baseline), "task_failures": len(failures),
-                         "pagination_failures": len(matching),
-                         "execution_errors": sum(not r["ok"] for r in baseline)}
+        m["baseline"]["pagination_failures"] = len(matching)
         if len(matching) < args.minimum_failures:
-            return experiment.block("No reliable pagination failure with matching browser/checker evidence.")
+            return experiment.block(
+                "No reliable pagination failure with matching browser/checker evidence; "
+                "retain results and select a different candidate task/model.")
         m["trajectory_path"] = matching[0]["trajectory_path"]
         trajectory = config.load_json(m["trajectory_path"])
         # Domain-specific deterministic localization is disclosed in the manifest.
@@ -227,6 +249,8 @@ def parser():
     ap.add_argument("--slow-mo", type=int, default=0)
     ap.add_argument("--allow-verbatim", action="store_true", help="explicitly allow the reference fallback")
     ap.add_argument("--preflight", action="store_true", help="check dependencies without making model calls")
+    ap.add_argument("--check-provider", action="store_true",
+                    help="also make a small model request during --preflight (automatic for actual runs)")
     return ap
 
 
