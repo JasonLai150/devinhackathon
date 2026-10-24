@@ -114,8 +114,11 @@ def _anthropic(prompt, config, max_tokens=4096):
 
 
 def _openai(prompt, config, max_tokens=None):
+    # OPENAI_BASE_URL permits OpenAI-compatible providers (e.g. Gemini's
+    # https://generativelanguage.googleapis.com/v1beta/openai endpoint).
+    base = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
     body = _post(
-        "https://api.openai.com/v1/chat/completions",
+        base.rstrip("/") + "/chat/completions",
         {
             "authorization": f"Bearer {os.environ['OPENAI_API_KEY']}",
             "content-type": "application/json",

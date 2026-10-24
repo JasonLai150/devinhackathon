@@ -118,9 +118,11 @@ def default_llm():
         return call
 
     if os.environ.get("OPENAI_API_KEY"):
+        base = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
+
         def call(prompt):
             resp = _post(
-                "https://api.openai.com/v1/chat/completions",
+                base.rstrip("/") + "/chat/completions",
                 {"Authorization": f"Bearer {os.environ['OPENAI_API_KEY']}"},
                 {"model": model or "gpt-4.1",
                  "messages": [{"role": "user", "content": prompt}]})
