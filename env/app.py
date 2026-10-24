@@ -92,6 +92,13 @@ def create_app(spec_path=None, component_dir=None):
                 finally:
                     conn.close()
 
+    @app.after_request
+    def _cors_sessions(resp):
+        # Dashboard (served from another localhost port) reads /sessions.
+        if request.path == "/sessions":
+            resp.headers["Access-Control-Allow-Origin"] = "*"
+        return resp
+
     @app.get("/")
     def root():
         return jsonify({"service": "failure-to-env", "spec": spec.get("name")})

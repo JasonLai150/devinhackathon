@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Failure-to-Env — demo dashboard</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>Failure&#8209;to&#8209;Env</h1>
+  <p class="tagline">Every failure becomes a test. Every test becomes training signal.</p>
+  <p class="sub" id="artifact-status"></p>
+</header>
+
+<ol id="timeline" class="timeline"></ol>
+
+<template id="tpl-stage">
+  <li class="stage">
+    <div class="stage-head">
+      <span class="stage-num"></span>
+      <h2 class="stage-title"></h2>
+      <span class="stage-badge"></span>
+    </div>
+    <div class="stage-body"></div>
+  </li>
+</template>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -42,8 +42,13 @@ def create_session(seed, spec, overrides=None):
     sid = secrets.token_urlsafe(8)
     conn = sqlite3.connect(db_path(sid))
     conn.row_factory = sqlite3.Row
-    seeds.seed_db(conn, seed, spec, overrides or {})
-    conn.commit()
+    try:
+        seeds.seed_db(conn, seed, spec, overrides or {})
+        conn.commit()
+    except Exception:
+        conn.close()
+        os.remove(db_path(sid))  # don't leave a half-seeded session behind
+        raise
     conn.close()
     return sid
 
@@ -64,10 +69,12 @@ def list_sessions():
             continue
         try:
             meta = read_meta(conn)
-            out.append({"session_id": f[:-3], "seed": meta.get("seed"),
-                        "created_at": meta.get("created_at")})
-        finally:
+        except sqlite3.Error:
             conn.close()
+            continue  # skip malformed/partial session files
+        conn.close()
+        out.append({"session_id": f[:-3], "seed": meta.get("seed"),
+                    "created_at": meta.get("created_at")})
     return out
 
 

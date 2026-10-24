@@ -78,6 +78,69 @@ def gen_flights(rng, cfg):
     return rows
 
 
+PRODUCT_NAMES = {
+    "Fasteners": ["Washers", "M4 Nuts", "Wood Screws", "Hex Bolts",
+                  "Wall Plugs", "Flat Nails", "Anchor Bolts"],
+    "Hand Tools": ["Claw Hammer", "Rubber Mallet", "Tape Measure",
+                   "Utility Knife", "Spirit Level", "Hand Saw"],
+    "Pliers": ["Slip Joint Pliers", "Combination Pliers", "Needle-Nose Pliers",
+               "Wire Cutters", "Locking Pliers"],
+    "Power Tools": ["Cordless Drill", "Angle Grinder", "Jigsaw",
+                    "Orbital Sander", "Heat Gun"],
+    "Storage": ["Tool Box", "Parts Organizer", "Magnetic Tray", "Tool Bag"],
+}
+
+
+@generator("products")
+def gen_products(rng, cfg):
+    """Products with a trap-first argmin so the pagination failure bites.
+
+    Guarantees:
+      - a unique global argmin(price) sits in the BACK HALF of the listing
+        order — at 9 items/page it is never on page 1 (mirrors the real site,
+        where 'Washers' $3.55 was on page 4-5)
+      - the cheapest 'Pliers' item is a distinct row (category variant task)
+      - remaining prices are clamped above the trap
+    """
+    lo, hi = cfg.get("count_range", [36, 54])
+    count = rng.randint(lo, hi)
+    rows = []
+
+    def mk(name, category, price):
+        return {"name": name, "category": category, "price": price,
+                "description": f"{name} — {category.lower()} product"}
+
+    trap = mk(rng.choice(PRODUCT_NAMES["Fasteners"]), "Fasteners",
+              round(rng.uniform(2.0, 4.5), 2))
+    pliers_min = mk(rng.choice(PRODUCT_NAMES["Pliers"]), "Pliers",
+                    round(rng.uniform(6.0, 9.5), 2))
+    rows += [trap, pliers_min]
+
+    used = {r["name"] for r in rows}
+    cats = list(PRODUCT_NAMES)
+    while len(rows) < count:
+        cat = rng.choice(cats)
+        name = rng.choice(PRODUCT_NAMES[cat])
+        if name in used:
+            name = f"{name} ({rng.choice(['Pro', 'XL', 'Mini', 'Set'])})"
+        if name in used:
+            continue
+        used.add(name)
+        price = round(rng.uniform(11.0, 90.0), 2)
+        if cat == "Pliers":
+            price = max(price, pliers_min["price"] + rng.uniform(0.5, 5.0))
+        rows.append(mk(name, cat, round(price, 2)))
+
+    # Perturbation knob: display order is shuffled, but the trap lands in the
+    # second half so a page-1-only agent provably picks wrong.
+    rng.shuffle(rows)
+    half = len(rows) // 2
+    ti = rows.index(trap)
+    j = rng.randrange(half, len(rows))
+    rows[ti], rows[j] = rows[j], rows[ti]
+    return rows
+
+
 def seed_db(conn, seed, spec, overrides):
     rng = random.Random(seed)
 

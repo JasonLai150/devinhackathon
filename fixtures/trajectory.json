@@ -1,10 +1,58 @@
 {
-  "task": "<natural-language instruction given to the agent>",
-  "site_url": "<real site URL>",
+  "task": "Add the cheapest product in the store to your cart.",
+  "site_url": "https://practicesoftwaretesting.com",
+  "agent": {
+    "strategy": "naive",
+    "memory": false
+  },
   "steps": [
-    {"i": 0, "action": "<click|type|navigate|scroll ...>", "url": "<page url>",
-     "screenshot_path": "fixtures/shots/000.png", "dom_path": "fixtures/dom/000.html"}
+    {
+      "i": 0,
+      "action": "navigate to product listing (page 1)",
+      "url": "https://practicesoftwaretesting.com/",
+      "screenshot_path": "fixtures/shots/naive/000.png",
+      "dom_path": "fixtures/dom/naive/000.html"
+    },
+    {
+      "i": 1,
+      "action": "read page-1 products; picked cheapest visible: Slip Joint Pliers ($9.17)",
+      "url": "https://practicesoftwaretesting.com/",
+      "screenshot_path": "fixtures/shots/naive/001.png",
+      "dom_path": "fixtures/dom/naive/001.html"
+    },
+    {
+      "i": 2,
+      "action": "open product detail: Slip Joint Pliers",
+      "url": "https://practicesoftwaretesting.com/product/01M5QH4EAJG25YZDGSCTT2N3ZE",
+      "screenshot_path": "fixtures/shots/naive/002.png",
+      "dom_path": "fixtures/dom/naive/002.html"
+    },
+    {
+      "i": 3,
+      "action": "click 'Add to cart'",
+      "url": "https://practicesoftwaretesting.com/product/01M5QH4EAJG25YZDGSCTT2N3ZE",
+      "screenshot_path": "fixtures/shots/naive/003.png",
+      "dom_path": "fixtures/dom/naive/003.html"
+    },
+    {
+      "i": 4,
+      "action": "checker: expected Washers ($3.55, id 01M5QH4ED5EGJX9K07CG78FKJ9); cart has: Slip Joint Pliers",
+      "url": "https://practicesoftwaretesting.com/checkout",
+      "screenshot_path": "fixtures/shots/naive/004.png",
+      "dom_path": "fixtures/dom/naive/004.html"
+    }
   ],
   "outcome": "failed",
-  "failure_step": 7
+  "failure_step": 3,
+  "checker": {
+    "passed": false,
+    "reason": "expected Washers ($3.55, id 01M5QH4ED5EGJX9K07CG78FKJ9); cart has: Slip Joint Pliers"
+  },
+  "expected": {
+    "id": "01M5QH4ED5EGJX9K07CG78FKJ9",
+    "name": "Washers",
+    "price": 3.55,
+    "n_products": 50
+  },
+  "duration_s": 15.7
 }

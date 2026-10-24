@@ -271,3 +271,94 @@ verify`) and as a deterministic demo fallback if the live agent misbehaves.
   `phase`, `actions` ride alongside the agreed keys — needed for
   distillation and the dashboard's trace view; flag if A's reader
   requires a strict shape.
+## 2026-10-24 — A: capture harness + real failure + dashboard
+
+### Locked decisions (A's kickoff items)
+
+- **Site:** `https://practicesoftwaretesting.com` — purpose-built automation
+  practice app ("Toolshop"), no login, no CAPTCHA, real REST backend
+  (`api.practicesoftwaretesting.com`).
+- **Task:** "Add the cheapest product in the store to your cart" — mutation =
+  cart add, checkable on `/checkout`.
+- **Failure mode:** **pagination.** Live argmin price ("Washers" $3.55) sits on
+  page 4–5; a page-1-only agent picks "Slip Joint Pliers" $9.17. Reproduced
+  reliably — confirmed twice.
+- **Agent:** Playwright harness (`capture/run_agent.py`) with two scripted
+  strategies (`naive` = the failing baseline, `smart` = paginate-then-compare)
+  + an `llm` strategy for the real agent loop. Scripted mode needs no API key —
+  it's also the deterministic demo fallback. `--memory file` injects skill
+  notes (C's transfer run reuses this harness).
+
+### Built
+
+- `capture/run_agent.py` — per-step screenshots + DOM + url into
+  `fixtures/shots/<run>/`, `fixtures/dom/<run>/`; writes contract
+  `trajectory.json` (+ `checker`, `expected`, `duration_s` extras).
+- `capture/checker.py` — real-site checker `{passed, reason}`: live
+  argmin(price) over the site API, cart contents parsed from `/checkout`
+  (rows keyed by `data-test="product-title"` — no product ids in the DOM).
+  `llm_judge` fallback for unscripted tasks.
+- `capture/capture_component.py` — saves the real listing markup
+  (`fixtures/captured/real_markup.html`, ~24KB verbatim) + a hand-recreated
+  `component.html`/`component.js` implementing the same paginated-fetch
+  interaction against `api/products` (relative fetch → resolves under the
+  session `<base href>` to B's stub). **Honesty note:** markup is verbatim;
+  JS is hand-recreated — the site's real JS is a minified Angular bundle.
+- `capture/localize.py` — `env_spec.json` builder: deterministic (default) or
+  `--llm` draft. Spec written to `fixtures/env_spec.json` (canonical contract).
+- `env/seeds.py` — added `products` generator (trap-first: global argmin is
+  pinned to the back half of listing order so page-1-only agents always miss;
+  cheapest Pliers is a distinct row for category variants).
+- `dashboard/` — static seven-stage timeline (`index.html`/`app.js`/`style.css`)
+  reading `fixtures/*` + `env/tasks.json` + `env/component/generate_report.json`;
+  canvas success-rate chart; live `/sessions` table when the env is up.
+  `serve.py` serves repo root → `http://localhost:8000/dashboard/`.
+- `capture/shoot_env.py` — boots env on the real spec + captured component,
+  screenshots entry → `fixtures/shots/env/index.png` (side-by-side panel).
+- `capture/record_fallback.sh` — regenerates every artifact the dashboard
+  reads, end to end, no LLM key needed. Playwright videos land in
+  `fixtures/video/<run>/` as demo footage.
+
+### Verified end-to-end
+
+- Naive run on real site: **FAILED** as designed — `fixtures/trajectory.json`
+  (5 steps, failure_step=3, picked $9.17 page-1 item vs true $3.55 argmin).
+- Env boots on the real spec (`ENV_SPEC=fixtures/env_spec.json
+  ENV_COMPONENT_DIR=fixtures/captured`): reset → `api/products` paginated stub
+  (39 products/5 pages, argmin "Washers" $3.85 at position 22) → component
+  renders grid+pagination → detail POST writes `cart_items` row → request_log
+  records the whole path.
+- Smart run on real site: **PASSED** — `fixtures/trajectory_transfer.json`
+  (paginates all 5 pages, adds Washers). Doubles as the transfer-run evidence.
+
+### Changes in B's files (integration, flagged)
+
+- `env/seeds.py`: added `products` generator (required by A's spec).
+- `env/sessions.py`: `create_session` removes the DB file if seeding raises
+  (half-seeded files were breaking `/sessions`); `list_sessions` skips
+  malformed DBs.
+- `env/app.py`: `Access-Control-Allow-Origin: *` on `/sessions` so the
+  dashboard (different localhost port) can fetch it.
+- **Not done (B owns):** `env/spec/env_spec.json` still holds the flights dev
+  fixture — the real spec lives at `fixtures/env_spec.json`; boot with
+  `ENV_SPEC` env var (see `capture/shoot_env.py`). Verifiers/tasks.json are
+  still flights-shaped; need a `cart_contains_product`-style verifier for the
+  products domain (argmin over `products`, check `cart_items.product_id`).
+- B's tests: all 17 pass — they exercise the flights fixture, unaffected.
+
+### Deviations / flags for the team
+
+- **`env_spec.json` grew `component.reference_markup`** — path to the verbatim
+  captured DOM, kept as codegen fidelity reference separate from the
+  hand-recreated `component.js`.
+- **Checkout DOM has no product ids** — checker matches on normalized
+  name + price, not id. Collision risk is negligible here but noted.
+- **practice API is flaky** (seen timeouts/500s under rapid paging) —
+  `checker._get_json` retries w/ backoff; dashboard + `record_fallback.sh`
+  are the live-demo safety net.
+- **Mutation shape differs from flights:** "add to cart" isn't a one-shot
+  booking; env maps it to `POST /products/<eid>/cart` → `cart_items` row,
+  confirmation at `/cart-items/<bid>` (not a cart-overview page — B may want
+  a `/cart` route shape later if the demo wants a visible cart page).
+- Video capture uses `--video` (playwright `record_video_dir`) — webm files
+  under `fixtures/video/` are committed for the fallback reel.

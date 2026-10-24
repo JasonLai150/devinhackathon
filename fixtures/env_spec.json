@@ -1,33 +1,103 @@
 {
-  "name": "<env name>",
-  "site_url": "<real site URL>",
-  "interaction": "<natural-language description of the breaking interaction — feeds the codegen prompt>",
+  "name": "toolshop-cheapest-product",
+  "site_url": "https://practicesoftwaretesting.com",
+  "interaction": "product listing is paginated (9 items per page across 4-6 pages); the cheapest product is typically NOT on page 1 \u2014 the agent must click through every pagination page before choosing; picking the cheapest item visible on page 1 produces the wrong cart item",
   "entities": {
-    "items": {
-      "generator": "<generator name registered in env/seeds.py>",
-      "count_range": [20, 50],
-      "columns": {"id": "INTEGER PRIMARY KEY", "name": "TEXT", "price": "INTEGER"}
+    "products": {
+      "generator": "products",
+      "count_range": [
+        36,
+        54
+      ],
+      "columns": {
+        "id": "INTEGER PRIMARY KEY",
+        "name": "TEXT",
+        "category": "TEXT",
+        "price": "REAL",
+        "description": "TEXT"
+      }
     }
   },
   "mutations": {
-    "bookings": {
-      "columns": {"id": "INTEGER PRIMARY KEY", "item_id": "INTEGER", "created_at": "REAL"},
-      "form_fields": [{"name": "name", "type": "text", "label": "Full name", "required": true}]
+    "cart_items": {
+      "columns": {
+        "id": "INTEGER PRIMARY KEY",
+        "product_id": "INTEGER",
+        "quantity": "INTEGER",
+        "created_at": "REAL"
+      },
+      "form_fields": [
+        {
+          "name": "quantity",
+          "type": "number",
+          "label": "Quantity",
+          "required": true
+        }
+      ]
     }
   },
   "routes": {
     "entry": "/",
-    "detail": {"path": "/items/<int:eid>", "entity": "items", "title_field": "name"},
-    "mutation": {"path": "/items/<int:eid>/book", "method": "POST", "table": "bookings", "fk_column": "item_id"},
-    "confirmation": {"path": "/bookings/<int:bid>", "table": "bookings",
-                     "join": {"table": "items", "fk": "item_id", "fields": ["name", "price"]}}
+    "detail": {
+      "path": "/products/<int:eid>",
+      "entity": "products",
+      "title_field": "name"
+    },
+    "mutation": {
+      "path": "/products/<int:eid>/cart",
+      "method": "POST",
+      "table": "cart_items",
+      "fk_column": "product_id"
+    },
+    "confirmation": {
+      "path": "/cart-items/<int:bid>",
+      "table": "cart_items",
+      "join": {
+        "table": "products",
+        "fk": "product_id",
+        "fields": [
+          "name",
+          "category",
+          "price"
+        ]
+      }
+    }
   },
-  "component": {"name": "<failing component>", "html": "<captured html or path>", "js": "<captured js or path>"},
+  "component": {
+    "name": "product_listing_pagination",
+    "html": "fixtures/captured/component.html",
+    "js": "fixtures/captured/component.js",
+    "reference_markup": "fixtures/captured/real_markup.html"
+  },
   "backend_calls": [
-    {"method": "GET", "path": "/api/items", "table": "items", "paginated": true, "per_page": 10}
+    {
+      "method": "GET",
+      "path": "/api/products",
+      "table": "products",
+      "paginated": true,
+      "per_page": 9
+    }
   ],
-  "expected_mutation": "<what a correct run writes to DB — e.g. bookings row with item_id == argmin(price)>",
-  "seed_data": {},
-  "failure_step": 0,
-  "failure_note": "<from trajectory.json>"
+  "expected_mutation": "a cart_items row whose product_id matches the task constraint (e.g. argmin(price) over all products, optionally filtered by category)",
+  "seed_data": {
+    "products_sample": [
+      {
+        "name": "Washers",
+        "price": 3.55,
+        "category": "Fasteners"
+      },
+      {
+        "name": "Slip Joint Pliers",
+        "price": 9.17,
+        "category": "Pliers"
+      },
+      {
+        "name": "Combination Pliers",
+        "price": 14.15,
+        "category": "Pliers"
+      }
+    ]
+  },
+  "failure_step": 3,
+  "failure_note": "agent read only page 1 (read page-1 products; picked cheapest visible: Slip Joint Pliers ($9.17)); verifier said: expected Washers ($3.55, id 01M5QH4ED5EGJX9K07CG78FKJ9); cart has: Slip Joint Pliers"
 }
