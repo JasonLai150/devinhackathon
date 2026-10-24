@@ -58,6 +58,60 @@
   <div id="transfer"></div>
 </section>
 
+<section class="demo-stage">
+  <h2>6 · Try the sandbox live</h2>
+  <p class="why">a fresh seeded env per session — click through, then verify against the DB</p>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+    <button id="btn-reset" style="font-size:14px;padding:8px 16px">New session</button>
+    <button id="btn-state" style="font-size:14px;padding:8px 16px">Dump state</button>
+    <button id="btn-verify" style="font-size:14px;padding:8px 16px">Verify task</button>
+    <span id="sess-label" class="muted"></span>
+  </div>
+  <iframe id="envframe" style="width:100%;height:520px;border:1px solid var(--edge);border-radius:8px;background:#fff"></iframe>
+  <pre id="envout" style="max-height:220px;margin-top:10px"></pre>
+</section>
+
+<script>
+const ENV = "http://localhost:5001";
+let SID = null;
+const out = document.getElementById("envout");
+const label = document.getElementById("sess-label");
+
+document.getElementById("btn-reset").onclick = async () => {
+  out.textContent = "creating session…";
+  try {
+    const r = await fetch(ENV + "/reset?seed=" + Math.floor(Math.random()*1000), {method:"POST"});
+    const d = await r.json();
+    SID = d.session_id;
+    label.textContent = "session " + SID + " · seed " + d.seed;
+    document.getElementById("envframe").src = ENV + d.entry_url;
+    out.textContent = "fresh env — paginate, open a product, add to cart, then hit Verify.";
+  } catch (e) { out.textContent = "env offline — start: .venv/bin/python -m env.app"; }
+};
+document.getElementById("btn-state").onclick = async () => {
+  if (!SID) return out.textContent = "no session — click New session first";
+  try {
+    const d = await (await fetch(ENV + "/state?session=" + SID)).json();
+    out.textContent = JSON.stringify({
+      products: (d.tables.products||[]).length,
+      cart_items: d.tables.cart_items,
+      requests: (d.tables.request_log||[]).map(r => r.method+" "+r.path).slice(-8),
+    }, null, 2);
+  } catch { out.textContent = "env offline"; }
+};
+document.getElementById("btn-verify").onclick = async () => {
+  if (!SID) return out.textContent = "no session — click New session first";
+  try {
+    const d = await (await fetch(ENV + "/verify", {method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({task_id:"shop-cheapest", session_id:SID})})).json();
+    out.textContent = JSON.stringify(d, null, 2);
+  } catch { out.textContent = "env offline"; }
+};
+// auto-create a session on load so the iframe is never blank
+document.getElementById("btn-reset").click();
+</script>
+
 <script>
 const A = "../";
 const el = (t, c, x) => { const e = document.createElement(t);
