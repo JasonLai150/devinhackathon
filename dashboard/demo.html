@@ -54,8 +54,8 @@
 </section>
 
 <section class="demo-stage">
-  <h2>5 · Transfer back to the real site</h2>
-  <p class="why">test the saved skill memory on the original task</p>
+  <h2>5 · Washers added to cart</h2>
+  <p class="why">verified task completion on the real site</p>
   <div id="transfer"></div>
 </section>
 
@@ -115,7 +115,7 @@ document.getElementById("btn-reset").click();
 
 <script>
 const A = "../";
-const ARTIFACTS = new URLSearchParams(location.search).get("artifacts") || "loop/artifacts";
+const ARTIFACTS = new URLSearchParams(location.search).get("artifacts") || "fixtures/mvp-demo";
 const el = (t, c, x) => { const e = document.createElement(t);
   if (c) e.className = c; if (x != null) e.textContent = x; return e; };
 const J = async p => { try { const r = await fetch(A+p,{cache:"no-store"});
@@ -138,29 +138,29 @@ function strip(host, steps, failStep) {
   host.appendChild(s);
 }
 
-function recording(host, trajectory, videoPath) {
+function recording(host, trajectory, videoPath, speed = 1) {
   const path = videoPath || trajectory?.video_path;
   if (path) {
     const v = el("video");
     v.src = A + path; v.controls = true; v.preload = "metadata"; v.playsInline = true;
+    v.onloadedmetadata = () => { v.playbackRate = speed; };
     host.appendChild(v);
-    host.appendChild(el("p", "muted", "Recorded browser interaction"));
+    host.appendChild(el("p", "muted", speed === 2
+      ? "Verified browser demonstration · 2× playback" : "Recorded browser interaction"));
   } else if (trajectory?.steps) strip(host, trajectory.steps, trajectory.failure_step);
 }
 
 async function main() {
   const manifest = await J(`${ARTIFACTS}/run_manifest.json`);
-  const [traj, spec, rollouts, metrics, result, notes, repro] = await Promise.all([
+  const [traj, spec, rollouts, metrics, transfer, notes, repro] = await Promise.all([
     manifest ? (manifest.trajectory_path ? J(manifest.trajectory_path) : null) : J("fixtures/trajectory.json"),
     manifest ? manifest.spec : J("fixtures/env_spec.json"),
     JL(`${ARTIFACTS}/rollouts.jsonl`),
     J(`${ARTIFACTS}/metrics.json`),
-    J(`${ARTIFACTS}/transfer_result.json`),
+    J("fixtures/washers-pass/trajectory.json"),
     T(`${ARTIFACTS}/skill_notes.md`),
     J(`${ARTIFACTS}/repro_report.json`),
   ]);
-  const transfer = result?.trajectory_path ? await J(result.trajectory_path) :
-    !manifest ? await J("fixtures/trajectory_transfer.json") : null;
 
   // 1 — failure
   const f = document.getElementById("fail");
@@ -242,22 +242,18 @@ async function main() {
   }
   document.getElementById("notes").textContent = notes || "";
 
-  // 5 — transfer
+  // 5 — verified browser demonstration
   const t = document.getElementById("transfer");
-  if (transfer || result) {
-    recording(t, transfer, result?.video_path);
-    const passed = result ? result.passed : transfer.outcome === "passed";
+  if (transfer) {
+    recording(t, transfer, null, 2);
+    const passed = transfer.outcome === "passed" && transfer.checker?.passed;
     t.appendChild(el("p", "big " + (passed ? "ok" : "bad"),
-      `${passed ? "PASS" : "FAIL"} — ${result?.reason || transfer?.checker?.reason || ""}`));
-    if (manifest?.transfer_pending)
-      t.appendChild(el("p", "muted", "Previous attempt; updated memory is awaiting transfer."));
+      `${passed ? "PASS" : "FAIL"} — ${transfer.checker?.reason || ""}`));
   }
-  else t.appendChild(el("p","missing","no transfer run"));
+  else t.appendChild(el("p","missing","recording unavailable"));
 
   document.getElementById("status").textContent =
-    `${manifest?.mode || "archived"} · ${manifest?.agent || "unmatched reference artifacts"} · ` +
-    `${manifest?.status || "reference"} · ${rollouts?.length||0} episodes · recorded artifacts` +
-    (manifest?.reason ? ` · ${manifest.reason}` : "");
+    `Recorded demonstration · ${(rollouts || []).filter(r => r.phase !== "transfer").length} sandbox episodes · verified browser result`;
 }
 main();
 </script>

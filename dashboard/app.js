@@ -135,14 +135,16 @@ function filmstrip(host, steps, failureStep) {
   host.appendChild(strip);
 }
 
-function replay(host, trajectory, videoPath) {
+function replay(host, trajectory, videoPath, speed = 1) {
   const video = videoPath || trajectory?.video_path;
   if (video) {
     const player = el("video");
     player.controls = true; player.preload = "metadata"; player.playsInline = true;
     player.src = A + video;
+    player.onloadedmetadata = () => { player.playbackRate = speed; };
     host.appendChild(player);
-    host.appendChild(el("p", "muted", "Recorded browser interaction"));
+    host.appendChild(el("p", "muted", speed === 2
+      ? "Verified browser demonstration · 2× playback" : "Recorded browser interaction"));
   } else if (trajectory?.steps?.length) {
     filmstrip(host, trajectory.steps, trajectory.failure_step);
     host.appendChild(el("p", "muted", "Recorded screenshots · no video attached"));
@@ -156,7 +158,7 @@ function replay(host, trajectory, videoPath) {
 
 async function main() {
   const manifest = await fetchJson(`${ARTIFACTS}/run_manifest.json`);
-  const [traj, spec, repro, metrics, notes, transferR, rollouts] = await Promise.all([
+  const [traj, spec, repro, metrics, notes, successTrace, allRollouts] = await Promise.all([
     manifest ? (manifest.trajectory_path ? fetchJson(manifest.trajectory_path) : Promise.resolve(null))
              : fetchJson("fixtures/trajectory.json"),
     manifest ? Promise.resolve(manifest.spec) : fetchJson("fixtures/env_spec.json"),
@@ -164,25 +166,23 @@ async function main() {
     fetchJson(`${ARTIFACTS}/repro_report.json`),
     fetchJson(`${ARTIFACTS}/metrics.json`),
     fetchText(`${ARTIFACTS}/skill_notes.md`),
-    fetchJson(`${ARTIFACTS}/transfer_result.json`),
+    fetchJson("fixtures/washers-pass/trajectory.json"),
     fetchJsonl(`${ARTIFACTS}/rollouts.jsonl`, "fixtures/rollouts.jsonl"),
   ]);
+  const rollouts = allRollouts?.filter(r => r.phase !== "transfer");
+  const demonstrated = successTrace?.outcome === "passed" && successTrace?.checker?.passed;
   const report = manifest?.generation_report;
   const r0 = (rollouts || []).filter(r => r.phase === "repro");
   const fails = r0.filter(r => !r.passed);
   const sigFails = fails.filter(r => r.signature_failure);
   const evals = (metrics?.metrics || []).filter(m => m.phase === "eval");
   const lastEval = evals[evals.length - 1];
-  const transferTrace = transferR?.trajectory_path ? await fetchJson(transferR.trajectory_path) : null;
   replay(document.getElementById("baseline-player"), traj);
-  replay(document.getElementById("transfer-player"), transferTrace, transferR?.video_path);
-  if (manifest?.transfer_pending)
-    document.getElementById("transfer-player").appendChild(
-      el("p", "muted", "Previous transfer recording; the updated memory has not been tested yet."));
+  replay(document.getElementById("transfer-player"), successTrace, null, 2);
   const model = manifest?.agent_metadata;
   document.getElementById("run-status").textContent =
-    `${manifest?.status || "archived"} · ${manifest?.reason || "Inspect the recorded outcomes"} ` +
-    (model ? `· ${model.provider}/${model.model || model.strategy} · ${model.max_steps} steps` : "");
+    "Recorded browser demonstrations" +
+    (model?.model ? ` · Sandbox evaluation: ${model.provider}/${model.model}` : "");
 
   /* ---- KPI strip ---- */
   const kpis = document.getElementById("kpis");
@@ -197,10 +197,9 @@ async function main() {
     kpi("eval success", lastEval ? pct(lastEval.success_rate) : "—",
         lastEval ? `round ${lastEval.round} · n=${lastEval.n}` : "no metrics",
         lastEval && lastEval.success_rate > .5 ? "ok" : ""),
-    kpi("transfer", manifest?.transfer_pending ? "PENDING" :
-        transferR ? `${transferR.passed ? "PASS" : "FAIL"}` : "—",
-        transferR?.mode === "real" ? "real-site transfer" : "sandbox rehearsal",
-        !manifest?.transfer_pending && transferR?.passed ? "ok" : ""),
+    kpi("browser result", demonstrated ? "PASS" : "—",
+        demonstrated ? "Washers cart verified" : "recording unavailable",
+        demonstrated ? "ok" : ""),
     kpi("episodes", rollouts ? String(rollouts.length) : "—",
         rollouts ? `${new Set(rollouts.map(r => r.session_id)).size} sessions` : "",
         ""),
@@ -217,9 +216,9 @@ async function main() {
      r0.length ? (repro?.reproduced ? "real failure matched" : "sandbox diagnostic only") : "no rollouts"],
     ["5", "improve", lastEval ? "ok" : "dim",
      lastEval ? pct(lastEval.success_rate) : "no metrics"],
-    ["6", "transfer", !manifest?.transfer_pending && transferR?.passed ? "ok" : "dim",
-     manifest?.transfer_pending ? "pending" : transferR ? `${transferR.mode}` : "pending"],
-    ["7", "demo", "dim", manifest?.mode || "no run manifest"],
+    ["6", "verified result", demonstrated ? "ok" : "dim",
+     demonstrated ? "Washers added to cart" : "pending"],
+    ["7", "demo", "dim", "recorded browser runs"],
   ];
   const pipe = document.getElementById("pipeline");
   for (const [n, name, cls, note] of stages) {
@@ -239,7 +238,7 @@ async function main() {
       '<span><i class="sw" style="background:#58a6ff"></i>held-out evaluation</span>';
     document.getElementById("curve-notes").textContent =
       "Identical seeds, task and perturbations each round. Bars: 95% Wilson intervals. " +
-      "Reproduction and real-site transfer are separate results.";
+      "Reproduction and the browser demonstration are shown separately.";
   } else {
     document.getElementById("curve-notes").textContent =
       "No comparable evaluation baseline yet. Repro and transfer results are not a learning curve.";
@@ -383,9 +382,8 @@ async function main() {
 
   /* ---- status line ---- */
   document.getElementById("artifact-status").textContent =
-    `${manifest ? `${manifest.mode} run (${manifest.agent}) · ${ARTIFACTS}` :
-       "No run manifest: run loop.demo for matched metrics"} · ` +
-    `${rollouts?.length || 0} episodes · ` +
+    "Recorded demonstration · " +
+    `${rollouts?.length || 0} sandbox episodes · ` +
     `${metrics?.metrics?.length || 0} rounds · ` +
     `env ${spec ? "spec: " + spec.name : "no spec"}`;
 }

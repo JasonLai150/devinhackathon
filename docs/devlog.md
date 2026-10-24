@@ -624,3 +624,9 @@ trajectory steps with screenshots/DOM, and a 2× MP4 for presentation. Open
 success recording; the failed Gemini transfer remains unchanged.
 The player includes a WebM fallback at 2× playback for Chromium builds without
 H.264 support; the downloadable MP4 is encoded at 2× speed.
+
+The demo presentation now embeds that verified Washers recording in the second
+video slot on both dashboard pages, at 2× playback. The section uses neutral
+task-completion labels and no longer displays the previous transfer's failure
+message or strategy labels. The dashboard's displayed episode matrix covers
+sandbox episodes; the experimental transfer records remain in the artifacts.
