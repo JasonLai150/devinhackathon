@@ -49,12 +49,13 @@
   <h2>4 · The agent improves</h2>
   <p class="why">verified successes distill into a skill note; held-out eval climbs</p>
   <canvas id="curve" width="880" height="240"></canvas>
+  <p class="muted" id="curve-note"></p>
   <pre id="notes" style="max-height:120px;margin-top:10px"></pre>
 </section>
 
 <section class="demo-stage">
-  <h2>5 · Green on the real site</h2>
-  <p class="why">the improved agent goes back and completes the original task</p>
+  <h2>5 · Transfer back to the real site</h2>
+  <p class="why">test the saved skill memory on the original task</p>
   <div id="transfer"></div>
 </section>
 
@@ -114,13 +115,17 @@ document.getElementById("btn-reset").click();
 
 <script>
 const A = "../";
+const ARTIFACTS = new URLSearchParams(location.search).get("artifacts") || "loop/artifacts";
 const el = (t, c, x) => { const e = document.createElement(t);
   if (c) e.className = c; if (x != null) e.textContent = x; return e; };
 const J = async p => { try { const r = await fetch(A+p,{cache:"no-store"});
   return r.ok ? r.json() : null; } catch { return null; } };
 const JL = async p => { const t = await (async()=>{try{const r=await fetch(A+p,{cache:"no-store"});return r.ok?r.text():null}catch{return null}})();
-  if (!t) return null; const rows = t.trim().split("\n").filter(Boolean).map(JSON.parse);
+  if (!t) return null; let rows;
+  try { rows = t.trim().split("\n").filter(Boolean).map(JSON.parse); } catch { return null; }
   return rows.length && !String(rows[0].reason||"").startsWith("<") ? rows : null; };
+const T = async p => { try { const r = await fetch(A+p,{cache:"no-store"});
+  return r.ok ? r.text() : null; } catch { return null; } };
 
 function strip(host, steps, failStep) {
   const s = el("div", "steps");
@@ -133,18 +138,35 @@ function strip(host, steps, failStep) {
   host.appendChild(s);
 }
 
+function recording(host, trajectory, videoPath) {
+  const path = videoPath || trajectory?.video_path;
+  if (path) {
+    const v = el("video");
+    v.src = A + path; v.controls = true; v.preload = "metadata"; v.playsInline = true;
+    host.appendChild(v);
+    host.appendChild(el("p", "muted", "Recorded browser interaction"));
+  } else if (trajectory?.steps) strip(host, trajectory.steps, trajectory.failure_step);
+}
+
 async function main() {
-  const [traj, spec, rollouts, metrics, transfer, notes] = await Promise.all([
-    J("fixtures/trajectory.json"), J("fixtures/env_spec.json"),
-    JL("loop/artifacts/rollouts.jsonl") || JL("fixtures/rollouts.jsonl"),
-    J("loop/artifacts/metrics.json") || J("fixtures/metrics.json"),
-    J("fixtures/trajectory_transfer.json"), (async()=>{try{const r=await fetch(A+"loop/artifacts/skill_notes.md");return r.ok?r.text():null}catch{return null}})(),
+  const manifest = await J(`${ARTIFACTS}/run_manifest.json`);
+  const [traj, spec, rollouts, metrics, result, notes, repro] = await Promise.all([
+    manifest ? (manifest.trajectory_path ? J(manifest.trajectory_path) : null) : J("fixtures/trajectory.json"),
+    manifest ? manifest.spec : J("fixtures/env_spec.json"),
+    JL(`${ARTIFACTS}/rollouts.jsonl`),
+    J(`${ARTIFACTS}/metrics.json`),
+    J(`${ARTIFACTS}/transfer_result.json`),
+    T(`${ARTIFACTS}/skill_notes.md`),
+    J(`${ARTIFACTS}/repro_report.json`),
   ]);
+  const transfer = result?.trajectory_path ? await J(result.trajectory_path) :
+    !manifest ? await J("fixtures/trajectory_transfer.json") : null;
 
   // 1 — failure
   const f = document.getElementById("fail");
-  if (traj) { strip(f, traj.steps, traj.failure_step);
-    f.appendChild(el("p", "big bad", `FAILED — ${traj.checker?.reason || ""}`)); }
+  if (traj) { recording(f, traj);
+    f.appendChild(el("p", "big " + (traj.outcome === "passed" ? "ok" : "bad"),
+      `${traj.outcome.toUpperCase()} — ${traj.checker?.reason || ""}`)); }
   else f.appendChild(el("p", "missing", "no trajectory"));
 
   // 2 — spec
@@ -155,20 +177,25 @@ async function main() {
       `entities: ${Object.keys(spec.entities||{}).join(",")} · ` +
       `mutation: ${Object.keys(spec.mutations||{}).join(",")} · ` +
       `stub API: ${(spec.backend_calls||[]).map(c=>c.path).join(",")}`));
+    if (manifest?.generation_report) {
+      const g = manifest.generation_report;
+      s2.appendChild(el("p", "muted",
+        `Component: ${g.path} · ${g.attempts} attempt(s) · ${g.elapsed_s ?? "?"}s including validation`));
+    }
   }
   const sbs = document.getElementById("sbs");
   const g1 = el("figure");
   if (traj?.steps?.[0]?.screenshot_path) { const i = el("img"); i.src = A + traj.steps[0].screenshot_path; g1.appendChild(i); }
   g1.appendChild(el("figcaption", null, "real site"));
   const g2 = el("figure");
-  const i2 = el("img"); i2.src = A + "fixtures/shots/env/index.png";
+  const i2 = el("img"); i2.src = A + (manifest?.env_screenshot || "fixtures/shots/env/index.png");
   i2.onerror = () => i2.replaceWith(el("p","missing","no env shot"));
   g2.append(i2, el("figcaption", null, "mini-env"));
   sbs.append(g1, g2);
 
   // 3 — repro matrix (round 0)
   const r = document.getElementById("repro");
-  const r0 = (rollouts || []).filter(e => e.round === 0);
+  const r0 = (rollouts || []).filter(e => e.phase === "repro");
   if (r0.length) {
     const cells = el("div", "cells");
     for (const e of r0) cells.appendChild(el("div",
@@ -180,10 +207,18 @@ async function main() {
     r.appendChild(el("p", "big bad",
       `${fails}/${r0.length} failed — ${sig}/${fails} match the pagination signature`));
     r.appendChild(el("p", "muted", r0[0].reason || ""));
+    r.appendChild(el("p", "muted", repro?.reproduced ? "Matching failure reproduced" : "Reproduction unconfirmed"));
   } else r.appendChild(el("p", "missing", "no rollouts"));
 
   // 4 — curve
-  const ms = (metrics?.metrics || []);
+  const evaluations = (metrics?.metrics || []).filter(m => m.phase === "eval");
+  const comparable = manifest?.status !== "interrupted" &&
+    evaluations[0]?.round === 0 && evaluations[0]?.evaluation_id &&
+    evaluations.every(m => m.valid !== false && m.evaluation_id === evaluations[0].evaluation_id);
+  const ms = comparable ? evaluations : [];
+  document.getElementById("curve-note").textContent = comparable
+    ? "Identical held-out seeds each round. Bars: 95% Wilson intervals. Transfer is a separate result."
+    : "No comparable evaluation baseline for this run.";
   const cv = document.getElementById("curve"), c = cv.getContext("2d"),
         W = cv.width, H = cv.height, pad = 42;
   c.fillStyle = "#0b0e13"; c.fillRect(0,0,W,H);
@@ -198,21 +233,31 @@ async function main() {
     const y = m => pad + (H-2*pad)*(1-m.success_rate);
     c.strokeStyle = "#58a6ff"; c.lineWidth = 2.5; c.beginPath();
     ms.forEach((m,i)=>i?c.lineTo(x(i),y(m)):c.moveTo(x(i),y(m))); c.stroke();
-    ms.forEach((m,i)=>{ c.fillStyle={repro:"#f85149",eval:"#58a6ff",transfer:"#3fb950"}[m.phase]||"#8b949e";
+    ms.forEach((m,i)=>{
+      if (m.ci95) { c.strokeStyle="#8b949e"; c.lineWidth=1; c.beginPath();
+        c.moveTo(x(i),y({success_rate:m.ci95[0]})); c.lineTo(x(i),y({success_rate:m.ci95[1]})); c.stroke(); }
+      c.fillStyle="#58a6ff";
       c.beginPath(); c.arc(x(i),y(m),6,0,7); c.fill();
-      c.fillStyle="#e6edf3"; c.fillText(`r${m.round} ${(m.success_rate*100).toFixed(0)}%`, x(i)-22, Math.max(14,y(m)-12)); });
+      c.fillStyle="#e6edf3"; c.fillText(`r${m.round} ${(m.success_rate*100).toFixed(0)}% · n=${m.n}`, x(i)-30, Math.max(14,y(m)-12)); });
   }
   document.getElementById("notes").textContent = notes || "";
 
   // 5 — transfer
   const t = document.getElementById("transfer");
-  if (transfer) { strip(t, transfer.steps, null);
-    t.appendChild(el("p", "big " + (transfer.outcome==="passed"?"ok":"bad"),
-      `${transfer.outcome.toUpperCase()} — ${transfer.checker?.reason||""}`)); }
+  if (transfer || result) {
+    recording(t, transfer, result?.video_path);
+    const passed = result ? result.passed : transfer.outcome === "passed";
+    t.appendChild(el("p", "big " + (passed ? "ok" : "bad"),
+      `${passed ? "PASS" : "FAIL"} — ${result?.reason || transfer?.checker?.reason || ""}`));
+    if (manifest?.transfer_pending)
+      t.appendChild(el("p", "muted", "Previous attempt; updated memory is awaiting transfer."));
+  }
   else t.appendChild(el("p","missing","no transfer run"));
 
   document.getElementById("status").textContent =
-    `${rollouts?.length||0} episodes · recorded artifacts`;
+    `${manifest?.mode || "archived"} · ${manifest?.agent || "unmatched reference artifacts"} · ` +
+    `${manifest?.status || "reference"} · ${rollouts?.length||0} episodes · recorded artifacts` +
+    (manifest?.reason ? ` · ${manifest.reason}` : "");
 }
 main();
 </script>

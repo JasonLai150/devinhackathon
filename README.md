@@ -9,11 +9,11 @@ Failure-to-Env: turn browser-agent failures into resettable training environment
 - [Browser demo / LLM experiment runbook](docs/demo-runbook.md)
 
 The integrated toolshop demo uses A's browser strategies, B's session-scoped
-environment, and C's rollout/memory loop. The scripted browser rehearsal has
-been verified through a real-site cart mutation. A live Gemini run validated
-LLM generation and matching failure reproduction, but produced no verified
-training successes; autonomous improvement remains unproven. See
-`docs/demo-validation.json` for the measured results.
+environment, and C's rollout/memory loop. Gemini has generated the component
+and improved sandbox evaluation from 0/5 to 5/5 through verified skill memory.
+Real-site transfer remains unsuccessful for that learned agent.
+See [measured Gemini results and demo links](docs/gemini-results.md).
+The separately bundled scripted rehearsal has verified real-site transfer.
 
 ## Run the MVP
 

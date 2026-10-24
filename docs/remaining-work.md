@@ -108,3 +108,9 @@ rehearsal produced a comparable 0/3 → 3/3 → 3/3 curve and passed live transf
 See [`demo-validation.json`](demo-validation.json). Preflight confirms browser
 and Node availability and the missing-credentials blocker. The live LLM gates
 above remain open; no such run has been reported as successful.
+
+Update after Gemini execution: the credential, natural baseline failure,
+generation, reproduction and sandbox-learning gates have now passed. The
+latest run measured 0/5 → 5/5 on fixed evaluation seeds, but real-site transfer
+failed. [`gemini-results.md`](gemini-results.md) supersedes the earlier
+credential-blocked status and records the remaining empirical gap.

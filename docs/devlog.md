@@ -589,3 +589,17 @@ changed observation contract. Successful episodes also retain the actual
 observations (cards/pages) for task-conditioned distillation, rather than only
 action names. A fresh baseline/evaluation will test this version, with earlier
 results retained separately.
+
+Fresh policy-v3 run completed: 3/3 real failures, component generated on attempt
+1 in 18.63s with browser validation, 3/3 matching sandbox failures, then 0/5 →
+5/5 on unchanged held-out seeds after two verified exploration successes.
+There were no provider errors in evaluation. Real-site transfer still selected
+the page-1 product despite receiving the saved memory and normalized page numbers.
+This remaining generalization gap is explicitly reported, not replaced with the
+scripted transfer. Full results: [`gemini-results.md`](gemini-results.md).
+
+Integrated teammate commits through `bea493f`: OpenAI-compatible base URLs,
+archived-artifact display and the compact five-stage demo. The compact page now
+selects a matched run via `?artifacts=`, plays its actual videos, plots only valid
+comparable evaluation points, and displays failed/pending transfers honestly.
+Invalid/interrupted live runs cannot fall back to an apparent learning curve.

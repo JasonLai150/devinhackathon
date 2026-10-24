@@ -17,7 +17,9 @@ async function fetchJsonl(...paths) {
   for (const p of paths) {
     const t = await fetchText(p);
     if (t) {
-      const rows = t.trim().split("\n").filter(Boolean).map(JSON.parse);
+      let rows;
+      try { rows = t.trim().split("\n").filter(Boolean).map(JSON.parse); }
+      catch { return null; } // An active run can be between JSONL writes.
       if (rows.length && !String(rows[0].reason).startsWith("<")) return rows;
     }
   }
@@ -241,7 +243,7 @@ async function main() {
   } else {
     document.getElementById("curve-notes").textContent =
       "No comparable evaluation baseline yet. Repro and transfer results are not a learning curve.";
-    if (metrics?.metrics?.length) {
+    if (!manifest && metrics?.metrics?.length) {
       // Legacy/committed records without evaluation_id — show as reference,
       // clearly labeled non-comparable.
       drawRateChart(document.getElementById("chart-rate"), metrics.metrics);
