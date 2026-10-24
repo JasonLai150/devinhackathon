@@ -37,7 +37,10 @@ def _format(records):
     return json.dumps([
         {"task_id": r["task_id"], "seed": r["seed"],
          "verifier_reason": r["reason"],
-         "actions": r.get("actions", [])}
+         "actions": r.get("actions", []),
+         "observations": [
+             {k: observation.get(k) for k in ("cards", "pages", "can_add_to_cart")}
+             for observation in r.get("observations", [])]}
         for r in records], indent=2)
 
 
@@ -98,7 +101,7 @@ def distill(notes, successes, llm=None, failures=None):
     return _heuristic(notes, successes, failures)
 
 
-def distill_verified(notes, successes, llm):
+def distill_verified(notes, successes, llm, task=None):
     """Strict experiment path: no evaluation data, failures, or heuristic fallback."""
     if not successes:
         return notes
@@ -109,11 +112,35 @@ def distill_verified(notes, successes, llm):
     prompt = (
         "Distill reusable browser skills from these verified successful training episodes.\n"
         "Keep useful existing notes. Describe only behavior supported by the action traces.\n"
+        "Explain the decisions that made these executions satisfy the task, including "
+        "relevant comparison and stopping criteria; do not merely list the browser actions.\n"
         "Do not memorize product IDs, prices, names, URLs, or seeds. Do not invent advice "
         "not supported by the successes. Return concise Markdown skill notes only.\n"
+        f"TASK:\n{task['instruction'] if task else successes[0]['task_id']}\n"
         f"CURRENT NOTES:\n{notes or '(empty)'}\nVERIFIED SUCCESSES:\n{_format(successes)}"
     )
     result = llm(prompt)
     if not isinstance(result, str) or not result.strip() or len(result) > 8000:
         raise ValueError("distillation returned empty or oversized notes")
+    return result.strip() + "\n"
+
+
+def propose_skill(notes, task, failures, llm):
+    """Propose an exploration memory from training traces; it is not yet accepted."""
+    if not failures or any(r.get("passed") or r.get("phase") != "train" or
+                           r.get("reason", "").startswith("error:") for r in failures):
+        raise ValueError("exploration requires unsuccessful, non-error training episodes")
+    # Do not supply expected item names/prices from verifier messages or any eval data.
+    evidence = [{"actions": r.get("actions", []), "task_succeeded": False} for r in failures]
+    result = llm(
+        "Propose one concise, reusable skill-memory revision for this browser agent "
+        "based on its unsuccessful TRAINING action traces. The model, tools and task "
+        "remain unchanged. Infer a useful change from the observed behavior; do not "
+        "memorize item identifiers, prices, names, URLs, seeds or expected answers. "
+        "This is a hypothesis that must be verified in fresh training episodes before "
+        "being accepted. Return only Markdown skill notes.\n"
+        f"TASK: {task['instruction']}\nCURRENT NOTES:\n{notes or '(empty)'}\n"
+        f"UNSUCCESSFUL TRAINING TRACES:\n{json.dumps(evidence)}")
+    if not isinstance(result, str) or not result.strip() or len(result) > 8000:
+        raise ValueError("exploration returned empty or oversized notes")
     return result.strip() + "\n"

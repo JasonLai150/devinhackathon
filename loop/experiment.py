@@ -9,6 +9,7 @@ import argparse
 import asyncio
 import importlib.util
 import json
+import os
 import shutil
 import time
 from pathlib import Path
@@ -56,6 +57,14 @@ class Experiment:
             "env_running": False, "trajectory_path": None,
         }
         self.save()
+
+    @classmethod
+    def restore(cls, directory):
+        instance = cls.__new__(cls)
+        instance.directory = Path(directory).resolve()
+        instance.manifest = json.loads((instance.directory / "run_manifest.json").read_text())
+        instance.started = time.monotonic() - instance.manifest.get("elapsed_s", 0)
+        return instance
 
     def save(self):
         self.manifest["elapsed_s"] = round(time.monotonic() - self.started, 2)
@@ -107,6 +116,8 @@ async def run(args, model):
                          headed=args.headed, slow_mo=args.slow_mo)
     experiment = Experiment(out, agent, task, spec)
     m = experiment.manifest
+    m["exploration_enabled"] = args.explore
+    m["provider_requests_per_minute"] = os.environ.get("GEMINI_RPM", "14") if model.provider == "gemini" else None
     try:
         # Genuine baseline: all attempts are retained, not just the selected failure.
         baseline = []
@@ -190,7 +201,7 @@ async def run(args, model):
                 eval_overrides=EVAL_OVERRIDES, strict=True, attempts=args.attempts,
                 rollouts_path=str(out / "rollouts.jsonl"),
                 metrics_path=str(out / "metrics.json"), timeout=args.timeout,
-                concurrency=args.concurrency)
+                concurrency=args.concurrency, explore=args.explore)
             improve.write_agent_config(str(out / "agent_config.json"), agent, task,
                                        memory, history, args.train_seeds,
                                        args.eval_seeds, EVAL_OVERRIDES)
@@ -243,6 +254,8 @@ def parser():
     ap.add_argument("--eval-seeds", default="100-109")
     ap.add_argument("--rounds", type=int, default=2)
     ap.add_argument("--attempts", type=int, default=2, help="independent attempts per training seed")
+    ap.add_argument("--explore", action="store_true",
+                    help="if sampling finds no successes, propose one memory candidate per round and verify it on training seeds")
     ap.add_argument("--concurrency", type=int, default=2)
     ap.add_argument("--timeout", type=int, default=300)
     ap.add_argument("--headed", action="store_true", help="show real baseline/transfer in a browser window")

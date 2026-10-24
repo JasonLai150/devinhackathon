@@ -115,7 +115,8 @@ def test_shared_browser_strategy_reproduces_and_fixes_shop(tmp_path, monkeypatch
 
 def test_experiment_preflight_without_keys_does_not_create_results(tmp_path, monkeypatch):
     from loop.experiment import main
-    for name in ("GEMINI_API_KEY", "ANTHROPIC_API_KEY", "OPENAI_API_KEY", "CAPTURE_LLM_PROVIDER"):
+    for name in ("ANTHROPIC_API_KEY", "OPENAI_API_KEY", "GEMINI_API_KEY",
+                 "GOOGLE_API_KEY", "CAPTURE_LLM_PROVIDER"):
         monkeypatch.delenv(name, raising=False)
     assert main(["--preflight", "--out", str(tmp_path)]) == 2
     check = json.loads((tmp_path / "preflight.json").read_text())
@@ -263,6 +264,95 @@ def test_provider_probe_checks_configured_model_with_small_output_limit(monkeypa
     assert payloads[0]["max_tokens"] == 16
 
 
+def test_gemini_request_and_text_response(monkeypatch):
+    from capture import llm
+    for key in ("ANTHROPIC_API_KEY", "OPENAI_API_KEY", "GEMINI_API_KEY", "CAPTURE_LLM_PROVIDER"):
+        monkeypatch.delenv(key, raising=False)
+    monkeypatch.setenv("GOOGLE_API_KEY", "gemini-test-placeholder")
+    requests = []
+    def post(url, headers, payload):
+        requests.append((url, headers, payload))
+        return {"candidates": [{"finishReason": "STOP", "content": {"parts": [
+            {"thought": True, "text": "not answer text"},
+            {"text": '{"action":'}, {"text": '"done"}'}]}}]}
+    monkeypatch.setattr(llm, "_post", post)
+    chosen = llm.resolve_config(model="models/gemini-3.5-flash-lite", temperature=0.7)
+    assert chosen.provider == "gemini"
+    result = llm.make_llm(chosen)("browser observation")
+    assert json.loads(result) == {"action": "done"}
+    url, headers, payload = requests[0]
+    assert url == "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent"
+    assert "gemini-test-placeholder" not in url
+    assert headers["x-goog-api-key"] == "gemini-test-placeholder"
+    assert payload["contents"][0]["parts"] == [{"text": "browser observation"}]
+    assert payload["generationConfig"]["temperature"] == 0.7
+    llm.check_provider(chosen)
+    assert requests[-1][2]["generationConfig"]["maxOutputTokens"] == 256
+
+
+@pytest.mark.parametrize("response,reason", [
+    ({"promptFeedback": {"blockReason": "SAFETY"}}, "SAFETY"),
+    ({"candidates": [{"finishReason": "MAX_TOKENS"}]}, "MAX_TOKENS"),
+    ({"candidates": [{"finishReason": "STOP", "content": {"parts": []}}]}, "no answer text"),
+])
+def test_gemini_missing_or_truncated_answers_are_errors(monkeypatch, response, reason):
+    from capture import llm
+    monkeypatch.setenv("GEMINI_API_KEY", "test-placeholder")
+    monkeypatch.setattr(llm, "_post", lambda *args: response)
+    with pytest.raises(llm.ProviderError, match=reason):
+        llm.make_llm(llm.ModelConfig("gemini", "test-model"))("observation")
+
+
+def test_gemini_error_status_and_key_are_handled_safely(monkeypatch):
+    import io
+    import urllib.error
+    from capture import llm
+    monkeypatch.setenv("GEMINI_API_KEY", "gemini-test-secret")
+    def reject(request, timeout):
+        body = json.dumps({"error": {"status": "PERMISSION_DENIED",
+                           "message": "key gemini-test-secret cannot access this model"}}).encode()
+        raise urllib.error.HTTPError(request.full_url, 403, "Forbidden", {}, io.BytesIO(body))
+    monkeypatch.setattr(llm.urllib.request, "urlopen", reject)
+    with pytest.raises(llm.ProviderError) as error:
+        llm.make_llm(llm.ModelConfig("gemini", "test-model"))("observation")
+    assert "PERMISSION_DENIED" in str(error.value)
+    assert "gemini-test-secret" not in str(error.value)
+    assert "[REDACTED]" in str(error.value)
+
+
+def test_gemini_pacing_is_shared_and_bounded(monkeypatch):
+    from capture import llm
+    clock, sleeps = [100.0], []
+    monkeypatch.setenv("GEMINI_RPM", "10")
+    monkeypatch.setattr(llm, "_GEMINI_NEXT_REQUEST", 0.0)
+    monkeypatch.setattr(llm.time, "monotonic", lambda: clock[0])
+    def sleep(seconds):
+        sleeps.append(seconds)
+        clock[0] += seconds
+    monkeypatch.setattr(llm.time, "sleep", sleep)
+    for _ in range(3):
+        llm._pace_gemini()
+    assert sleeps == [6.0, 6.0]
+    monkeypatch.setenv("GEMINI_RPM", "0")
+    with pytest.raises(ValueError):
+        llm._pace_gemini()
+
+
+def test_gemini_retries_only_with_bounded_server_delay(monkeypatch):
+    from capture import llm
+    calls, sleeps = [], []
+    def post(*args):
+        calls.append(args)
+        if len(calls) == 1:
+            raise llm.ProviderError("temporary quota", status=429, retry_after=12.5)
+        return {"ok": True}
+    monkeypatch.setattr(llm, "_post_once", post)
+    monkeypatch.setattr(llm, "_pace_gemini", lambda: None)
+    monkeypatch.setattr(llm.time, "sleep", sleeps.append)
+    assert llm._post("https://generativelanguage.googleapis.com/v1beta/models/test:generateContent", {}, {})["ok"]
+    assert len(calls) == 2 and sleeps == [13.0]
+
+
 @pytest.mark.parametrize("execution_error,expected_status,attempts", [
     ("HTTP 400: invalid_request_error", "error", 1),
     (None, "blocked", 3),
@@ -352,6 +442,19 @@ def test_strict_experiment_orchestration_offline(tmp_path, monkeypatch):
     evals = [m for m in metrics["metrics"] if m["phase"] == "eval"]
     assert [m["round"] for m in evals] == [0, 1]
     assert evals[0]["evaluation_id"] == evals[1]["evaluation_id"]
+    from types import SimpleNamespace
+    from loop import continue_experiment
+    monkeypatch.setattr(continue_experiment, "BrowserAgent", TestAgent)
+    monkeypatch.setattr(continue_experiment, "make_llm", provider)
+    continued = asyncio.run(continue_experiment.run(SimpleNamespace(
+        directory=args.out, rounds=1, attempts=1, timeout=120,
+        concurrency=1, headed=False, explore=False), ModelConfig("injected-test", "fixture")))
+    assert continued["status"] == "complete"
+    metrics = json.loads((tmp_path / "experiment" / "metrics.json").read_text())
+    evals = [m for m in metrics["metrics"] if m["phase"] == "eval"]
+    assert [m["round"] for m in evals] == [0, 1, 2]
+    assert len({m["evaluation_id"] for m in evals}) == 1
+    assert len(json.loads((tmp_path / "experiment" / "transfer_history.json").read_text())) == 1
 
 
 def test_cancelled_experiment_retains_an_interrupted_manifest(tmp_path, monkeypatch):
@@ -410,9 +513,34 @@ def test_llm_action_interface_records_verifiable_browser_evidence(tmp_path, monk
         result = asyncio.run(run_episode(
             EnvClient(url), agent, config.load_tasks(spec=spec)["shop-cheapest"],
             42, 0, overrides={"popup": 1, "labels": 3}))
+        from capture.llm import ProviderError
+        def unavailable(prompt):
+            raise ProviderError("API quota exhausted", status=429)
+        broken = BrowserAgent("llm", spec, llm_fn=unavailable)
+        failed = asyncio.run(run_episode(
+            EnvClient(url), broken, config.load_tasks(spec=spec)["shop-cheapest"], 43, 0))
+        assert not failed["passed"] and failed["error_kind"] == "provider"
     assert result["passed"], result
     assert result["agent_metadata"]["provider"] == "injected-test"
     trace = json.loads(open(result["trajectory_path"]).read())
     assert trace["outcome"] == "passed" and trace["checker"]["passed"]
     assert len(trace["steps"]) >= 5
+    assert trace["observations"] and result["observations"]
     assert os.path.getsize(result["video_path"]) > 0
+
+
+@pytest.mark.skipif(os.environ.get("RUN_BROWSER_TESTS") != "1",
+                    reason="requires Chromium")
+def test_observation_uses_visible_page_numbers_on_real_and_sandbox_markup():
+    from playwright.sync_api import sync_playwright
+    from capture.agents import _OBSERVE_JS
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.set_content('''<ul class="pagination">
+          <li><button class="page-link" aria-label="Previous">«</button></li>
+          <li><button class="page-link" aria-label="Page-1">1</button></li>
+          <li><button class="page-link" aria-label="Page-2">2</button></li>
+          <li><button class="page-link" aria-label="Next">»</button></li></ul>''')
+        assert page.evaluate(_OBSERVE_JS)["pages"] == ["Previous", "1", "2", "Next"]
+        browser.close()

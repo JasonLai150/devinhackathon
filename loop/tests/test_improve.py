@@ -178,3 +178,75 @@ def test_wilson_interval_retains_uncertainty_at_extremes():
     from loop.metrics import wilson_interval
     assert wilson_interval(0, 10)[1] > 0.25
     assert wilson_interval(10, 10)[0] < 0.75
+
+
+@pytest.mark.parametrize("candidate_works", [False, True])
+def test_exploration_memory_needs_verified_training_success(
+        factory, task, spec, tmp_path, candidate_works):
+    memory = MemoryStore(str(tmp_path / "notes.md"))
+    prompts = []
+    def llm(prompt):
+        prompts.append(prompt)
+        assert '"seed": 100' not in prompt and '"seed": 101' not in prompt
+        if prompt.startswith("Propose"):
+            return "# Unverified hypothesis\n- " + ("paginate" if candidate_works else "choose immediately")
+        return "# Verified skill\n- paginate through the result pages."
+    history = asyncio.run(improve.improve(
+        factory, SimAgent(spec, "auto"), task, 1, strict=True, explore=True,
+        llm=llm, memory=memory, train_seeds=[0, 2], eval_seeds=[100, 101]))
+    assert history[0]["exploration"]["proposed"]
+    if candidate_works:
+        assert history[0]["successes_distilled"] == 2
+        assert memory.load().startswith("# Verified skill")
+        assert len(prompts) == 2
+    else:
+        assert history[0]["successes_distilled"] == 0
+        assert memory.load() == ""
+        assert len(prompts) == 1
+
+
+def test_exploration_proposal_omits_verifier_answers():
+    from loop.distill import propose_skill
+    prompts = []
+    def llm(prompt):
+        prompts.append(prompt)
+        return "# Hypothesis\n- Inspect additional results."
+    failure = {"passed": False, "phase": "train", "reason": "expected SECRET_ANSWER",
+               "actions": ["read page 1", "select item"]}
+    propose_skill("", {"instruction": "Find the cheapest item."}, [failure], llm)
+    assert "SECRET_ANSWER" not in prompts[0]
+    assert "read page 1" in prompts[0]
+
+
+def test_provider_errors_invalidate_evaluation_before_training(
+        factory, task, spec, tmp_path, monkeypatch):
+    calls = []
+    async def unavailable(*args, **kwargs):
+        calls.append(kwargs["phase"])
+        return [{"passed": False, "reason": "error: API quota exhausted",
+                 "error_kind": "provider"}]
+    monkeypatch.setattr(improve.runner, "run_round", unavailable)
+    path = str(tmp_path / "metrics.json")
+    with pytest.raises(RuntimeError, match="invalidated evaluation"):
+        asyncio.run(improve.improve(
+            factory, SimAgent(spec, "auto"), task, 1, strict=True,
+            llm=lambda prompt: "must not run",
+            memory=MemoryStore(str(tmp_path / "notes.md")),
+            train_seeds=[0], eval_seeds=[100], metrics_path=path))
+    assert calls == ["eval"]
+    metric = load_metrics(path)["metrics"][0]
+    assert metric["provider_errors"] == 1 and not metric["valid"]
+
+
+def test_continuation_rejects_changed_evaluation_set(factory, task, spec, tmp_path):
+    path = str(tmp_path / "metrics.json")
+    memory = MemoryStore(str(tmp_path / "notes.md"))
+    agent = SimAgent(spec, "auto")
+    asyncio.run(improve.improve(factory, agent, task, 1, memory=memory, llm=None,
+                               train_seeds=[0, 2], eval_seeds=[100, 101], metrics_path=path))
+    before = load_metrics(path)
+    with pytest.raises(ValueError, match="same valid evaluation baseline"):
+        asyncio.run(improve.improve(
+            factory, agent, task, 1, memory=memory, llm=None, start_round=1,
+            train_seeds=[0, 2], eval_seeds=[102, 103], metrics_path=path))
+    assert load_metrics(path) == before

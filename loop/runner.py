@@ -69,8 +69,10 @@ async def run_episode(client, agent, task, seed, round_no, overrides=None,
         res = EpisodeResult(ok=False, error=str(e))
     rec["steps"] = res.steps
     rec["actions"] = res.actions
+    if res.observations:
+        rec["observations"] = res.observations
     rec["memory_hash"] = hashlib.sha256(skill_notes.encode()).hexdigest()
-    for key in ("episode_id", "trajectory_path", "video_path", "agent_metadata", "duration_s"):
+    for key in ("episode_id", "trajectory_path", "video_path", "agent_metadata", "duration_s", "error_kind"):
         if getattr(res, key) is not None:
             rec[key] = getattr(res, key)
 

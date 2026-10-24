@@ -16,7 +16,7 @@ from .site_config import SEL, SITE_URL
 
 _SETTLE_MS = 1800  # SPA re-render / API latency on the real site
 POLICY_VERSION = "toolshop-observe-act-v2"
-LLM_POLICY_VERSION = "toolshop-observe-act-v3"
+LLM_POLICY_VERSION = "toolshop-observe-act-v4"
 
 
 def _dismiss_overlays(page):
@@ -160,7 +160,10 @@ _OBSERVE_JS = """() => {
                 price: a.querySelector("[data-test='product-price']")?.textContent.trim(),
                 href: a.getAttribute("href")}));
   const pages = [...document.querySelectorAll("ul.pagination .page-link")]
-    .map(x => (x.getAttribute("aria-label") || x.textContent).trim());
+    .map(x => {
+      const visible = x.textContent.trim();
+      return /^\\d+$/.test(visible) ? visible : (x.getAttribute("aria-label") || visible).trim();
+    });
   const detailName = document.querySelector("[data-test='product-name']")?.textContent.trim();
   const addBtn = !!document.querySelector("button[data-test='add-to-cart'], #btn-add-to-cart");
   const cartBadge = document.querySelector("[data-test='cart-quantity'], a[href='/checkout']")?.textContent.trim();
@@ -225,7 +228,7 @@ def run_llm(page, rec, task, llm, memory="", max_steps=30, entry_url=SITE_URL):
         a = act.get("action")
         if a == "done":
             rec("agent decided task is done")
-            return
+            return history
         if a == "goto_page":
             previous = state["cards"][0]["id"] if state["cards"] else None
             page.locator("ul.pagination .page-link").filter(
@@ -243,6 +246,7 @@ def run_llm(page, rec, task, llm, memory="", max_steps=30, entry_url=SITE_URL):
             rec(f"LLM: unhandled action {act}")
             time.sleep(0.3)
     rec(f"hit step budget ({max_steps})")
+    return history
 
 
 def run_auto(page, rec, task, memory="", entry_url=SITE_URL):

@@ -52,6 +52,7 @@ class BrowserAgent(Agent):
     def _run(self, env, task, session, notes, cancelled):
         from playwright.sync_api import sync_playwright
         from capture import agents, checker
+        from capture.llm import ProviderError
         from capture.recording import BrowserRecording, artifact_ref
 
         if self.strategy != "llm" and task.get("params"):
@@ -62,10 +63,12 @@ class BrowserAgent(Agent):
                 raise ValueError("browser agents need a running HTTP server")
             entry = urljoin(env.base_url + "/", entry)
         actions = []
+        observations = []
         started = time.monotonic()
         episode_id = uuid.uuid4().hex
         recording = BrowserRecording(self.artifact_dir, episode_id) if self.artifact_dir else None
         video_path, trajectory_path, verdict, error = None, None, None, None
+        error_kind = None
 
         def record(action, failure_hint=False):
             if cancelled.is_set():
@@ -93,8 +96,9 @@ class BrowserAgent(Agent):
                 page = context.new_page()
                 page.set_default_timeout(15000)
                 if self.strategy == "llm":
-                    agents.run_llm(page, record, task["instruction"], self.llm_fn,
-                                   notes, max_steps=self.max_steps, entry_url=entry)
+                    observations = agents.run_llm(
+                        page, record, task["instruction"], self.llm_fn,
+                        notes, max_steps=self.max_steps, entry_url=entry)
                 elif self.strategy == "auto":
                     agents.run_auto(page, record, task["instruction"], notes,
                                     entry_url=entry)
@@ -108,6 +112,7 @@ class BrowserAgent(Agent):
                     record(f"real-site checker: {verdict['reason']}")
             except Exception as exc:
                 error = str(exc)
+                error_kind = "provider" if isinstance(exc, ProviderError) else "browser"
             finally:
                 if "context" in locals():
                     context.close()
@@ -117,8 +122,11 @@ class BrowserAgent(Agent):
         if recording:
             trajectory_path = recording.finish(
                 task["instruction"], entry, self.metadata,
-                hashlib.sha256(notes.encode()).hexdigest(), verdict, error, video_path)
-        return EpisodeResult(actions, ok=error is None, error=error, verification=verdict,
+                hashlib.sha256(notes.encode()).hexdigest(), verdict, error, video_path,
+                observations=observations)
+        return EpisodeResult(actions, ok=error is None, error=error, error_kind=error_kind,
+                             verification=verdict,
                              episode_id=episode_id, trajectory_path=trajectory_path,
                              video_path=video_path, agent_metadata=self.metadata,
-                             duration_s=round(time.monotonic() - started, 2))
+                             duration_s=round(time.monotonic() - started, 2),
+                             observations=observations)

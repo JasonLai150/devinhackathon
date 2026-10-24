@@ -174,6 +174,9 @@ async function main() {
   const transferTrace = transferR?.trajectory_path ? await fetchJson(transferR.trajectory_path) : null;
   replay(document.getElementById("baseline-player"), traj);
   replay(document.getElementById("transfer-player"), transferTrace, transferR?.video_path);
+  if (manifest?.transfer_pending)
+    document.getElementById("transfer-player").appendChild(
+      el("p", "muted", "Previous transfer recording; the updated memory has not been tested yet."));
   const model = manifest?.agent_metadata;
   document.getElementById("run-status").textContent =
     `${manifest?.status || "archived"} · ${manifest?.reason || "Inspect the recorded outcomes"} ` +
@@ -192,9 +195,10 @@ async function main() {
     kpi("eval success", lastEval ? pct(lastEval.success_rate) : "—",
         lastEval ? `round ${lastEval.round} · n=${lastEval.n}` : "no metrics",
         lastEval && lastEval.success_rate > .5 ? "ok" : ""),
-    kpi("transfer", transferR ? `${transferR.passed ? "PASS" : "FAIL"}` : "—",
+    kpi("transfer", manifest?.transfer_pending ? "PENDING" :
+        transferR ? `${transferR.passed ? "PASS" : "FAIL"}` : "—",
         transferR?.mode === "real" ? "real-site transfer" : "sandbox rehearsal",
-        transferR?.passed ? "ok" : ""),
+        !manifest?.transfer_pending && transferR?.passed ? "ok" : ""),
     kpi("episodes", rollouts ? String(rollouts.length) : "—",
         rollouts ? `${new Set(rollouts.map(r => r.session_id)).size} sessions` : "",
         ""),
@@ -211,8 +215,8 @@ async function main() {
      r0.length ? (repro?.reproduced ? "real failure matched" : "sandbox diagnostic only") : "no rollouts"],
     ["5", "improve", lastEval ? "ok" : "dim",
      lastEval ? pct(lastEval.success_rate) : "no metrics"],
-    ["6", "transfer", transferR?.passed ? "ok" : "dim",
-     transferR ? `${transferR.mode}` : "pending"],
+    ["6", "transfer", !manifest?.transfer_pending && transferR?.passed ? "ok" : "dim",
+     manifest?.transfer_pending ? "pending" : transferR ? `${transferR.mode}` : "pending"],
     ["7", "demo", "dim", manifest?.mode || "no run manifest"],
   ];
   const pipe = document.getElementById("pipeline");
@@ -224,8 +228,9 @@ async function main() {
   }
 
   /* ---- success-rate chart ---- */
-  const comparable = evals.length && evals[0].round === 0 && evals[0].evaluation_id &&
-    evals.every(m => m.evaluation_id === evals[0].evaluation_id);
+  const comparable = manifest?.status !== "interrupted" &&
+    evals.length && evals[0].round === 0 && evals[0].evaluation_id &&
+    evals.every(m => m.valid !== false && m.evaluation_id === evals[0].evaluation_id);
   if (comparable) {
     drawRateChart(document.getElementById("chart-rate"), evals);
     document.getElementById("rate-legend").innerHTML =

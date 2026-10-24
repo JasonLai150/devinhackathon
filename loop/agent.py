@@ -21,6 +21,8 @@ class EpisodeResult:
     video_path: str = None
     agent_metadata: dict = None
     duration_s: float = None
+    error_kind: str = None
+    observations: list = field(default_factory=list)
 
     @property
     def steps(self):

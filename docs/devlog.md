@@ -536,3 +536,56 @@ skipped**. New checks cover HTTP error details, credential redaction, non-JSON
 responses, the small model probe, and the distinction between execution errors
 and successful baseline episodes. The actual HTTP 400 cause is still awaiting
 the diagnostic request from the user's credentialed terminal.
+
+## 2026-10-24 — Gemini integration and first genuine learning runs
+
+User reported the Anthropic account had no credits and selected Gemini.
+Added Google's `generateContent` adapter to browser actions, generation and
+distillation. `GEMINI_API_KEY` / `GOOGLE_API_KEY` are accepted; the supplied
+credential is used only through process environment variables. Gemini error
+statuses are reported with credential redaction, and incomplete/blocked
+responses are errors. No key values are written to source or experiment metadata.
+
+The live API check passed for `gemini-3.5-flash-lite`. The first run
+(`.integration/gemini-demo`) produced three genuine page-1 failures, generated
+the interaction component on the first attempt in 9.1s including browser
+validation, and reproduced the failure on all three sandbox seeds. Learning
+then hit the free-tier 15 requests/minute limit and produced no verified training
+successes. Stopped that run and marked its partial curve invalid/interrupted.
+
+Added shared Gemini pacing (14 requests/minute by default), bounded retries
+using Google's retry delay, and explicit provider-error invalidation of
+evaluation points. Added optional `--explore`: the same LLM proposes one
+memory hypothesis from failed training actions (not verifier answers), then
+tests it on training seeds. Only verifier-approved successful executions can
+inform accepted memory; the hypothesis itself is never promoted.
+
+The clean run (`.integration/gemini-demo-v2`) reproduced 3/3 natural real
+failures and 3/3 sandbox failures. Its generated component passed both browser
+probes on the first attempt (15.31s including validation). Round 1 obtained one
+verified exploration success and improved the same five evaluation seeds from
+0/5 to 2/5, with no provider errors. The first real-site transfer still failed.
+All outcomes and videos are retained.
+
+Diagnosis: success distillation had received a task ID but not the full task
+instruction, producing weak stopping advice. Added the actual task instruction
+and asked for task-grounded decision/stopping criteria without any hard-coded
+pagination rule. Added `loop.continue_experiment` to append training/evaluation
+rounds with the original agent/configuration and baseline, while retaining prior
+transfers. The continuation reached 3/5 on the same held-out seeds, but real
+transfer still failed; both transfer recordings remain available.
+
+Investigating that gap found an observation mismatch: the real site's numeric
+buttons have aria-labels `Page-1`, `Page-2`, etc., while the generated reference
+exposes `1`, `2`, etc. The action contract accepts numeric page arguments.
+In a read-only paired probe with the saved memory, the original representation
+selected a page-1 product while visible page-number text elicited `goto_page: 2`.
+This is diagnostic evidence, not a successful episode or a training result.
+
+The shared observation adapter now preserves visible numeric page text and
+uses aria-labels for nonnumeric controls. Its policy version is incremented to
+`toolshop-observe-act-v3`; the earlier curves cannot be continued under that
+changed observation contract. Successful episodes also retain the actual
+observations (cards/pages) for task-conditioned distillation, rather than only
+action names. A fresh baseline/evaluation will test this version, with earlier
+results retained separately.

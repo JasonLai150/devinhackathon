@@ -40,7 +40,8 @@ class BrowserRecording:
                            "screenshot_path": artifact_ref(shot), "dom_path": artifact_ref(dom),
                            "listing": listing_observation(page)})
 
-    def finish(self, task, entry, metadata, notes_hash, verdict, error, video_path=None):
+    def finish(self, task, entry, metadata, notes_hash, verdict, error, video_path=None,
+               observations=None):
         trajectory = {
             "episode_id": self.episode_id, "task": task, "site_url": entry,
             "agent": metadata, "memory_hash": notes_hash,
@@ -48,6 +49,7 @@ class BrowserRecording:
             "outcome": "error" if error else ("passed" if verdict and verdict["passed"] else
                                             "failed" if verdict else "unverified"),
             "checker": verdict, "error": error,
+            "observations": observations or [],
             "duration_s": round(time.monotonic() - self.started, 2),
             "failure_step": next((s["i"] for s in reversed(self.steps)
                                   if "add to cart" in s["action"].lower()), None)

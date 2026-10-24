@@ -19,10 +19,10 @@ from pathlib import Path
 
 from . import config, runner
 from .agent import make_agent
-from .distill import distill, distill_verified
+from .distill import distill, distill_verified, propose_skill
 from .llm import default_llm
 from .memory import MemoryStore
-from .metrics import append_metric, success_rate, wilson_interval
+from .metrics import append_metric, load_metrics, success_rate, wilson_interval
 from .run_rollouts import _client_factory
 from .seeds import (EVAL_OVERRIDES, EVAL_SEEDS, TRAIN_OVERRIDES, TRAIN_SEEDS,
                     parse_seeds)
@@ -35,13 +35,14 @@ async def improve(client_factory, agent, task, rounds,
                   eval_overrides=EVAL_OVERRIDES,
                   rollouts_path=None, metrics_path=None,
                   cache=None, cache_path=None,
-                  timeout=120, concurrency=8, strict=False, attempts=1):
+                  timeout=120, concurrency=8, strict=False, attempts=1, explore=False,
+                  start_round=0):
     train_seeds, eval_seeds = list(train_seeds), list(eval_seeds)
     if not train_seeds or not eval_seeds or set(train_seeds) & set(eval_seeds):
         raise ValueError("training/evaluation seeds must be nonempty and disjoint")
     if len(set(train_seeds)) != len(train_seeds) or len(set(eval_seeds)) != len(eval_seeds):
         raise ValueError("seed sets must not contain duplicates")
-    if rounds < 1 or attempts < 1:
+    if rounds < 1 or attempts < 1 or start_round < 0:
         raise ValueError("rounds and attempts must be positive")
     if llm == "__default__":
         llm = default_llm()
@@ -65,19 +66,32 @@ async def improve(client_factory, agent, task, rounds,
         if rollouts_path:
             runner.append_rollouts(rollouts_path, records)
         passed = sum(r["passed"] for r in records)
+        provider_errors = sum(r.get("error_kind") == "provider" for r in records)
         if metrics_path:
             append_metric(metrics_path, round_no, success_rate(records), len(records),
                           phase="eval", agent=agent.agent_id, passed=passed,
+                          provider_errors=provider_errors, valid=provider_errors == 0,
                           ci95=wilson_interval(passed, len(records)),
                           evaluation_id=evaluation_id, seeds=eval_seeds,
                           overrides=eval_overrides, memory_hash=memory.hash())
+        if strict and provider_errors:
+            raise RuntimeError("Provider errors invalidated evaluation; inspect the retained rollouts before rerunning.")
         return records
 
-    (snapshots / "round-0.md").write_text(notes)
-    baseline = await evaluate(0)
-    baseline_rate = success_rate(baseline)
+    if start_round:
+        existing = load_metrics(metrics_path)["metrics"] if metrics_path else []
+        baseline = next((m for m in existing if m.get("phase") == "eval" and m["round"] == 0), None)
+        if not baseline or baseline.get("valid") is False or baseline.get("evaluation_id") != evaluation_id:
+            raise ValueError("continuation requires the same valid evaluation baseline and configuration")
+        if max((m["round"] for m in existing if m.get("phase") == "eval"), default=-1) != start_round:
+            raise ValueError("continuation round does not match saved evaluation history")
+        baseline_rate = baseline["success_rate"]
+    else:
+        (snapshots / "round-0.md").write_text(notes)
+        baseline = await evaluate(0)
+        baseline_rate = success_rate(baseline)
 
-    for r in range(1, rounds + 1):
+    for r in range(start_round + 1, start_round + rounds + 1):
         train_recs = []
         for attempt in range(attempts):
             batch = await runner.run_round(
@@ -92,7 +106,25 @@ async def improve(client_factory, agent, task, rounds,
 
         successes = [x for x in train_recs if x["passed"]]
         failures = [x for x in train_recs if not x["passed"]]
-        new_notes = (distill_verified(notes, successes, llm) if strict
+        exploration = None
+        genuine_failures = [x for x in failures if not x["reason"].startswith("error:")]
+        if strict and explore and not successes and genuine_failures:
+            candidate = propose_skill(notes, task, genuine_failures, llm)
+            (snapshots / f"round-{r}-candidate.md").write_text(candidate)
+            explored = await runner.run_round(
+                client_factory, agent, task, train_seeds, r,
+                overrides=train_overrides, skill_notes=candidate, phase="train",
+                timeout=timeout, concurrency=concurrency)
+            for record in explored:
+                record["training_kind"] = "candidate"
+            if rollouts_path:
+                runner.append_rollouts(rollouts_path, explored)
+            train_recs.extend(explored)
+            successes = [x for x in explored if x["passed"]]
+            exploration = {"proposed": True, "n": len(explored), "successes": len(successes),
+                           "source_failure_episode_ids": [x.get("episode_id") for x in genuine_failures]}
+        # The proposal itself is never promoted. Only successful executions inform distillation.
+        new_notes = (distill_verified(notes, successes, llm, task=task) if strict
                      else distill(notes, successes, llm, failures=failures))
         notes_changed = new_notes != notes
         if notes_changed:
@@ -103,7 +135,8 @@ async def improve(client_factory, agent, task, rounds,
         evidence = {"round": r, "mode": "verified-success-LLM" if strict else "rehearsal",
                     "source_episode_ids": [x.get("episode_id") for x in successes],
                     "training_seeds": train_seeds, "attempts_per_seed": attempts,
-                    "successes": len(successes), "notes_changed": notes_changed}
+                    "successes": len(successes), "notes_changed": notes_changed,
+                    "exploration": exploration}
         (snapshots / f"round-{r}.json").write_text(json.dumps(evidence, indent=2))
         eval_recs = await evaluate(r)
 
@@ -118,6 +151,7 @@ async def improve(client_factory, agent, task, rounds,
             "baseline_eval_success_rate": baseline_rate,
             "evaluation_id": evaluation_id,
             "distillation_mode": "verified-success-LLM" if strict else "rehearsal",
+            "exploration": exploration,
         })
     return history
 

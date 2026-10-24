@@ -98,7 +98,8 @@ def default_llm():
     # Delegates to capture.llm, which covers Anthropic, OpenAI-compatible
     # (OPENAI_BASE_URL) and Gemini providers plus shared HTTP error handling.
     from capture.llm import PROVIDERS, make_llm, resolve_config
-    if not any(os.environ.get(key) for key, _ in PROVIDERS.values()):
+    if not os.environ.get("GOOGLE_API_KEY") and not any(
+            os.environ.get(key) for key, _ in PROVIDERS.values()):
         return None
     return make_llm(resolve_config(model=os.environ.get("ENV_LLM_MODEL")))
 

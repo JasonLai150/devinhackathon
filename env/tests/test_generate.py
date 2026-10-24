@@ -83,6 +83,21 @@ def test_report_written(tmp_path):
     assert rep["path"] == "generated"
 
 
+def test_default_generator_supports_gemini(tmp_path, monkeypatch):
+    from capture import llm
+    for key in ("ANTHROPIC_API_KEY", "OPENAI_API_KEY", "ENV_LLM_MODEL", "CAPTURE_LLM_MODEL"):
+        monkeypatch.delenv(key, raising=False)
+    monkeypatch.setenv("GEMINI_API_KEY", "test-placeholder")
+    def post(url, headers, payload):
+        assert "generativelanguage.googleapis.com" in url
+        assert headers["x-goog-api-key"] == "test-placeholder"
+        return {"candidates": [{"finishReason": "STOP", "content": {
+            "parts": [{"text": json.dumps(VALID_COMPONENT)}]}}]}
+    monkeypatch.setattr(llm, "_post", post)
+    report = generate.generate(SPEC, str(tmp_path))
+    assert report["path"] == "generated"
+
+
 def test_a_spec_resolves_repo_relative_capture(tmp_path):
     spec_path = os.path.join(os.path.dirname(SPEC), "..", "..", "fixtures", "env_spec.json")
     report = generate.generate(spec_path, str(tmp_path), llm=None)

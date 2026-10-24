@@ -37,6 +37,10 @@ Writes `component/component.html` + `component.js` + `generate_report.json`.
 Provider picked from `ANTHROPIC_API_KEY` / `OPENAI_API_KEY`; model via
 `ENV_LLM_MODEL`.
 
+Gemini generation also works with `GEMINI_API_KEY` or `GOOGLE_API_KEY`; its
+default model is `gemini-3.5-flash-lite`. In `loop.experiment`, the frozen agent
+provider/model is also used for generation and distillation.
+
 Commands assume the repository root. See `../docs/integration.md` for the
 connected toolshop run. Its spec embeds four tasks; `/tasks` returns the
 active task set and `/verify` uses that same set. The default `env/spec` and

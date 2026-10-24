@@ -47,7 +47,7 @@ The default is `gemini-3.5-flash-lite`; `--model` selects another model availabl
 to your project. Gemini 3.6+ uses provider-default sampling, recorded as
 `temperature: null`, because these models ignore custom sampling controls.
 Earlier Gemini models retain the configured temperature.
-
+`GOOGLE_API_KEY` is also accepted as a Gemini key alias.
 Do not put keys in artifacts, docs, commands committed to Git, or chat.
 Preflight reports availability only and makes no model requests. A missing
 credential returns exit status 2 and writes `preflight.json`, not fake rollouts.
@@ -59,7 +59,8 @@ To verify API access as well, make one small request to the configured model:
   --preflight --check-provider --out .integration/claude-check
 ```
 
-This check has a 16-token output limit. Actual experiment commands perform it
+This check has a 16-token output limit for Anthropic/OpenAI or 256 for Gemini
+(whose response budget can include thinking). Actual experiment commands perform it
 automatically before opening browsers. HTTP failures retain the provider's
 error type/message and request ID with credentials redacted, so account,
 model-access and request problems can be diagnosed. If a browser episode later
@@ -85,8 +86,36 @@ must be measured, not assumed.
 For Gemini, use `--env-file .env.local --provider gemini` instead of the
 OpenAI provider/model options. The same frozen configuration is used for
 capture, code generation, training, distillation, evaluation and transfer.
-API availability and quota are checked by actual requests during the experiment;
-preflight only checks local configuration.
+API availability and quota are checked before browser work. Use
+`--preflight --check-provider` for a standalone API check; ordinary preflight
+only checks local configuration.
+For Gemini, the supported low-cost default is `gemini-3.5-flash-lite`:
+
+```bash
+.venv/bin/python -m loop.experiment --provider gemini \
+  --model gemini-3.5-flash-lite --out .integration/gemini-demo-v2 \
+  --headed --concurrency 1 --explore
+```
+
+Gemini uses Google's `generateContent` REST endpoint, with the key in an
+`x-goog-api-key` header. The same provider is used for browser actions, component
+generation and memory distillation. Provider errors retain Google's status
+code/message with credentials redacted; incomplete or blocked answers are
+execution errors. Use `--preflight --check-provider` to check model access first.
+
+The tested key's free tier allows 15 requests/minute. Gemini requests are paced
+at 14/minute across all workers by default (`GEMINI_RPM` overrides that budget).
+Google's bounded retry delay is honored for up to two retries on 429/503 errors.
+An unresolved provider error invalidates an evaluation point and stops the
+strict experiment; it must not appear as a policy failure on the curve.
+
+`--explore` adds a bounded bootstrap when ordinary training attempts yield no
+successes. The same LLM proposes one memory hypothesis from unsuccessful
+training action traces, with verifier answers omitted. That candidate is tested
+once per training seed. The hypothesis itself is never saved as accepted memory:
+only verified successful executions enter the normal success distiller. If the
+candidate fails, the accepted memory stays unchanged. Proposal files and source
+episodes are retained in `rounds/`. Evaluation episodes never inform proposals.
 
 `--headed` shows baseline and real-site transfer in Chromium windows.
 Training/evaluation stay headless and are recorded. `--slow-mo 200` slows
@@ -107,7 +136,9 @@ The command does the following:
 4. Reproduces the failure with the same LLM in the sandbox.
 5. Measures a **round-0 held-out baseline**, then samples fresh training
    episodes. Only verified training successes enter the distillation prompt.
-   No successes means no memory change. API errors do not trigger a heuristic.
+   With `--explore`, a single proposed memory can bootstrap those successes
+   through additional training attempts. No verified successes still means no
+   accepted memory change. API errors do not trigger a heuristic.
 6. Re-evaluates the exact same held-out seeds and perturbations each round.
    LLM episodes are never cached. Snapshots record which successful episodes
    contributed to each memory revision.
@@ -149,6 +180,23 @@ an error before the browser starts. Config-driven transfer does not accept
 agent/task/spec/memory overrides. The old archived configs must be regenerated.
 
 ## Recorded presentation
+
+To add learning rounds after a completed round (including a failed transfer),
+retain the original baseline, component and evaluation set:
+
+```bash
+.venv/bin/python -m loop.continue_experiment .integration/gemini-demo-v2 \
+  --rounds 1 --attempts 1 --concurrency 1 --headed --explore
+```
+
+Continuation restores the original provider/model/temperature/tools, task,
+training seeds and held-out seeds from the artifacts. It rejects a changed
+agent or evaluation configuration. It appends evaluation points, memory
+snapshots and rollouts instead of replacing the baseline. Earlier transfer
+attempts remain in `transfer_history.json` and the episode matrix. During
+training, the dashboard labels the previous transfer video as a previous attempt.
+Incomplete/interrupted rounds require a fresh run rather than silently overwriting
+partial evidence.
 
 ```bash
 PORT=8012 .venv/bin/python dashboard/serve.py

@@ -55,8 +55,17 @@ The browser and verifier code are shared.
 - Distill successes from training only. If there are none, keep the memory
   and report zero evidence. Do not teach the hard-coded pagination heuristic
   in the LLM experiment. Never cache stochastic LLM episodes.
+- Optional `--explore` bootstraps successful trajectories: the LLM proposes
+  one memory candidate from failed training traces (without verifier answers),
+  and the same browser agent tests it on training seeds. Only successful
+  executions can then inform the saved memory. Failed hypotheses are retained
+  as artifacts but never promoted; eval data remains excluded.
 - Record memory snapshots, source episode IDs, evaluation rates and counts.
   Report regressions and flat curves as observed.
+- Success distillation receives the full task instruction alongside verified
+  traces, so its rules retain the decision and stopping criteria that explain
+  success. Completed rounds can be continued with `loop.continue_experiment`;
+  the original evaluation fingerprint and all earlier transfer attempts remain.
 - Transfer only when saved memory has evidence and final evaluation improved.
   A transfer success is a separate one-task result, not another curve point.
 

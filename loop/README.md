@@ -103,6 +103,12 @@ records or scripted hints. The curve includes a measured held-out baseline and
 the same evaluation seeds at each later round. No improvement is a valid result;
 it blocks transfer rather than being replaced by a scripted success.
 
+Gemini is supported with `--provider gemini` and `GEMINI_API_KEY` (or
+`GOOGLE_API_KEY`). Its API requests share a 14 requests/minute budget by default
+to fit the tested free tier. `--explore` permits one LLM-generated memory
+hypothesis per round when sampling yields no successes; it must produce
+verifier-approved training trajectories before contributing to accepted memory.
+
 `loop.demo` remains the scripted rehearsal; use `--record-dir <directory>`
 for videos and step screenshots. Its curve now uses the same evaluation
 protocol, but it is not an LLM-learning result.
