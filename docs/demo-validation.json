@@ -1,7 +1,7 @@
 {
   "date": "2026-10-24",
-  "implementation_base": "fda640c",
-  "tests_passed": 72,
+  "implementation_base": "d91d103",
+  "tests_passed": 84,
   "browser_checks_included": true,
   "generation_probe": {
     "source": "verbatim hand-recreated reference",
@@ -14,24 +14,43 @@
   "recorded_rehearsal": {
     "mode": "scripted",
     "agent": "browser:auto",
-    "artifacts": ".integration/demo-ready",
+    "artifacts": "fixtures/mvp-demo",
     "baseline_real_task_failed": true,
     "sandbox_reproduced": true,
     "evaluation_seeds": [100, 101, 102],
     "evaluation": [
       {"round": 0, "passed": 0, "n": 3, "ci95": [0, 0.5615]},
-      {"round": 1, "passed": 3, "n": 3, "ci95": [0.4385, 1]},
-      {"round": 2, "passed": 3, "n": 3, "ci95": [0.4385, 1]}
+      {"round": 1, "passed": 3, "n": 3, "ci95": [0.4385, 1]}
     ],
     "real_transfer_passed": true,
     "real_transfer_result": "Washers at $3.55, minimum of 50 API products",
     "baseline_and_transfer_videos_decoded": true,
-    "dashboard_javascript_errors": []
+    "dashboard_javascript_errors": [],
+    "missing_artifact_references": 0,
+    "standalone_saved_config_transfer_passed": true
   },
   "genuine_llm_experiment": {
-    "preflight_ready": false,
-    "blocker": "Neither supported API key is configured in the shell",
-    "live_llm_generation_tested": false,
+    "preflight_ready": true,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "status": "blocked",
+    "reason": "No verified training successes produced usable memory.",
+    "artifacts": ".integration/gemini-flash-lite",
+    "tested_policy": "toolshop-observe-act-v2",
+    "baseline_pagination_failures": 3,
+    "sandbox_pagination_failures": 3,
+    "training_attempts": 6,
+    "training_successes": 0,
+    "evaluation": [
+      {"round": 0, "passed": 0, "n": 5},
+      {"round": 1, "passed": 0, "n": 5}
+    ],
+    "previous_model": {
+      "model": "gemini-3.8-flash",
+      "status": "interrupted",
+      "reason": "first real baseline exceeded 300 seconds; execution timeout is not a task failure"
+    },
+    "live_llm_generation_tested": true,
     "autonomous_learning_demonstrated": false
   }
 }

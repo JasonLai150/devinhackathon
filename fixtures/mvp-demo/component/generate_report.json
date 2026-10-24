@@ -1,0 +1,29 @@
+{
+  "spec": "toolshop-cheapest-product",
+  "attempts": 0,
+  "path": "verbatim",
+  "validation_errors": [],
+  "smoke_errors": [],
+  "attempt_errors": [],
+  "browser_validation": {
+    "kind": "mechanical toolshop browser probe",
+    "passed": true,
+    "checks": [
+      {
+        "seed": 42,
+        "pages": 5,
+        "items": 39,
+        "mutation_verified": true
+      },
+      {
+        "seed": 101,
+        "pages": 6,
+        "items": 54,
+        "mutation_verified": true
+      }
+    ],
+    "errors": [],
+    "elapsed_s": 3.55
+  },
+  "elapsed_s": 3.69
+}

@@ -13,7 +13,7 @@ import shutil
 import time
 from pathlib import Path
 
-from capture.llm import resolve_config, make_llm, check_provider
+from capture.llm import resolve_config, make_llm, check_provider, load_env_file
 from capture.recording import artifact_ref
 from . import config, improve, repro_check, runner, transfer
 from .agent_browser import BrowserAgent
@@ -45,12 +45,12 @@ def preflight(args):
 
 
 class Experiment:
-    def __init__(self, directory, agent, task, spec):
+    def __init__(self, directory, agent, task, spec, mode="LLM"):
         self.directory = Path(directory)
         self.directory.mkdir(parents=True, exist_ok=True)
         self.started = time.monotonic()
         self.manifest = {
-            "schema_version": 2, "mode": "LLM", "status": "running", "stage": "capture",
+            "schema_version": 2, "mode": mode, "status": "running", "stage": "capture",
             "agent": agent.agent_id, "agent_metadata": agent.metadata,
             "spec": spec, "tasks": [task], "summary": {}, "events": [],
             "env_running": False, "trajectory_path": None,
@@ -134,9 +134,15 @@ async def run(args, model):
                     "No conclusion about task difficulty can be drawn from this attempt.")
         failures = [r for r in baseline if r["ok"] and r["verification"]
                     and not r["verification"]["passed"]]
-        if len(failures) < args.minimum_failures:
-            return experiment.block("No reliably failing baseline: retain results and select a different candidate task/model.")
-        m["trajectory_path"] = failures[0]["trajectory_path"]
+        matching = [r for r in failures if r.get("trajectory_path") and
+                    repro_check.real_failure(config.load_json(r["trajectory_path"]))[
+                        "failure_kind"] == "pagination_incomplete"]
+        m["baseline"]["pagination_failures"] = len(matching)
+        if len(matching) < args.minimum_failures:
+            return experiment.block(
+                "No reliable pagination failure with matching browser/checker evidence; "
+                "retain results and select a different candidate task/model.")
+        m["trajectory_path"] = matching[0]["trajectory_path"]
         trajectory = config.load_json(m["trajectory_path"])
         # Domain-specific deterministic localization is disclosed in the manifest.
         experiment.stage("localize")
@@ -209,6 +215,9 @@ async def run(args, model):
         m.update(status="complete", stage="complete",
                  reason="Observed improvement and verified real transfer; inspect counts and uncertainty.")
         return m
+    except asyncio.CancelledError:
+        m.update(status="interrupted", reason="Experiment cancelled; partial evidence retained.")
+        raise
     except Exception as error:
         m.update(status="error", reason=str(error))
         raise
@@ -222,7 +231,8 @@ def parser():
     ap.add_argument("--out", default=".integration/llm-demo")
     ap.add_argument("--spec", default="fixtures/env_spec.json")
     ap.add_argument("--task", default="shop-cheapest")
-    ap.add_argument("--provider", choices=("anthropic", "openai"))
+    ap.add_argument("--provider", choices=("gemini", "anthropic", "openai"))
+    ap.add_argument("--env-file", help="local credentials file, e.g. .env.local")
     ap.add_argument("--model")
     ap.add_argument("--temperature", type=float, default=0.7)
     ap.add_argument("--max-steps", type=int, default=30)
@@ -247,6 +257,8 @@ def parser():
 def main(argv=None):
     ap = parser()
     args = ap.parse_args(argv)
+    if args.env_file:
+        load_env_file(args.env_file)
     for field in ("repro_seeds", "train_seeds", "eval_seeds"):
         setattr(args, field, parse_seeds(getattr(args, field)))
     if (not args.train_seeds or not args.eval_seeds or not args.repro_seeds or

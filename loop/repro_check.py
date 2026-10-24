@@ -1,11 +1,10 @@
 """Repro check (round 0) — does the baseline agent fail in the mini-env the
 same way it failed on the real site?
 
-Runs the baseline over repro seeds, then classifies every failed episode
-against the spec's failure signature. For the pagination failure mode the
-signature is: the agent never fetched listing page >= 2, or it booked an
-item that was visible on page 1 — both readable from the session's
-request_log + tables (runner-side /state; the agent never sees it).
+Requires a verified wrong choice, page-one-only browsing, and an unseen
+correct choice. Compare that evidence with the real trajectory's listing
+observations and structured checker verdict. Missing real evidence permits
+only a sandbox diagnostic, never a confirmed real-site reproduction.
 
 Emits repro_report.json (the dashboard's credibility artifact), round-0
 rollouts records, and a round-0 metrics.json entry.
@@ -17,7 +16,7 @@ import argparse
 import asyncio
 import json
 import os
-import re
+from urllib.parse import parse_qs, urlsplit
 
 from . import config, runner
 from .agent import make_agent
@@ -33,9 +32,10 @@ def classify(state, spec, record):
     per_page = call.get("per_page", 10)
     tables = state["tables"]
 
-    page_re = re.compile(re.escape(api) + r"\?page=(\d+)")
-    pages = [int(m.group(1)) for row in tables.get("request_log", [])
-             for m in [page_re.search(row["path"])] if m]
+    requests = [urlsplit(row["path"]) for row in tables.get("request_log", [])
+                if urlsplit(row["path"]).path.endswith("/" + api)]
+    queries = [parse_qs(url.query) for url in requests]
+    pages = [int(q.get("page", ["1"])[0]) for q in queries]
     max_page = max(pages) if pages else 0
 
     mut = spec["routes"]["mutation"]
@@ -43,8 +43,12 @@ def classify(state, spec, record):
     fk = mut["fk_column"]
     booked_id = bookings[-1][fk] if bookings else None
     entity = call["table"]
+    visible_count = max([int(q.get("per_page", [per_page])[0]) for q in queries],
+                        default=per_page)
     page1_ids = {r["id"] for r in
-                 sorted(tables[entity], key=lambda r: r["id"])[:per_page]}
+                 sorted(tables[entity], key=lambda r: r["id"])[:visible_count]}
+    verdict = record.get("verification", {})
+    expected_ids = set(verdict.get("expected_ids", []))
 
     signals = {
         "max_listing_page_seen": max_page,
@@ -54,8 +58,37 @@ def classify(state, spec, record):
     signature_failure = (
         not record["passed"]
         and not record.get("reason", "").startswith("error:")
+        and verdict.get("code") == "wrong_choice"
+        and len(bookings) == 1 and bookings[0].get("quantity", 1) == 1
+        and bool(expected_ids) and not expected_ids.intersection(page1_ids)
         and max_page == 1 and booked_id in page1_ids)
-    return {**signals, "signature_failure": signature_failure}
+    return {**signals, "signature_failure": signature_failure,
+            "failure_kind": "pagination_incomplete" if signature_failure else None}
+
+
+def real_failure(trajectory):
+    """Classify real browser evidence without inferring causes from prose."""
+    trajectory = trajectory or {}
+    verdict = trajectory.get("checker") or {}
+    listings = [s["listing"] for s in trajectory.get("steps", [])
+                if s.get("listing", {}).get("products")]
+    pages = sorted({listing["page"] for listing in listings})
+    products = [p for listing in listings for p in listing["products"]]
+    cart = verdict.get("cart", [])
+    expected = verdict.get("expected", {})
+    seen_names = {p["name"].strip().lower() for p in products}
+    matches = (
+        trajectory.get("outcome") == "failed" and not trajectory.get("error")
+        and verdict.get("passed") is False and verdict.get("code") == "wrong_choice"
+        and pages == [1] and len(cart) == 1 and cart[0].get("quantity") == 1
+        and cart[0].get("price") is not None
+        and cart[0]["name"].strip().lower() in seen_names
+        and bool(expected.get("name"))
+        and expected["name"].strip().lower() not in seen_names)
+    return {"failure_kind": "pagination_incomplete" if matches else None,
+            "listing_pages_seen": pages,
+            "reason": ("verified wrong page-one choice with correct item unseen" if matches
+                       else "missing or non-matching real-site failure evidence")}
 
 
 async def repro(client_factory, agent, task, seeds, spec,
@@ -79,6 +112,9 @@ async def repro(client_factory, agent, task, seeds, spec,
 def build_report(agent_id, task, spec, episodes, trajectory):
     failures = [e for e in episodes if not e["passed"]]
     sig = [e for e in failures if e["signature_failure"]]
+    real = real_failure(trajectory)
+    real["site_matches"] = bool(trajectory) and trajectory.get("site_url") == spec.get("site_url")
+    sandbox_match = bool(sig) and len(sig) == len(failures)
     return {
         "task_id": task["id"],
         "agent": agent_id,
@@ -89,8 +125,10 @@ def build_report(agent_id, task, spec, episodes, trajectory):
         "n": len(episodes),
         "failures": len(failures),
         "signature_failures": len(sig),
-        # Reproduced = every observed failure is the known failure mode.
-        "reproduced": bool(sig) and len(sig) == len(failures),
+        "real_failure": real,
+        "sandbox_reproduced": sandbox_match,
+        "reproduced": (sandbox_match and real["site_matches"]
+                       and real["failure_kind"] == "pagination_incomplete"),
     }
 
 

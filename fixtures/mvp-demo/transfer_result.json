@@ -1,0 +1,57 @@
+{
+  "task_id": "shop-cheapest",
+  "seed": null,
+  "phase": "transfer",
+  "memory_hash": "b1deae0cff8e03456a62b2d7c3a591b2a12a38ea9bc93114891f1de7f46ac5a6",
+  "verification": {
+    "passed": true,
+    "code": "correct",
+    "expected": {
+      "id": "01M5QMJ7R0V71M0W2CJZBCVAN0",
+      "name": "Washers",
+      "price": 3.55,
+      "n_products": 50
+    },
+    "cart": [
+      {
+        "name": "Washers",
+        "price": 3.55,
+        "quantity": 1
+      }
+    ],
+    "reason": "cart contains Washers ($3.55) \u2014 the cheapest of 50 products"
+  },
+  "agent": "browser:auto",
+  "passed": true,
+  "reason": "cart contains Washers ($3.55) \u2014 the cheapest of 50 products",
+  "steps": 14,
+  "actions": [
+    "navigate to product listing (page 1)",
+    "read products on page 1 (9 products seen so far)",
+    "click next page (now on page 2)",
+    "read products on page 2 (18 products seen so far)",
+    "click next page (now on page 3)",
+    "read products on page 3 (27 products seen so far)",
+    "click next page (now on page 4)",
+    "read products on page 4 (36 products seen so far)",
+    "click next page (now on page 5)",
+    "read products on page 5 (45 products seen so far)",
+    "compared 45 products; global cheapest: Washers ($3.55)",
+    "open product detail: Washers",
+    "click 'Add to cart'",
+    "real-site checker: cart contains Washers ($3.55) \u2014 the cheapest of 50 products"
+  ],
+  "trajectory_path": "fixtures/mvp-demo/episodes/ed6d347836664659b43dc5d6c7a3e14f/trajectory.json",
+  "video_path": "fixtures/mvp-demo/episodes/ed6d347836664659b43dc5d6c7a3e14f/page@1e7c46d0dd4edf722772f7724cdf8537.webm",
+  "agent_metadata": {
+    "strategy": "auto",
+    "max_steps": 30,
+    "policy_version": "toolshop-observe-act-v2",
+    "provider": "scripted",
+    "model": null
+  },
+  "round": 2,
+  "target_url": "https://practicesoftwaretesting.com",
+  "mode": "real",
+  "checker": "capture.checker.verify"
+}

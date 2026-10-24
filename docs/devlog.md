@@ -453,6 +453,61 @@ baseline failure, obtain verified exploratory successes, and measure real LLM
 improvement/transfer. The current scripted recordings are a presentation
 fallback, not a substitute for those acceptance gates.
 
+## 2026-10-24 — MVP review fixes and Gemini support
+
+- Reproduction now uses structured wrong-choice verdicts, recorded listing
+  observations and a comparison with the actual real-site failure. Wrong
+  quantities, empty carts, unrelated failures and missing real evidence cannot
+  produce a confirmed match. Sandbox-only diagnostics remain available.
+- Saved agent configs now contain the original task, provider/model/sampling,
+  step budget and browser policy. Spec snapshots and memory have relative
+  paths and hashes. Standalone transfer restores these settings and rejects
+  missing or altered files. Checker exceptions and agent errors produce failed
+  records, and a failed transfer returns a nonzero CLI exit status.
+- `loop.rehearse` records the connected scripted pipeline in one command,
+  including fresh real capture, reference-component browser validation,
+  managed sandbox, fixed evaluation and optional real transfer. It refuses to
+  overwrite an existing run. Cancellation is retained as an interrupted run.
+- The dashboard defaults to `fixtures/mvp-demo`, a portable recorded bundle.
+  Its real failure matches the sandbox failure; evaluation is 0/3 before
+  memory and 3/3 afterward; real transfer finds Washers at $3.55. These are
+  scripted rehearsal results. All 189 referenced evidence paths resolve;
+  baseline/transfer videos decode and the dashboard has no JavaScript errors.
+- A second real transfer restored from the saved config also passed.
+- Playwright is pinned to 1.64.1; the old pin required a native dependency
+  build that failed on this machine's Python 3.14. Chromium is now installed
+  and browser tests run locally.
+- Gemini uses the same shared provider adapter throughout the experiment.
+  Credentials load explicitly from gitignored `.env.local`, and the key is
+  sent in a header, never a URL or artifact. The local dashboard refuses
+  credential/dotfile URLs and directory listings.
+- Live Gemini model discovery succeeded. Gemini 3.8 Flash exceeded the
+  five-minute baseline execution limit, so that run was interrupted with its
+  timeout evidence retained. Flash-Lite answered a probe in 4.7 seconds;
+  `gemini-3.5-flash-lite` is the new default for interactive browser runs.
+  Each experiment keeps its chosen model fixed; model changes start new runs.
+
+The supplied component and localization remain explicitly hand-authored for
+the single toolshop pagination MVP. No extra domain, GRPO or weight training
+has been added. Strict experiments still require verified training successes,
+an improved held-out evaluation and successful real transfer before completion.
+
+The live Flash-Lite experiment finished with **3/3 matching real failures**,
+LLM generation passing browser validation and **3/3 matching sandbox failures**.
+All six training attempts failed; evaluation remained **0/5 → 0/5**. The gate
+correctly blocked transfer and retained empty memory. This validates the
+experiment path but does not demonstrate autonomous improvement.
+
+That run exposed an invalid action: pagination requested from a detail page.
+The LLM policy now returns invalid-action feedback within the existing step
+budget instead of waiting for a missing browser control. LLM policy version
+`toolshop-observe-act-v3` records this change; scripted policy v2 is unchanged.
+The live experiment above used v2; v3's recovery is covered by the Chromium
+action-interface test and requires a fresh experiment for new learning claims.
+The full regression suite passed 84 tests before this final recovery fix.
+
+---
+
 ## 2026-10-24 — Diagnose Claude baseline HTTP 400s
 
 The first credentialed attempt in `.integration/claude-demo/` did not measure

@@ -1,0 +1,182 @@
+{
+  "episode_id": "08e9ef071c464c3b84d284143a276bf7",
+  "task": "Add exactly one of the cheapest product in the store to your cart.",
+  "site_url": "http://127.0.0.1:64200/s/aaG3kfbLzJU/",
+  "agent": {
+    "strategy": "auto",
+    "max_steps": 30,
+    "policy_version": "toolshop-observe-act-v2",
+    "provider": "scripted",
+    "model": null
+  },
+  "memory_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "steps": [
+    {
+      "i": 0,
+      "action": "navigate to product listing (page 1)",
+      "url": "http://127.0.0.1:64200/s/aaG3kfbLzJU/",
+      "screenshot_path": "fixtures/mvp-demo/episodes/08e9ef071c464c3b84d284143a276bf7/000.png",
+      "dom_path": "fixtures/mvp-demo/episodes/08e9ef071c464c3b84d284143a276bf7/000.html",
+      "listing": {
+        "page": 1,
+        "products": [
+          {
+            "id": "1",
+            "name": "Anchor Bolts (Set)",
+            "price": 88.01,
+            "href": "products/1"
+          },
+          {
+            "id": "2",
+            "name": "Claw Hammer",
+            "price": 45.11,
+            "href": "products/2"
+          },
+          {
+            "id": "3",
+            "name": "Wood Screws",
+            "price": 73.85,
+            "href": "products/3"
+          },
+          {
+            "id": "4",
+            "name": "Magnetic Tray (XL)",
+            "price": 65.6,
+            "href": "products/4"
+          },
+          {
+            "id": "5",
+            "name": "Hand Saw",
+            "price": 25.13,
+            "href": "products/5"
+          },
+          {
+            "id": "6",
+            "name": "Claw Hammer (Pro)",
+            "price": 61.01,
+            "href": "products/6"
+          },
+          {
+            "id": "7",
+            "name": "Wire Cutters (Set)",
+            "price": 29.1,
+            "href": "products/7"
+          },
+          {
+            "id": "8",
+            "name": "Magnetic Tray (Set)",
+            "price": 77.25,
+            "href": "products/8"
+          },
+          {
+            "id": "9",
+            "name": "Jigsaw (Pro)",
+            "price": 22.6,
+            "href": "products/9"
+          }
+        ]
+      }
+    },
+    {
+      "i": 1,
+      "action": "read page-1 products; picked cheapest visible: Jigsaw (Pro) ($22.6)",
+      "url": "http://127.0.0.1:64200/s/aaG3kfbLzJU/",
+      "screenshot_path": "fixtures/mvp-demo/episodes/08e9ef071c464c3b84d284143a276bf7/001.png",
+      "dom_path": "fixtures/mvp-demo/episodes/08e9ef071c464c3b84d284143a276bf7/001.html",
+      "listing": {
+        "page": 1,
+        "products": [
+          {
+            "id": "1",
+            "name": "Anchor Bolts (Set)",
+            "price": 88.01,
+            "href": "products/1"
+          },
+          {
+            "id": "2",
+            "name": "Claw Hammer",
+            "price": 45.11,
+            "href": "products/2"
+          },
+          {
+            "id": "3",
+            "name": "Wood Screws",
+            "price": 73.85,
+            "href": "products/3"
+          },
+          {
+            "id": "4",
+            "name": "Magnetic Tray (XL)",
+            "price": 65.6,
+            "href": "products/4"
+          },
+          {
+            "id": "5",
+            "name": "Hand Saw",
+            "price": 25.13,
+            "href": "products/5"
+          },
+          {
+            "id": "6",
+            "name": "Claw Hammer (Pro)",
+            "price": 61.01,
+            "href": "products/6"
+          },
+          {
+            "id": "7",
+            "name": "Wire Cutters (Set)",
+            "price": 29.1,
+            "href": "products/7"
+          },
+          {
+            "id": "8",
+            "name": "Magnetic Tray (Set)",
+            "price": 77.25,
+            "href": "products/8"
+          },
+          {
+            "id": "9",
+            "name": "Jigsaw (Pro)",
+            "price": 22.6,
+            "href": "products/9"
+          }
+        ]
+      }
+    },
+    {
+      "i": 2,
+      "action": "open product detail: Jigsaw (Pro)",
+      "url": "http://127.0.0.1:64200/s/aaG3kfbLzJU/products/9",
+      "screenshot_path": "fixtures/mvp-demo/episodes/08e9ef071c464c3b84d284143a276bf7/002.png",
+      "dom_path": "fixtures/mvp-demo/episodes/08e9ef071c464c3b84d284143a276bf7/002.html",
+      "listing": {
+        "page": -1,
+        "products": []
+      }
+    },
+    {
+      "i": 3,
+      "action": "click 'Add to cart'",
+      "url": "http://127.0.0.1:64200/s/aaG3kfbLzJU/cart-items/1",
+      "screenshot_path": "fixtures/mvp-demo/episodes/08e9ef071c464c3b84d284143a276bf7/003.png",
+      "dom_path": "fixtures/mvp-demo/episodes/08e9ef071c464c3b84d284143a276bf7/003.html",
+      "listing": {
+        "page": -1,
+        "products": []
+      }
+    }
+  ],
+  "video_path": "fixtures/mvp-demo/episodes/08e9ef071c464c3b84d284143a276bf7/page@d737fec85aeb4599737ab8fd77cbedb9.webm",
+  "outcome": "failed",
+  "checker": {
+    "code": "wrong_choice",
+    "expected_ids": [
+      41
+    ],
+    "passed": false,
+    "reason": "wrong cart product; expected matching price $2.49"
+  },
+  "error": null,
+  "duration_s": 37.9,
+  "failure_step": null
+}

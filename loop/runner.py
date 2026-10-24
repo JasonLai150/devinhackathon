@@ -83,6 +83,7 @@ async def run_episode(client, agent, task, seed, round_no, overrides=None,
         verdict = {"passed": False, "reason": f"error: verify: {e}"}
     rec.update(passed=bool(verdict.get("passed")),
                reason=verdict.get("reason", ""))
+    rec["verification"] = verdict
     if res.trajectory_path:
         from capture.recording import attach_verdict
         attach_verdict(res.trajectory_path, verdict)
@@ -102,7 +103,8 @@ async def run_round(client_factory, agent, task, seeds, round_no,
     sem = asyncio.Semaphore(concurrency)
 
     async def one(seed):
-        context = json.dumps({"task": task, "spec": getattr(agent, "spec", {}),
+        context = json.dumps({"verification_schema": 2,
+                              "task": task, "spec": getattr(agent, "spec", {}),
                               "agent_metadata": getattr(agent, "metadata", {}),
                               "overrides": overrides or {}}, sort_keys=True)
         key = cache_key(task["id"], seed, agent.agent_id, skill_notes) + ":" + \

@@ -17,6 +17,7 @@ import asyncio
 import hashlib
 import json
 import os
+from pathlib import Path
 
 from . import config, runner, real_site_checker
 from .agent import make_agent
@@ -32,7 +33,8 @@ async def transfer(agent, task, target_url, notes="", timeout=180,
         res = await asyncio.wait_for(
             agent.run(env, task, session, skill_notes=notes), timeout)
         outcome = {"actions": res.actions, "steps": res.steps,
-                   "error": res.error, "verification": res.verification,
+                   "error": res.error or ("agent execution failed" if not res.ok else None),
+                   "verification": res.verification,
                    "trajectory_path": res.trajectory_path, "video_path": res.video_path,
                    "agent_metadata": res.agent_metadata}
     except asyncio.TimeoutError:
@@ -40,12 +42,17 @@ async def transfer(agent, task, target_url, notes="", timeout=180,
                    "error": f"timeout after {timeout}s"}
     except Exception as e:
         outcome = {"actions": [], "steps": 0, "error": str(e)}
-    verdict = (checker or real_site_checker.check_transfer)(
-        task, target_url, outcome)
+    try:
+        verdict = (checker or real_site_checker.check_transfer)(
+            task, target_url, outcome)
+    except Exception as exc:
+        verdict = {"passed": False, "reason": f"checker error: {exc}"}
     if outcome.get("error"):
         verdict = {"passed": False, "reason": (
             verdict.get("reason", "") + f"; agent error: {outcome['error']}")}
     record = {"task_id": task["id"], "seed": None, "phase": "transfer",
+              "memory_hash": hashlib.sha256(notes.encode()).hexdigest(),
+              "verification": verdict,
               "agent": agent.agent_id, "passed": bool(verdict.get("passed")),
               "reason": verdict.get("reason", outcome.get("error") or ""),
               "steps": outcome["steps"], "actions": outcome["actions"]}
@@ -53,6 +60,38 @@ async def transfer(agent, task, target_url, notes="", timeout=180,
         if outcome.get(key):
             record[key] = outcome[key]
     return record
+
+
+def load_saved_agent(path, **browser_options):
+    """Restore a portable config, rejecting missing or altered run evidence."""
+    from capture.agents import POLICY_VERSION, LLM_POLICY_VERSION
+    from capture.llm import resolve_config
+
+    path = Path(path).resolve()
+    cfg = config.load_json(path)
+    if cfg.get("schema_version") != 2:
+        raise ValueError("agent config predates reproducible settings; regenerate it")
+    spec_path = path.parent / cfg["spec_path"]
+    if hashlib.sha256(spec_path.read_bytes()).hexdigest() != cfg["spec_hash"]:
+        raise ValueError("saved spec hash does not match")
+    spec = config.load_json(spec_path)
+    notes = (path.parent / cfg["memory_path"]).read_text()
+    if hashlib.sha256(notes.encode()).hexdigest() != cfg["memory_hash"]:
+        raise ValueError("saved memory hash does not match")
+    metadata = cfg["agent_metadata"]
+    options = dict(browser_options)
+    if cfg["agent"].startswith("browser"):
+        expected_policy = LLM_POLICY_VERSION if metadata["strategy"] == "llm" else POLICY_VERSION
+        if metadata.get("policy_version") != expected_policy:
+            raise ValueError("saved browser policy differs; regenerate the experiment")
+        options["max_steps"] = metadata["max_steps"]
+        if metadata["strategy"] == "llm":
+            options["model_config"] = resolve_config(
+                metadata["provider"], metadata["model"], metadata["temperature"])
+    agent = make_agent(cfg["agent"], spec, **options)
+    if getattr(agent, "metadata", {}) != metadata:
+        raise ValueError("restored agent settings do not match the saved configuration")
+    return cfg, spec, cfg["task"], agent, notes
 
 
 def _next_round(metrics_path):
@@ -82,22 +121,29 @@ def main(argv=None):
     ap.add_argument("--metrics", default=None)
     ap.add_argument("--out", default=None, help="transfer_result.json path")
     ap.add_argument("--timeout", type=int, default=180)
+    ap.add_argument("--record-dir", default=None)
+    ap.add_argument("--headed", action="store_true")
+    ap.add_argument("--env-file", help="local credentials file, e.g. .env.local")
     args = ap.parse_args(argv)
+    if args.env_file:
+        from capture.llm import load_env_file
+        load_env_file(args.env_file)
 
-    cfg = {}
-    cfg_path = args.config or config.artifact_path("agent_config.json")
-    if os.path.exists(cfg_path):
-        cfg = json.load(open(cfg_path))
-
-    spec = config.load_spec(args.spec)
-    tasks = config.load_tasks(args.tasks, spec)
-    task = tasks[args.task or cfg.get("task_id") or "t2"]
-    agent = make_agent(args.agent or cfg.get("agent") or "sim:smart", spec)
-
-    notes = ""
-    mem_path = args.memory or cfg.get("memory_path")
-    if mem_path and os.path.exists(mem_path):
-        notes = open(mem_path).read()
+    options = {"artifact_dir": args.record_dir, "headed": args.headed}
+    if args.config or not args.agent:
+        if any((args.agent, args.task, args.tasks, args.spec, args.memory, args.target_url)):
+            ap.error("saved-config transfer uses its original agent/task/spec/memory/target")
+        cfg_path = Path(args.config or config.artifact_path("agent_config.json")).resolve()
+        cfg, spec, task, agent, notes = load_saved_agent(cfg_path, **options)
+        args.spec = str(cfg_path.parent / cfg["spec_path"])
+    else:
+        spec = config.load_spec(args.spec)
+        tasks = config.load_tasks(args.tasks, spec)
+        task = tasks[args.task or next(iter(tasks))]
+        agent = make_agent(args.agent, spec, **options)
+        notes = Path(args.memory).read_text() if args.memory else ""
+    if not args.rehearse and not agent.agent_id.startswith("browser"):
+        ap.error("real-site transfer requires a browser agent")
 
     client_factory = _client_factory(args)
     env_client = client_factory()
@@ -111,11 +157,8 @@ def main(argv=None):
         def checker(task_, url, outcome):
             return env_client.verify(task_["id"], sid)
     else:
-        traj_path = args.trajectory or config.trajectory_path()
-        trajectory = (config.load_json(traj_path)
-                      if os.path.exists(traj_path) else {})
-        target_url = (args.target_url or trajectory.get("site_url")
-                      or spec.get("site_url"))
+        trajectory = config.load_json(args.trajectory) if args.trajectory else {}
+        target_url = args.target_url or spec.get("site_url") or trajectory.get("site_url")
         checker = None  # LOOP_REAL_CHECKER / stub
 
     record = asyncio.run(transfer(
@@ -135,7 +178,7 @@ def main(argv=None):
         **record,
         "target_url": target_url,
         "mode": "rehearse" if args.rehearse else "real",
-        "checker": (os.environ.get("LOOP_REAL_CHECKER")
+        "checker": (os.environ.get("LOOP_REAL_CHECKER") or "capture.checker.verify"
                     if not args.rehearse else "env:/verify"),
         "notes_hash": hashlib.sha1(notes.encode()).hexdigest()[:8]
                       if notes else None,
@@ -152,4 +195,4 @@ def main(argv=None):
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(0 if main()["passed"] else 1)

@@ -25,20 +25,30 @@ from .seeds import (EVAL_OVERRIDES, EVAL_SEEDS, TRAIN_OVERRIDES, TRAIN_SEEDS,
 async def run(client_factory, spec, task, rounds=2,
               train_seeds=TRAIN_SEEDS, eval_seeds=EVAL_SEEDS,
               repro_seeds=None, timeout=120, agent_name="sim:auto",
-              real_transfer=False, trajectory=None, browser_options=None):
+              real_transfer=False, trajectory=None, browser_options=None,
+              concurrency=2, stage_callback=None):
+    train_seeds, eval_seeds = list(train_seeds), list(eval_seeds)
+    repro_seeds = list(repro_seeds if repro_seeds is not None else train_seeds[:10])
+    if (not repro_seeds or not train_seeds or not eval_seeds or
+            (set(train_seeds) | set(repro_seeds)) & set(eval_seeds)):
+        raise ValueError("evaluation seeds must be nonempty and disjoint from train/repro")
     rollouts_path = config.artifact_path("rollouts.jsonl")
     metrics_path = config.artifact_path("metrics.json")
     memory = MemoryStore(config.artifact_path("skill_notes.md"))
+    if any(os.path.exists(p) for p in (rollouts_path, metrics_path, memory.path)):
+        raise ValueError("choose a fresh artifacts directory or explicitly use --clean")
     cache_path = config.artifact_path("baseline_cache.json")
     cache = runner.load_cache(cache_path)
     summary = {}
 
     # 1. repro — baseline agent, round 0.
+    if stage_callback:
+        stage_callback("reproduce")
     naive = make_agent("sim:naive" if agent_name == "sim:auto" else agent_name,
                        spec, **(browser_options or {}))
     episodes = await repro_check.repro(
-        client_factory, naive, task, repro_seeds or train_seeds[:10], spec,
-        cache=cache, cache_path=cache_path, timeout=timeout)
+        client_factory, naive, task, repro_seeds, spec,
+        cache=cache, cache_path=cache_path, timeout=timeout, concurrency=concurrency)
     report = repro_check.build_report(naive.agent_id, task, spec, episodes,
                                       trajectory)
     with open(config.artifact_path("repro_report.json"), "w") as f:
@@ -48,22 +58,30 @@ async def run(client_factory, spec, task, rounds=2,
                   phase="repro", agent=naive.agent_id)
     summary["repro"] = {
         "reproduced": report["reproduced"],
+        "sandbox_reproduced": report["sandbox_reproduced"],
         "baseline_success_rate": success_rate(episodes)}
+    if real_transfer and not report["reproduced"]:
+        raise ValueError("Real transfer requires a matching recorded real-site failure.")
 
     # 2. improve — rounds 1..R on held-out eval seeds.
+    if stage_callback:
+        stage_callback("improve")
     agent = make_agent(agent_name, spec, **(browser_options or {}))
     history = await improve.improve(
         client_factory, agent, task, rounds, memory=memory,
+        llm=None,
         train_seeds=train_seeds, eval_seeds=eval_seeds,
         train_overrides=TRAIN_OVERRIDES, eval_overrides=EVAL_OVERRIDES,
         rollouts_path=rollouts_path, metrics_path=metrics_path,
-        cache=cache, cache_path=cache_path, timeout=timeout)
+        cache=cache, cache_path=cache_path, timeout=timeout, concurrency=concurrency)
     improve.write_agent_config(
         config.artifact_path("agent_config.json"), agent, task, memory,
         history, train_seeds, eval_seeds, EVAL_OVERRIDES)
     summary["improve"] = history
 
     # 3. transfer rehearse — improved agent + notes on a fresh session.
+    if stage_callback:
+        stage_callback("transfer")
     if real_transfer:
         if not agent_name.startswith("browser"):
             raise ValueError("real transfer requires a browser agent")
@@ -125,13 +143,14 @@ def main(argv=None):
     if args.clean:
         for name in ("rollouts.jsonl", "metrics.json", "repro_report.json",
                      "skill_notes.md", "agent_config.json",
-                     "transfer_result.json", "baseline_cache.json", "run_manifest.json"):
+                     "transfer_result.json", "baseline_cache.json", "run_manifest.json",
+                     "agent_config.spec.json"):
             p = config.artifact_path(name)
             if os.path.exists(p):
                 os.remove(p)
 
-    trajectory_path = args.trajectory or config.trajectory_path()
-    trajectory = config.load_json(trajectory_path) if os.path.isfile(trajectory_path) else None
+    trajectory_path = args.trajectory
+    trajectory = config.load_json(trajectory_path) if trajectory_path else None
     summary = asyncio.run(run(
         _client_factory(args), spec, task, rounds=args.rounds,
         train_seeds=parse_seeds(args.train_seeds) if args.train_seeds
@@ -144,7 +163,8 @@ def main(argv=None):
     with open(config.artifact_path("run_manifest.json"), "w") as f:
         json.dump({"spec_path": os.path.relpath(args.spec or config.spec_path(), config._REPO),
                    "spec": spec,
-                   "trajectory_path": os.path.relpath(trajectory_path, config._REPO),
+                   "trajectory_path": (os.path.relpath(trajectory_path, config._REPO)
+                                       if trajectory_path else None),
                    "tasks": list(config.load_tasks(args.tasks, spec).values()),
                    "agent": args.agent, "env_url": args.env_url or config.env_url(),
                    "generation_report": (config.load_json(args.generate_report)
@@ -160,7 +180,7 @@ def main(argv=None):
         print(f"round {h['round']}: eval {h['eval_success_rate']:.0%}")
     t = summary["transfer"]
     print(f"transfer: {'PASS' if t['passed'] else 'FAIL'}  {t['reason']}")
-    if not rep["reproduced"] or not t["passed"] or not summary["improve"] or \
+    if not rep["sandbox_reproduced"] or not t["passed"] or not summary["improve"] or \
             summary["improve"][-1]["eval_success_rate"] < 1:
         raise SystemExit(1)
 

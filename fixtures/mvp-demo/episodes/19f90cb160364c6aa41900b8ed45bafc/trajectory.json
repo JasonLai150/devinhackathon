@@ -1,0 +1,182 @@
+{
+  "episode_id": "19f90cb160364c6aa41900b8ed45bafc",
+  "task": "Add exactly one of the cheapest product in the store to your cart.",
+  "site_url": "http://127.0.0.1:64200/s/j972v_h4pe0/",
+  "agent": {
+    "strategy": "auto",
+    "max_steps": 30,
+    "policy_version": "toolshop-observe-act-v2",
+    "provider": "scripted",
+    "model": null
+  },
+  "memory_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "steps": [
+    {
+      "i": 0,
+      "action": "navigate to product listing (page 1)",
+      "url": "http://127.0.0.1:64200/s/j972v_h4pe0/",
+      "screenshot_path": "fixtures/mvp-demo/episodes/19f90cb160364c6aa41900b8ed45bafc/000.png",
+      "dom_path": "fixtures/mvp-demo/episodes/19f90cb160364c6aa41900b8ed45bafc/000.html",
+      "listing": {
+        "page": 1,
+        "products": [
+          {
+            "id": "1",
+            "name": "Spirit Level",
+            "price": 56.45,
+            "href": "products/1"
+          },
+          {
+            "id": "2",
+            "name": "Hand Saw (XL)",
+            "price": 86.81,
+            "href": "products/2"
+          },
+          {
+            "id": "3",
+            "name": "Combination Pliers (XL)",
+            "price": 79.48,
+            "href": "products/3"
+          },
+          {
+            "id": "4",
+            "name": "Utility Knife",
+            "price": 32.76,
+            "href": "products/4"
+          },
+          {
+            "id": "5",
+            "name": "Washers",
+            "price": 72.32,
+            "href": "products/5"
+          },
+          {
+            "id": "6",
+            "name": "Spirit Level (Set)",
+            "price": 70.06,
+            "href": "products/6"
+          },
+          {
+            "id": "7",
+            "name": "Claw Hammer",
+            "price": 75.01,
+            "href": "products/7"
+          },
+          {
+            "id": "8",
+            "name": "Utility Knife (Set)",
+            "price": 49.09,
+            "href": "products/8"
+          },
+          {
+            "id": "9",
+            "name": "Parts Organizer (Mini)",
+            "price": 45.19,
+            "href": "products/9"
+          }
+        ]
+      }
+    },
+    {
+      "i": 1,
+      "action": "read page-1 products; picked cheapest visible: Utility Knife ($32.76)",
+      "url": "http://127.0.0.1:64200/s/j972v_h4pe0/",
+      "screenshot_path": "fixtures/mvp-demo/episodes/19f90cb160364c6aa41900b8ed45bafc/001.png",
+      "dom_path": "fixtures/mvp-demo/episodes/19f90cb160364c6aa41900b8ed45bafc/001.html",
+      "listing": {
+        "page": 1,
+        "products": [
+          {
+            "id": "1",
+            "name": "Spirit Level",
+            "price": 56.45,
+            "href": "products/1"
+          },
+          {
+            "id": "2",
+            "name": "Hand Saw (XL)",
+            "price": 86.81,
+            "href": "products/2"
+          },
+          {
+            "id": "3",
+            "name": "Combination Pliers (XL)",
+            "price": 79.48,
+            "href": "products/3"
+          },
+          {
+            "id": "4",
+            "name": "Utility Knife",
+            "price": 32.76,
+            "href": "products/4"
+          },
+          {
+            "id": "5",
+            "name": "Washers",
+            "price": 72.32,
+            "href": "products/5"
+          },
+          {
+            "id": "6",
+            "name": "Spirit Level (Set)",
+            "price": 70.06,
+            "href": "products/6"
+          },
+          {
+            "id": "7",
+            "name": "Claw Hammer",
+            "price": 75.01,
+            "href": "products/7"
+          },
+          {
+            "id": "8",
+            "name": "Utility Knife (Set)",
+            "price": 49.09,
+            "href": "products/8"
+          },
+          {
+            "id": "9",
+            "name": "Parts Organizer (Mini)",
+            "price": 45.19,
+            "href": "products/9"
+          }
+        ]
+      }
+    },
+    {
+      "i": 2,
+      "action": "open product detail: Utility Knife",
+      "url": "http://127.0.0.1:64200/s/j972v_h4pe0/products/4",
+      "screenshot_path": "fixtures/mvp-demo/episodes/19f90cb160364c6aa41900b8ed45bafc/002.png",
+      "dom_path": "fixtures/mvp-demo/episodes/19f90cb160364c6aa41900b8ed45bafc/002.html",
+      "listing": {
+        "page": -1,
+        "products": []
+      }
+    },
+    {
+      "i": 3,
+      "action": "click 'Add to cart'",
+      "url": "http://127.0.0.1:64200/s/j972v_h4pe0/cart-items/1",
+      "screenshot_path": "fixtures/mvp-demo/episodes/19f90cb160364c6aa41900b8ed45bafc/003.png",
+      "dom_path": "fixtures/mvp-demo/episodes/19f90cb160364c6aa41900b8ed45bafc/003.html",
+      "listing": {
+        "page": -1,
+        "products": []
+      }
+    }
+  ],
+  "video_path": "fixtures/mvp-demo/episodes/19f90cb160364c6aa41900b8ed45bafc/page@8d985d06d1e599bcd422a514e20950a7.webm",
+  "outcome": "failed",
+  "checker": {
+    "code": "wrong_choice",
+    "expected_ids": [
+      36
+    ],
+    "passed": false,
+    "reason": "wrong cart product; expected matching price $3.54"
+  },
+  "error": null,
+  "duration_s": 37.73,
+  "failure_step": null
+}

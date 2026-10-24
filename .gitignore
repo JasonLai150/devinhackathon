@@ -4,4 +4,6 @@ __pycache__/
 .DS_Store
 env/.sessions/
 loop/artifacts/baseline_cache.json
+fixtures/mvp-demo/baseline_cache.json
 .integration/
+.env.local

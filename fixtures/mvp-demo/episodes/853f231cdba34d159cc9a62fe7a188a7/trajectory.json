@@ -1,0 +1,203 @@
+{
+  "episode_id": "853f231cdba34d159cc9a62fe7a188a7",
+  "task": "Add exactly one of the cheapest product in the store to your cart.",
+  "site_url": "https://practicesoftwaretesting.com",
+  "agent": {
+    "strategy": "auto",
+    "max_steps": 30,
+    "policy_version": "toolshop-observe-act-v2",
+    "provider": "scripted",
+    "model": null
+  },
+  "memory_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "steps": [
+    {
+      "i": 0,
+      "action": "navigate to product listing (page 1)",
+      "url": "https://practicesoftwaretesting.com/",
+      "screenshot_path": "fixtures/mvp-demo/episodes/853f231cdba34d159cc9a62fe7a188a7/000.png",
+      "dom_path": "fixtures/mvp-demo/episodes/853f231cdba34d159cc9a62fe7a188a7/000.html",
+      "listing": {
+        "page": 1,
+        "products": [
+          {
+            "id": "01M5QMJ7MMBVDDX9XAF1TYCB0G",
+            "name": "Combination Pliers",
+            "price": 14.15,
+            "href": "/product/01M5QMJ7MMBVDDX9XAF1TYCB0G"
+          },
+          {
+            "id": "01M5QMJ7MSD663D9GN8P7FYEZF",
+            "name": "Pliers",
+            "price": 12.01,
+            "href": "/product/01M5QMJ7MSD663D9GN8P7FYEZF"
+          },
+          {
+            "id": "01M5QMJ7MWSF7T2Z4Z65R1TB13",
+            "name": "Bolt Cutters",
+            "price": 48.41,
+            "href": "/product/01M5QMJ7MWSF7T2Z4Z65R1TB13"
+          },
+          {
+            "id": "01M5QMJ7MZZ6KNEW0SMY1EJJQX",
+            "name": "Long Nose Pliers",
+            "price": 14.24,
+            "href": "/product/01M5QMJ7MZZ6KNEW0SMY1EJJQX"
+          },
+          {
+            "id": "01M5QMJ7N1NB2Y47TACPQPEWXW",
+            "name": "Slip Joint Pliers",
+            "price": 9.17,
+            "href": "/product/01M5QMJ7N1NB2Y47TACPQPEWXW"
+          },
+          {
+            "id": "01M5QMJ7N426S39PS950DN3HES",
+            "name": "Claw Hammer with Shock Reduction Grip",
+            "price": 13.41,
+            "href": "/product/01M5QMJ7N426S39PS950DN3HES"
+          },
+          {
+            "id": "01M5QMJ7N65NCW1C2637T32HNY",
+            "name": "Hammer",
+            "price": 12.58,
+            "href": "/product/01M5QMJ7N65NCW1C2637T32HNY"
+          },
+          {
+            "id": "01M5QMJ7N8XYTCJSCYENWFXE25",
+            "name": "Claw Hammer",
+            "price": 11.48,
+            "href": "/product/01M5QMJ7N8XYTCJSCYENWFXE25"
+          },
+          {
+            "id": "01M5QMJ7N9CQ627ER4YNJP21CH",
+            "name": "Thor Hammer",
+            "price": 11.14,
+            "href": "/product/01M5QMJ7N9CQ627ER4YNJP21CH"
+          }
+        ]
+      }
+    },
+    {
+      "i": 1,
+      "action": "read page-1 products; picked cheapest visible: Slip Joint Pliers ($9.17)",
+      "url": "https://practicesoftwaretesting.com/",
+      "screenshot_path": "fixtures/mvp-demo/episodes/853f231cdba34d159cc9a62fe7a188a7/001.png",
+      "dom_path": "fixtures/mvp-demo/episodes/853f231cdba34d159cc9a62fe7a188a7/001.html",
+      "listing": {
+        "page": 1,
+        "products": [
+          {
+            "id": "01M5QMJ7MMBVDDX9XAF1TYCB0G",
+            "name": "Combination Pliers",
+            "price": 14.15,
+            "href": "/product/01M5QMJ7MMBVDDX9XAF1TYCB0G"
+          },
+          {
+            "id": "01M5QMJ7MSD663D9GN8P7FYEZF",
+            "name": "Pliers",
+            "price": 12.01,
+            "href": "/product/01M5QMJ7MSD663D9GN8P7FYEZF"
+          },
+          {
+            "id": "01M5QMJ7MWSF7T2Z4Z65R1TB13",
+            "name": "Bolt Cutters",
+            "price": 48.41,
+            "href": "/product/01M5QMJ7MWSF7T2Z4Z65R1TB13"
+          },
+          {
+            "id": "01M5QMJ7MZZ6KNEW0SMY1EJJQX",
+            "name": "Long Nose Pliers",
+            "price": 14.24,
+            "href": "/product/01M5QMJ7MZZ6KNEW0SMY1EJJQX"
+          },
+          {
+            "id": "01M5QMJ7N1NB2Y47TACPQPEWXW",
+            "name": "Slip Joint Pliers",
+            "price": 9.17,
+            "href": "/product/01M5QMJ7N1NB2Y47TACPQPEWXW"
+          },
+          {
+            "id": "01M5QMJ7N426S39PS950DN3HES",
+            "name": "Claw Hammer with Shock Reduction Grip",
+            "price": 13.41,
+            "href": "/product/01M5QMJ7N426S39PS950DN3HES"
+          },
+          {
+            "id": "01M5QMJ7N65NCW1C2637T32HNY",
+            "name": "Hammer",
+            "price": 12.58,
+            "href": "/product/01M5QMJ7N65NCW1C2637T32HNY"
+          },
+          {
+            "id": "01M5QMJ7N8XYTCJSCYENWFXE25",
+            "name": "Claw Hammer",
+            "price": 11.48,
+            "href": "/product/01M5QMJ7N8XYTCJSCYENWFXE25"
+          },
+          {
+            "id": "01M5QMJ7N9CQ627ER4YNJP21CH",
+            "name": "Thor Hammer",
+            "price": 11.14,
+            "href": "/product/01M5QMJ7N9CQ627ER4YNJP21CH"
+          }
+        ]
+      }
+    },
+    {
+      "i": 2,
+      "action": "open product detail: Slip Joint Pliers",
+      "url": "https://practicesoftwaretesting.com/product/01M5QMJ7N1NB2Y47TACPQPEWXW",
+      "screenshot_path": "fixtures/mvp-demo/episodes/853f231cdba34d159cc9a62fe7a188a7/002.png",
+      "dom_path": "fixtures/mvp-demo/episodes/853f231cdba34d159cc9a62fe7a188a7/002.html",
+      "listing": {
+        "page": -1,
+        "products": []
+      }
+    },
+    {
+      "i": 3,
+      "action": "click 'Add to cart'",
+      "url": "https://practicesoftwaretesting.com/product/01M5QMJ7N1NB2Y47TACPQPEWXW",
+      "screenshot_path": "fixtures/mvp-demo/episodes/853f231cdba34d159cc9a62fe7a188a7/003.png",
+      "dom_path": "fixtures/mvp-demo/episodes/853f231cdba34d159cc9a62fe7a188a7/003.html",
+      "listing": {
+        "page": -1,
+        "products": []
+      }
+    },
+    {
+      "i": 4,
+      "action": "real-site checker: expected Washers ($3.55, id 01M5QMJ7R0V71M0W2CJZBCVAN0); cart has: Slip Joint Pliers (quantity 1)",
+      "url": "https://practicesoftwaretesting.com/checkout",
+      "screenshot_path": "fixtures/mvp-demo/episodes/853f231cdba34d159cc9a62fe7a188a7/004.png",
+      "dom_path": "fixtures/mvp-demo/episodes/853f231cdba34d159cc9a62fe7a188a7/004.html",
+      "listing": {
+        "page": -1,
+        "products": []
+      }
+    }
+  ],
+  "video_path": "fixtures/mvp-demo/episodes/853f231cdba34d159cc9a62fe7a188a7/page@7a0d49544f470fe56a3de5a22e9b5c1b.webm",
+  "outcome": "failed",
+  "checker": {
+    "passed": false,
+    "code": "wrong_choice",
+    "expected": {
+      "id": "01M5QMJ7R0V71M0W2CJZBCVAN0",
+      "name": "Washers",
+      "price": 3.55,
+      "n_products": 50
+    },
+    "cart": [
+      {
+        "name": "Slip Joint Pliers",
+        "price": 9.17,
+        "quantity": 1
+      }
+    ],
+    "reason": "expected Washers ($3.55, id 01M5QMJ7R0V71M0W2CJZBCVAN0); cart has: Slip Joint Pliers (quantity 1)"
+  },
+  "error": null,
+  "duration_s": 64.44,
+  "failure_step": 3
+}

@@ -1,0 +1,51 @@
+{
+  "schema_version": 2,
+  "agent": "browser:auto",
+  "agent_metadata": {
+    "strategy": "auto",
+    "max_steps": 30,
+    "policy_version": "toolshop-observe-act-v2",
+    "provider": "scripted",
+    "model": null
+  },
+  "task_id": "shop-cheapest",
+  "task": {
+    "id": "shop-cheapest",
+    "instruction": "Add exactly one of the cheapest product in the store to your cart.",
+    "verifier": "cart_matching_product",
+    "params": {}
+  },
+  "spec_path": "agent_config.spec.json",
+  "spec_hash": "ff74fe01118ba6aa130e8c1ea85ed7c815293dbc41c25ac70092cce2acca9626",
+  "rounds": 1,
+  "memory_path": "skill_notes.md",
+  "memory_hash": "b1deae0cff8e03456a62b2d7c3a591b2a12a38ea9bc93114891f1de7f46ac5a6",
+  "train_seeds": [
+    0,
+    1,
+    2
+  ],
+  "eval_seeds": [
+    100,
+    101,
+    102
+  ],
+  "eval_overrides": {
+    "popup": "1",
+    "labels": "3"
+  },
+  "final_eval_success_rate": 1.0,
+  "history": [
+    {
+      "round": 1,
+      "train_success_rate": 0.0,
+      "eval_success_rate": 1.0,
+      "n_eval": 3,
+      "successes_distilled": 0,
+      "notes_changed": true,
+      "baseline_eval_success_rate": 0.0,
+      "evaluation_id": "02a535e0fe771957549292cae4029381b9cd5dc349b0323220c3a9a533fb84fd",
+      "distillation_mode": "rehearsal"
+    }
+  ]
+}

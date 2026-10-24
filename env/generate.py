@@ -14,7 +14,8 @@ Pipeline:
 
 Usage:  python -m env.generate [spec_path] [--component-dir DIR] [--verbatim]
 
-LLM provider: ANTHROPIC_API_KEY or OPENAI_API_KEY; model via ENV_LLM_MODEL.
+LLM provider: GEMINI_API_KEY, ANTHROPIC_API_KEY or OPENAI_API_KEY;
+model via ENV_LLM_MODEL (or the shared CAPTURE_LLM_MODEL).
 llm callable can be injected for tests: llm(prompt) -> str.
 """
 import json
@@ -25,7 +26,6 @@ import subprocess
 import sys
 import tempfile
 import time
-import urllib.request
 from pathlib import Path
 
 _BASE = os.path.dirname(__file__)
@@ -93,43 +93,14 @@ def build_prompt(spec):
 
 # ------------------------------------------------------------------- LLM ---
 
-def _post(url, headers, payload):
-    req = urllib.request.Request(
-        url, data=json.dumps(payload).encode(), method="POST",
-        headers={"Content-Type": "application/json", **headers})
-    with urllib.request.urlopen(req, timeout=120) as r:
-        return json.loads(r.read())
-
-
 def default_llm():
     """Pick a provider from env keys. Returns callable(prompt)->str or None."""
-    model = os.environ.get("ENV_LLM_MODEL")
-
-    if os.environ.get("ANTHROPIC_API_KEY"):
-        def call(prompt):
-            resp = _post(
-                "https://api.anthropic.com/v1/messages",
-                {"x-api-key": os.environ["ANTHROPIC_API_KEY"],
-                 "anthropic-version": "2023-06-01"},
-                {"model": model or "claude-sonnet-4-5",
-                 "max_tokens": 4096,
-                 "messages": [{"role": "user", "content": prompt}]})
-            return resp["content"][0]["text"]
-        return call
-
-    if os.environ.get("OPENAI_API_KEY"):
-        base = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
-
-        def call(prompt):
-            resp = _post(
-                base.rstrip("/") + "/chat/completions",
-                {"Authorization": f"Bearer {os.environ['OPENAI_API_KEY']}"},
-                {"model": model or "gpt-4.1",
-                 "messages": [{"role": "user", "content": prompt}]})
-            return resp["choices"][0]["message"].get("content") or ""
-        return call
-
-    return None
+    # Delegates to capture.llm, which covers Anthropic, OpenAI-compatible
+    # (OPENAI_BASE_URL) and Gemini providers plus shared HTTP error handling.
+    from capture.llm import PROVIDERS, make_llm, resolve_config
+    if not any(os.environ.get(key) for key, _ in PROVIDERS.values()):
+        return None
+    return make_llm(resolve_config(model=os.environ.get("ENV_LLM_MODEL")))
 
 
 def parse_response(text):

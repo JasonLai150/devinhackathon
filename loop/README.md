@@ -11,14 +11,15 @@ improved-agent config). See `../PLAN.md` and `../docs/devlog.md`.
 pip install -r loop/requirements.txt   # + env/requirements.txt
 python -m env.app                      # B's env on :5001
 
-python -m loop.demo                    # full pipeline vs the live env
-python -m loop.demo --in-process       # same, no server needed (offline)
+python -m loop.demo --clean            # scripted sandbox diagnostic vs the live env
+python -m loop.demo --in-process --clean # same, no server needed (offline)
 python -m pytest loop/tests env/tests  # all tests
 ```
 
-`loop.demo --in-process` is the deterministic fallback: no LLM key, no
-browser, no server — it regenerates every committed artifact in
-`loop/artifacts/` and shows the full red -> green story.
+`loop.demo --in-process --clean` is a sandbox diagnostic: no LLM key, browser
+or server. It writes flight-fixture artifacts in `loop/artifacts/`; without a
+matching real trajectory it cannot claim real-site reproduction. Use
+`loop.rehearse` for the connected browser presentation.
 
 ## Pipeline commands
 
@@ -105,3 +106,17 @@ it blocks transfer rather than being replaced by a scripted success.
 `loop.demo` remains the scripted rehearsal; use `--record-dir <directory>`
 for videos and step screenshots. Its curve now uses the same evaluation
 protocol, but it is not an LLM-learning result.
+
+Gemini is supported through `GEMINI_API_KEY`. Keep it in the gitignored
+`.env.local` and pass `--env-file .env.local --provider gemini` to
+`loop.experiment`. The provider is shared with generation and distillation.
+
+`python -m loop.rehearse --out .integration/rehearsal --real-transfer` records
+the complete scripted browser pipeline, including a fresh real failure and
+matching sandbox evidence. It manages the HTTP server and shuts it down after
+the run. The dashboard defaults to the portable `fixtures/mvp-demo` recording.
+
+New `agent_config.json` files restore the exact model settings, task, spec and
+memory through `loop.transfer --config <path>`. Keep the adjacent spec snapshot
+and memory file with the config; missing or altered files are rejected.
+Sandbox-only diagnostics are now distinct from confirmed real-site reproduction.

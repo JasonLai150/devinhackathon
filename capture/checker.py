@@ -87,6 +87,9 @@ def verify(page, expected=None):
     if len(hit) == 1 and len(rows) == 1:
         return {
             "passed": True,
+            "code": "correct",
+            "expected": expected,
+            "cart": rows,
             "reason": f"cart contains {expected['name']} "
                       f"(${expected['price']}) — the cheapest of "
                       f"{expected.get('n_products', '?')} products",
@@ -95,6 +98,10 @@ def verify(page, expected=None):
                     for r in rows if r["name"]) or "an empty cart"
     return {
         "passed": False,
+        "code": ("wrong_choice" if len(rows) == 1 and rows[0].get("quantity") == 1
+                 and rows[0].get("price") is not None else "invalid_cart"),
+        "expected": expected,
+        "cart": rows,
         "reason": f"expected {expected['name']} (${expected['price']}, id "
                   f"{expected['id']}); cart has: {got}",
     }
