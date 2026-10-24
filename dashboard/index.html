@@ -3,28 +3,66 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Failure-to-Env — demo dashboard</title>
+<title>Failure-to-Env — dashboard</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header>
-  <h1>Failure&#8209;to&#8209;Env</h1>
-  <p class="tagline">Every failure becomes a test. Every test becomes training signal.</p>
+  <div>
+    <h1>Failure&#8209;to&#8209;Env</h1>
+    <p class="tagline">Every failure becomes a test. Every test becomes training signal.</p>
+  </div>
   <p class="sub" id="artifact-status"></p>
 </header>
 
-<ol id="timeline" class="timeline"></ol>
+<section id="kpis" class="kpis"></section>
+<section id="pipeline" class="pipeline"></section>
 
-<template id="tpl-stage">
-  <li class="stage">
-    <div class="stage-head">
-      <span class="stage-num"></span>
-      <h2 class="stage-title"></h2>
-      <span class="stage-badge"></span>
+<main class="grid">
+  <div class="panel span2">
+    <h3>Success rate by round</h3>
+    <canvas id="chart-rate" width="720" height="230"></canvas>
+    <div class="legend" id="rate-legend"></div>
+  </div>
+  <div class="panel">
+    <h3>Failure signature (round-0 failures)</h3>
+    <canvas id="chart-sig" width="340" height="230"></canvas>
+  </div>
+  <div class="panel">
+    <h3>Steps per episode</h3>
+    <canvas id="chart-steps" width="340" height="230"></canvas>
+  </div>
+
+  <div class="panel span2">
+    <h3>Episode outcomes — click a cell for the action trace</h3>
+    <div id="matrix"></div>
+    <div class="legend">
+      <span><i class="sw pass"></i>pass</span>
+      <span><i class="sw fail"></i>fail</span>
+      <span><i class="sw sig"></i>signature failure</span>
     </div>
-    <div class="stage-body"></div>
-  </li>
-</template>
+    <div id="episode-detail" class="detail hidden"></div>
+  </div>
+
+  <div class="panel">
+    <h3>The failure — real site</h3>
+    <div id="real-traj"></div>
+  </div>
+  <div class="panel">
+    <h3>Env spec + component</h3>
+    <div id="spec-info"></div>
+    <div class="sidebyside" id="sbs"></div>
+  </div>
+
+  <div class="panel">
+    <h3>Distilled skill notes</h3>
+    <pre id="skill-notes"></pre>
+  </div>
+  <div class="panel">
+    <h3>Env sessions</h3>
+    <div id="sessions"></div>
+  </div>
+</main>
 
 <script src="app.js"></script>
 </body>
