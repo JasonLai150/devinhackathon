@@ -194,3 +194,80 @@ verify`) and as a deterministic demo fallback if the live agent misbehaves.
   team conversation.
 - Simulator assumes backend_calls[0] is the listing API — fine for the
   fixture; generalize if a spec has multiple calls.
+
+## 2026-10-24 — C: rollouts + improvement loop (loop/)
+
+### Built
+
+- `loop/` package implementing C's deliverables:
+  - `env_client.py` — env contract client, two transports (real HTTP for
+    rollouts, in-process Flask test client for tests).
+  - `agent.py` / `sim_agent.py` / `agent_browser.py` — agent interface,
+    B's naive/smart strategies ported to the client, and the adapter seam
+    for A's real harness (`sim:auto` flips naive→smart on a skill-notes
+    cue, modeling memory injection deterministically).
+  - `runner.py` / `run_rollouts.py` — parallel episodes
+    (`reset → agent.run → verify → rollouts.jsonl`), baseline cache keyed
+    by (task, seed, agent, memory hash).
+  - `repro_check.py` — round 0; classifies each failure against the
+    pagination signature from session `request_log` + tables.
+  - `improve.py` + `memory.py` + `distill.py` + `llm.py` — rejection
+    sampling into `skill_notes.md`; LLM distills when a key is set,
+    deterministic heuristic otherwise.
+  - `transfer.py` + `real_site_checker.py` — improved agent on the real
+    site via `LOOP_REAL_CHECKER=module:callable`; `--rehearse` runs the
+    whole path against a fresh env session + env `/verify`.
+  - `demo.py` — repro → improve → transfer-rehearse in one command;
+    `--in-process` regenerates the committed artifacts with no LLM,
+    browser, or server (the pre-recorded fallback).
+- `loop/artifacts/` — committed deliverables: `rollouts.jsonl`,
+  `metrics.json` (0.4 → 1.0 → transfer 1.0), `repro_report.json`,
+  `skill_notes.md`, `agent_config.json`, `transfer_result.json`.
+- `loop/tests/`: 34 tests, all passing. Verified end-to-end:
+  `python -m loop.demo --in-process` → repro REPRODUCED (6/6 failures
+  on-signature) → eval 100% on held-out seeds → transfer PASS.
+
+### Decisions made during implementation (worth a team conversation)
+
+- **Distillation consumes verifier failure reasons, not just successes.**
+  Rejection sampling keeps only verified episodes, but pure success-
+  cloning can't learn the fix: naive's lucky page-1 passes contain no
+  pagination evidence, so notes distilled from successes alone never gain
+  the rule. `distill(notes, successes, failures=...)` passes failure
+  records in as *feedback* (the plan already designates `reason` as
+  "reward detail"); the notes themselves still hold only general rules.
+- **Agents never touch `/state`.** It's unguarded and would trivialize
+  every task (full DB dump). Agents get only `entry_url`; the runner uses
+  `/state` strictly post-episode — for the repro classifier reading
+  `request_log`, never mid-run. If the team decides reading `/state`
+  should count as cheating, B could gate it behind a header/token — the
+  loop side already behaves as if it's gated.
+- **Cached records re-tagged on reuse.** A cache hit returns the stored
+  episode with the *requesting* round/phase — same (task, seed, agent,
+  memory) key means a deterministic-equivalent episode.
+- **`sim:auto` is the memory-injection model for tests/fallback.** It
+  flips to `smart` when skill notes contain "paginate" — a deterministic
+  stand-in for a real agent reading notes in its system prompt. Not a
+  claim that a real agent will follow notes this reliably.
+- **`--rehearse` is the honest green.** Transfer rehearses on a fresh env
+  session judged by env `/verify` — clearly labeled `mode: "rehearse"` in
+  `transfer_result.json`. The stub checker reports "not integrated"
+  rather than faking a pass; no green shown that isn't real.
+
+### Flags
+
+- **Flips when A lands:** `agent_browser.py` wraps A's run-agent callable
+  (skill_notes → system prompt); `LOOP_REAL_CHECKER=capture.checker:check`
+  for real transfer verdicts; `fixtures/trajectory.json` adds the real
+  `failure_step` reference to `repro_report.json` (currently anchored on
+  `env_spec.failure_note`).
+- **`/s/<sid>`-style session cleanup:** repeated runs leave
+  `env/.sessions/*.db` files behind; B noted an optional
+  `POST /sessions/<sid>/delete` endpoint — C would use it in the runner.
+- **Heuristic distillation is env-shaped.** The offline fallback knows
+  pagination + detail-before-POST; a second domain needs new heuristic
+  rules or an LLM key. The LLM path is domain-agnostic.
+- **Contract additions on rollouts records:** `session_id`, `agent`,
+  `phase`, `actions` ride alongside the agreed keys — needed for
+  distillation and the dashboard's trace view; flag if A's reader
+  requires a strict shape.
