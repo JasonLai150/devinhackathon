@@ -126,7 +126,7 @@ def default_llm():
                 {"Authorization": f"Bearer {os.environ['OPENAI_API_KEY']}"},
                 {"model": model or "gpt-4.1",
                  "messages": [{"role": "user", "content": prompt}]})
-            return resp["choices"][0]["message"]["content"]
+            return resp["choices"][0]["message"].get("content") or ""
         return call
 
     return None

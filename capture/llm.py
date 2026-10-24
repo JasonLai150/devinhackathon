@@ -76,7 +76,8 @@ def _post(url, headers, payload):
         url, data=json.dumps(payload).encode(), headers=headers, method="POST"
     )
     try:
-        with urllib.request.urlopen(req, timeout=60) as r:
+        with urllib.request.urlopen(
+                req, timeout=int(os.environ.get("LLM_HTTP_TIMEOUT", "120"))) as r:
             return json.load(r)
     except urllib.error.HTTPError as error:
         detail = {}
@@ -130,13 +131,17 @@ def _openai(prompt, config, max_tokens=None):
             **({"max_tokens": max_tokens} if max_tokens is not None else {}),
         },
     )
-    return body["choices"][0]["message"]["content"]
+    # Thinking models can exhaust max_tokens on reasoning and return no content.
+    return body["choices"][0]["message"].get("content") or ""
 
 
 def check_provider(config):
     """One tiny request validates the exact configured model before browser work."""
     call = _anthropic if config.provider == "anthropic" else _openai
-    response = call("Reply with only OK.", config, max_tokens=16)
-    if not isinstance(response, str) or not response.strip():
-        raise ProviderError("Provider returned no text during the model check.")
-    return {"ok": True, **config.metadata(), "max_output_tokens": 16}
+    # Probe cheap first; thinking models can burn a small max_tokens budget
+    # on reasoning and return empty content — retry once with headroom.
+    for cap in (16, 1024):
+        response = call("Reply with only OK.", config, max_tokens=cap)
+        if isinstance(response, str) and response.strip():
+            return {"ok": True, **config.metadata(), "max_output_tokens": cap}
+    raise ProviderError("Provider returned no text during the model check.")
