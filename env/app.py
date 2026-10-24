@@ -7,12 +7,19 @@ Endpoints (contract with C):
   POST /verify {task_id, session_id}       -> {passed, reason}
   GET  /sessions                           -> session list (dashboard/debug)
 
-Domain-specific routes below (/flights/..., booking POST) are the dev-fixture
-wiring; the generator will own route generation from spec.pages later.
+All env routes are driven by spec.routes — the skeleton knows only the
+roles "list" (entry page containing the component slot), "detail",
+"mutation" (POST), and "confirmation". Domain wiring comes from the spec.
+
+Route path conventions (spec.routes):
+  detail:       ".../<int:eid>"   eid = entity row id
+  mutation:     ".../<int:eid>/..." same eid, becomes the fk value
+  confirmation: ".../<int:bid>"   bid = mutation row id
 """
 import json
 import os
 import random
+import re
 import time
 
 from flask import Flask, abort, jsonify, redirect, request, send_file
@@ -23,22 +30,39 @@ from . import sessions, stubs, verifiers
 
 _BASE = os.path.dirname(__file__)
 _DEFAULT_SPEC = os.path.join(_BASE, "spec", "env_spec.json")
+_DEFAULT_COMPONENT_DIR = os.path.join(_BASE, "component")
+
+_CONVERTER_RE = re.compile(r"<int:\w+>")
 
 
-def create_app(spec_path=None):
+def fill_path(path_template, **ids):
+    """'/flights/<int:eid>' + eid=24 -> '/flights/24'"""
+    def sub(m):
+        name = m.group(0)[5:-1]  # strip '<int:' and '>'
+        if name not in ids:
+            raise KeyError(f"no id provided for route param {name}")
+        return str(ids[name])
+    return _CONVERTER_RE.sub(sub, path_template)
+
+
+def create_app(spec_path=None, component_dir=None):
     app = Flask(__name__)
     spec_path = spec_path or os.environ.get("ENV_SPEC", _DEFAULT_SPEC)
     with open(spec_path) as f:
-        app.config["SPEC"] = json.load(f)
+        spec = app.config["SPEC"] = json.load(f)
+    component_dir = component_dir or os.environ.get(
+        "ENV_COMPONENT_DIR", _DEFAULT_COMPONENT_DIR)
+    app.config["COMPONENT_DIR"] = component_dir
 
     # Component slot: component/ is a second template-search path so the
     # generator drops component.html/js there without touching templates/.
     app.jinja_loader = ChoiceLoader([
         FileSystemLoader(os.path.join(_BASE, "templates")),
-        FileSystemLoader(os.path.join(_BASE, "component")),
+        FileSystemLoader(component_dir),
     ])
 
-    stubs.register_stubs(app, app.config["SPEC"].get("backend_calls", []))
+    stubs.register_stubs(app, spec.get("backend_calls", []))
+    routes = spec["routes"]
 
     def _conn_or_404(sid):
         conn = sessions.connect(sid)
@@ -48,6 +72,9 @@ def create_app(spec_path=None):
 
     def _page_ctx(conn, sid):
         return {"sid": sid, "meta": sessions.read_meta(conn)}
+
+    def _has_component():
+        return os.path.exists(os.path.join(component_dir, "component.html"))
 
     @app.before_request
     def _log_session_requests():
@@ -67,7 +94,7 @@ def create_app(spec_path=None):
 
     @app.get("/")
     def root():
-        return jsonify({"service": "failure-to-env", "spec": app.config["SPEC"].get("name")})
+        return jsonify({"service": "failure-to-env", "spec": spec.get("name")})
 
     @app.post("/reset")
     def reset():
@@ -76,8 +103,9 @@ def create_app(spec_path=None):
             seed = random.randint(0, 2**31 - 1)
         overrides = {k: request.args[k] for k in ("popup", "labels")
                      if k in request.args}
-        sid = sessions.create_session(seed, app.config["SPEC"], overrides)
-        return jsonify({"session_id": sid, "entry_url": f"/s/{sid}/", "seed": seed})
+        sid = sessions.create_session(seed, spec, overrides)
+        return jsonify({"session_id": sid, "entry_url": f"/s/{sid}{routes['entry']}",
+                        "seed": seed})
 
     @app.get("/state")
     def state():
@@ -103,16 +131,17 @@ def create_app(spec_path=None):
     def verify():
         body = request.get_json(force=True) or {}
         return jsonify(verifiers.verify(body.get("task_id", ""),
-                                        body.get("session_id", "")))
+                                        body.get("session_id", ""), spec))
 
-    # ---- dev-fixture routes (generator will own these from spec.pages) ----
+    # ---- spec-driven env routes ----
 
-    @app.get("/s/<sid>/")
-    def index(sid):
+    @app.get(f"/s/<sid>{routes['entry']}")
+    def entry(sid):
         conn = _conn_or_404(sid)
         try:
             meta = sessions.read_meta(conn)
             return render_template("index.html", labels=meta["labels"],
+                                   has_component=_has_component(),
                                    **_page_ctx(conn, sid))
         finally:
             conn.close()
@@ -121,52 +150,92 @@ def create_app(spec_path=None):
     def component_js(sid):
         if not sessions.exists(sid):
             abort(404)
-        return send_file(os.path.join(_BASE, "component", "component.js"),
-                         mimetype="application/javascript")
+        path = os.path.join(component_dir, "component.js")
+        if not os.path.exists(path):
+            abort(404)
+        return send_file(path, mimetype="application/javascript")
 
-    @app.get("/s/<sid>/flights/<int:fid>")
-    def flight_detail(sid, fid):
-        conn = _conn_or_404(sid)
-        try:
-            f = conn.execute("SELECT * FROM flights WHERE id = ?", (fid,)).fetchone()
-            if f is None:
-                abort(404)
-            meta = sessions.read_meta(conn)
-            return render_template("detail.html", flight=dict(f),
-                                   labels=meta["labels"], **_page_ctx(conn, sid))
-        finally:
-            conn.close()
+    def _detail_view():
+        entity = routes["detail"]["entity"]
 
-    @app.post("/s/<sid>/flights/<int:fid>/book")
-    def book(sid, fid):
-        conn = _conn_or_404(sid)
-        try:
-            if conn.execute("SELECT 1 FROM flights WHERE id = ?", (fid,)).fetchone() is None:
-                abort(404)
-            cur = conn.execute(
-                "INSERT INTO bookings (flight_id, name, email, created_at) VALUES (?,?,?,?)",
-                (fid, request.form.get("name", ""), request.form.get("email", ""),
-                 time.time()))
-            conn.commit()
-            return redirect(f"/s/{sid}/bookings/{cur.lastrowid}")
-        finally:
-            conn.close()
+        def view(sid, eid):
+            conn = _conn_or_404(sid)
+            try:
+                row = conn.execute(
+                    f"SELECT * FROM {entity} WHERE id = ?", (eid,)).fetchone()
+                if row is None:
+                    abort(404)
+                meta = sessions.read_meta(conn)
+                mut_table = routes["mutation"]["table"]
+                form_fields = spec["mutations"][mut_table].get("form_fields", [])
+                action = f"/s/{sid}" + fill_path(routes["mutation"]["path"], eid=eid)
+                return render_template(
+                    "detail.html", row=dict(row), entity=entity,
+                    title_field=routes["detail"].get("title_field"),
+                    form_fields=form_fields, action=action,
+                    labels=meta["labels"], **_page_ctx(conn, sid))
+            finally:
+                conn.close()
+        return view
 
-    @app.get("/s/<sid>/bookings/<int:bid>")
-    def confirmation(sid, bid):
-        conn = _conn_or_404(sid)
-        try:
-            b = conn.execute(
-                "SELECT b.*, f.flight_no, f.price FROM bookings b "
-                "JOIN flights f ON f.id = b.flight_id WHERE b.id = ?",
-                (bid,)).fetchone()
-            if b is None:
-                abort(404)
-            meta = sessions.read_meta(conn)
-            return render_template("confirm.html", booking=dict(b),
-                                   labels=meta["labels"], **_page_ctx(conn, sid))
-        finally:
-            conn.close()
+    def _mutation_view():
+        mut = routes["mutation"]
+        entity = routes["detail"]["entity"]
+
+        def view(sid, eid):
+            conn = _conn_or_404(sid)
+            try:
+                if conn.execute(
+                        f"SELECT 1 FROM {entity} WHERE id = ?", (eid,)).fetchone() is None:
+                    abort(404)
+                table = mut["table"]
+                fields = [f["name"] for f in
+                          spec["mutations"][table].get("form_fields", [])]
+                cols = [mut["fk_column"], *fields, "created_at"]
+                vals = [eid, *[request.form.get(f, "") for f in fields], time.time()]
+                cur = conn.execute(
+                    f"INSERT INTO {table} ({', '.join(cols)}) "
+                    f"VALUES ({', '.join('?' for _ in cols)})", vals)
+                conn.commit()
+                return redirect(
+                    f"/s/{sid}" + fill_path(routes["confirmation"]["path"],
+                                            bid=cur.lastrowid))
+            finally:
+                conn.close()
+        return view
+
+    def _confirmation_view():
+        conf = routes["confirmation"]
+
+        def view(sid, bid):
+            conn = _conn_or_404(sid)
+            try:
+                row = conn.execute(
+                    f"SELECT * FROM {conf['table']} WHERE id = ?", (bid,)).fetchone()
+                if row is None:
+                    abort(404)
+                joined = None
+                if "join" in conf:
+                    j = conf["join"]
+                    joined = conn.execute(
+                        f"SELECT * FROM {j['table']} WHERE id = ?",
+                        (row[j["fk"]],)).fetchone()
+                    joined = {f: joined[f] for f in j["fields"]} if joined else None
+                meta = sessions.read_meta(conn)
+                return render_template(
+                    "confirm.html", mutation=dict(row), table=conf["table"],
+                    joined=joined, labels=meta["labels"], **_page_ctx(conn, sid))
+            finally:
+                conn.close()
+        return view
+
+    app.add_url_rule(f"/s/<sid>{routes['detail']['path']}",
+                     "detail", _detail_view())
+    app.add_url_rule(f"/s/<sid>{routes['mutation']['path']}",
+                     "mutation", _mutation_view(),
+                     methods=[routes["mutation"].get("method", "POST")])
+    app.add_url_rule(f"/s/<sid>{routes['confirmation']['path']}",
+                     "confirmation", _confirmation_view())
 
     return app
 

@@ -1,27 +1,33 @@
 {
   "name": "<env name>",
   "site_url": "<real site URL>",
-  "pages": [{"name": "results", "path": "/", "role": "list"}],
-  "component": {"name": "<failing component>", "html": "<captured html>", "js": "<captured js>"},
-  "backend_calls": [
-    {"method": "GET", "path": "/api/items", "table": "items", "paginated": true, "per_page": 10}
-  ],
-  "interaction": "<natural-language description of the breaking interaction>",
+  "interaction": "<natural-language description of the breaking interaction — feeds the codegen prompt>",
   "entities": {
     "items": {
       "generator": "<generator name registered in env/seeds.py>",
       "count_range": [20, 50],
-      "columns": {"id": "INTEGER PRIMARY KEY", "name": "TEXT"}
+      "columns": {"id": "INTEGER PRIMARY KEY", "name": "TEXT", "price": "INTEGER"}
     }
   },
   "mutations": {
     "bookings": {
-      "columns": {"id": "INTEGER PRIMARY KEY", "item_id": "INTEGER", "created_at": "REAL"}
+      "columns": {"id": "INTEGER PRIMARY KEY", "item_id": "INTEGER", "created_at": "REAL"},
+      "form_fields": [{"name": "name", "type": "text", "label": "Full name", "required": true}]
     }
   },
-  "data_schema": {},
+  "routes": {
+    "entry": "/",
+    "detail": {"path": "/items/<int:eid>", "entity": "items", "title_field": "name"},
+    "mutation": {"path": "/items/<int:eid>/book", "method": "POST", "table": "bookings", "fk_column": "item_id"},
+    "confirmation": {"path": "/bookings/<int:bid>", "table": "bookings",
+                     "join": {"table": "items", "fk": "item_id", "fields": ["name", "price"]}}
+  },
+  "component": {"name": "<failing component>", "html": "<captured html or path>", "js": "<captured js or path>"},
+  "backend_calls": [
+    {"method": "GET", "path": "/api/items", "table": "items", "paginated": true, "per_page": 10}
+  ],
+  "expected_mutation": "<what a correct run writes to DB — e.g. bookings row with item_id == argmin(price)>",
   "seed_data": {},
-  "expected_mutation": "<what a correct run writes to DB>",
   "failure_step": 0,
   "failure_note": "<from trajectory.json>"
 }

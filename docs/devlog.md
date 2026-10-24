@@ -88,3 +88,79 @@ python -m pytest env/tests # tests
 - Verifier for popup-dismissal style tasks doesn't exist yet (tasks are all
   booking-argmin); add when A locks the failure mode.
 - No rate limiting / session expiry — fine for localhost hackathon use.
+
+## 2026-10-24 — B: spec-driven routing + generator (generate.py)
+
+### Built
+
+- **Routes are now spec-driven.** The earlier flag is resolved: `spec.routes`
+  declares `entry` / `detail` / `mutation` / `confirmation` with path
+  templates (`<int:eid>` = entity id, `<int:bid>` = mutation row id), and
+  `app.py` registers views generically. Detail page renders any entity row +
+  mutation form (`mutations.<table>.form_fields`); confirmation renders the
+  mutation row + optional join display. Nothing in `app.py` knows "flights"
+  anymore.
+- **`env/generate.py`** — the codegen pipeline:
+  - `build_prompt(spec)` — slot contract (partial-only HTML, relative fetches
+    only, declared stub endpoints, allowed Jinja vars `labels`/`meta`/`sid`)
+    + interaction description + entity schema + captured component as
+    fidelity reference.
+  - LLM via `default_llm()` — Anthropic or OpenAI picked from env keys,
+    model via `ENV_LLM_MODEL`; injectable callable for tests (no key needed).
+  - `static_validate` — no http(s) anywhere, no html/head/body in the
+    partial, every `fetch()` must resolve under a declared stub/route path,
+    `node --check` on the JS when node is installed.
+  - `smoke_test` — boots the real app against a temp component dir: /reset,
+    entry page serves and contains the component, component.js served, every
+    backend_call returns 200.
+  - Retry loop (3 attempts) feeds validation/smoke errors back into the
+    prompt.
+  - **Verbatim fallback** — writes captured html wrapped in `{% raw %}`
+    (protects it from the Jinja include) and prepends `FETCH_SHIM` to the
+    captured js, which monkeypatches `fetch` and `XHR.open` to reroute the
+    original backend URLs (incl. absolute site_url forms) to env stubs.
+  - Report written to `<component_dir>/generate_report.json`
+    (`{path: generated|verbatim|failed, attempts, errors}`).
+- CLI: `python -m env.generate <spec> [--component-dir DIR] [--verbatim]`.
+- `create_app(spec_path, component_dir)` — component dir is parameterizable
+  (env var `ENV_COMPONENT_DIR`) so smoke tests don't clobber the live slot.
+- `index.html` renders a placeholder when no component exists yet.
+- `fixtures/env_spec.json` + PLAN.md contract updated to the canonical shape
+  (entities / mutations.form_fields / routes).
+
+### Decisions made during implementation
+
+- **Verbatim fallback wraps captured HTML in `{% raw %}`** — captured markup
+  may contain `{{ }}` from its source framework; raw-wrapping keeps the
+  Jinja include mechanism uniform while verbatim content stays literal.
+- **Verifiers take `spec`** (`fn(conn, params, sid, spec)`) — the
+  detail-visit anti-cheat check derives the required path from
+  `spec.routes.detail.path` instead of hardcoding `flights/<id>`.
+- **Component filename contract is fixed** (`component.html`/`component.js`)
+  — the generator's only output surface; keeps the slot contract trivially
+  checkable.
+- **LLM calls use urllib** — zero new deps; provider pluggable via injected
+  callable.
+
+### Flags
+
+- **`booked_matching_flight` verifier is still flights-shaped** (queries
+  `flights`/`bookings` by name). That's fine — verifiers are hand-written
+  per env — but a new domain needs a new verifier fn. Verifier *interface*
+  is generic; verifier *bodies* are per-domain by design.
+- **Codegen LLM path is untested against a real API** — needs a key and a
+  real captured component from A. Validation/fallback mechanics are tested.
+- **Fetched URL allowlist is prefix-based** — `fetch('api/flightsXYZ')`
+  would pass the static check. Low risk; smoke test still gates.
+- **Popup overlay may not actually block clicks** — it's a visual overlay;
+  whether it intercepts Playwright clicks depends on the hit target.
+  Deliberately; flag if the repro agent sails through it.
+- The fixture spec's `component.html/js` are paths into `env/component/` —
+  i.e., the fixture's "captured" component is the same file as the slot's
+  dev content. Real specs will carry captured source (literal or path).
+
+### Open / next
+
+- Needs A's real captured component to exercise codegen for real.
+- Optional: `POST /sessions/<sid>/delete` cleanup endpoint if C wants it.
+- Second domain (stretch) = new spec + generator fn + templates reuse.

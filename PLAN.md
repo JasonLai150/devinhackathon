@@ -45,19 +45,29 @@ Commit stubs of all four at H1; everyone builds against stubs until real data la
 
 ### `env_spec.json` (A → B)
 
-Extends the vision draft with fields B's generator needs:
+Extends the vision draft with fields B's generator needs. Canonical stub:
+`fixtures/env_spec.json` (kept in sync with `env/spec/env_spec.json`).
 
 ```json
 {
-  "site_url": "...",
-  "pages": [{"name": "...", "role": "list|detail|form"}],
-  "component": {"name": "...", "html": "...", "js": "..."},
-  "backend_calls": [{"method": "GET", "path": "/api/flights", "response_shape": {}}],
+  "name": "...", "site_url": "...",
   "interaction": "date picker only works via calendar grid; text input ignored",
-  "data_schema": {"flights": {"id": "...", "price": "...", "...": "..."}},
-  "seed_data": {},
+  "entities": {"flights": {"generator": "flights", "count_range": [22,45],
+                           "columns": {"id": "INTEGER PRIMARY KEY", "...": "..."}}},
+  "mutations": {"bookings": {"columns": {"...": "..."},
+                             "form_fields": [{"name": "name", "type": "text", "label": "Full name"}]}},
+  "routes": {
+    "entry": "/",
+    "detail": {"path": "/flights/<int:eid>", "entity": "flights", "title_field": "flight_no"},
+    "mutation": {"path": "/flights/<int:eid>/book", "method": "POST", "table": "bookings", "fk_column": "flight_id"},
+    "confirmation": {"path": "/bookings/<int:bid>", "table": "bookings",
+                     "join": {"table": "flights", "fk": "flight_id", "fields": ["flight_no"]}}
+  },
+  "component": {"name": "...", "html": "<captured html or path>", "js": "<captured js or path>"},
+  "backend_calls": [{"method": "GET", "path": "/api/flights", "table": "flights",
+                     "paginated": true, "per_page": 10}],
   "expected_mutation": "a bookings row with flight_id matching argmin(price)",
-  "failure_step": 7,
+  "seed_data": {}, "failure_step": 7,
   "failure_note": "agent paginated only once, missed page 3"
 }
 ```

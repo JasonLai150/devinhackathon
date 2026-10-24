@@ -2,6 +2,11 @@
 {% block content %}
 <div class="card">
   {# ---- component slot: generated/captured component drops in here ---- #}
-  {% include "component.html" %}
+  {% if has_component %}
+    {% include "component.html" %}
+    <script src="component.js"></script>
+  {% else %}
+    <p class="muted">No component generated yet — run env/generate.py.</p>
+  {% endif %}
 </div>
 {% endblock %}

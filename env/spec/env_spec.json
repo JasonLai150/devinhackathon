@@ -1,17 +1,7 @@
 {
   "name": "flight-booking-dev-fixture",
   "site_url": "dev-fixture (stands in until A delivers a real spec)",
-  "pages": [
-    {"name": "search", "path": "/", "role": "list"},
-    {"name": "flight", "path": "/flights/<id>", "role": "detail"},
-    {"name": "confirmation", "path": "/bookings/<id>", "role": "confirmation"}
-  ],
-  "component": {"name": "flight_search", "html": "component/component.html", "js": "component/component.js"},
-  "backend_calls": [
-    {"method": "GET", "path": "/api/flights", "table": "flights", "paginated": true, "per_page": 10}
-  ],
   "interaction": "search results are paginated; the target flight may be on any page — agent must paginate",
-  "data_schema": {},
   "entities": {
     "flights": {
       "generator": "flights",
@@ -34,9 +24,24 @@
         "name": "TEXT",
         "email": "TEXT",
         "created_at": "REAL"
-      }
+      },
+      "form_fields": [
+        {"name": "name", "type": "text", "label": "Full name", "required": true},
+        {"name": "email", "type": "email", "label": "Email", "required": true}
+      ]
     }
   },
+  "routes": {
+    "entry": "/",
+    "detail": {"path": "/flights/<int:eid>", "entity": "flights", "title_field": "flight_no"},
+    "mutation": {"path": "/flights/<int:eid>/book", "method": "POST", "table": "bookings", "fk_column": "flight_id"},
+    "confirmation": {"path": "/bookings/<int:bid>", "table": "bookings",
+                     "join": {"table": "flights", "fk": "flight_id", "fields": ["flight_no", "airline", "departs_at", "price"]}}
+  },
+  "component": {"name": "flight_search", "html": "component/component.html", "js": "component/component.js"},
+  "backend_calls": [
+    {"method": "GET", "path": "/api/flights", "table": "flights", "paginated": true, "per_page": 10}
+  ],
   "expected_mutation": "a bookings row whose flight_id matches the task constraint (e.g. argmin price)",
   "seed_data": {},
   "failure_step": null,

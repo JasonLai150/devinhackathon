@@ -1,18 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="card">
-  <h2>Flight {{ flight.flight_no }}</h2>
-  <p class="muted">SFO → JFK · {{ flight.airline }}</p>
+  <h2>{{ row[title_field] if title_field else entity ~ " #" ~ row.id }}</h2>
   <table>
-    <tr><th>Departs</th><td>{{ flight.departs_at }}</td></tr>
-    <tr><th>Price</th><td>${{ flight.price }}</td></tr>
-    <tr><th>Type</th><td>{{ "Nonstop" if flight.direct else "1 stop" }}</td></tr>
+    {% for k, v in row.items() if k != "id" %}
+    <tr><th>{{ k }}</th><td>{{ v }}</td></tr>
+    {% endfor %}
   </table>
-  <form method="post" action="flights/{{ flight.id }}/book" style="margin-top:16px">
-    <input type="text" name="name" placeholder="Full name" required>
-    <input type="email" name="email" placeholder="Email" required>
+  {% if form_fields %}
+  <form method="post" action="{{ action }}" style="margin-top:16px">
+    {% for f in form_fields %}
+    <input type="{{ f.type | default('text') }}" name="{{ f.name }}"
+           placeholder="{{ f.label }}"{% if f.required %} required{% endif %}>
+    {% endfor %}
     <button type="submit">{{ labels.book_button }}</button>
   </form>
+  {% endif %}
 </div>
 <p><a href="">← Back to results</a></p>
 {% endblock %}

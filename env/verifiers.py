@@ -1,19 +1,22 @@
 """Verifiers: check session-DB state, never screenshots.
 
-verify(task_id, sid) loads the task from tasks.json, dispatches to the named
-verifier function, and returns {passed, reason}. Expected answers are always
-computed from the session's live seeded data — perturbations can't stale them.
+verify(task_id, sid, spec) loads the task from tasks.json, dispatches to the
+named verifier function, and returns {passed, reason}. Expected answers are
+always computed from the session's live seeded data — perturbations can't
+stale them.
 
 Anti-cheat: every env request under /s/<sid>/ is written to request_log, so
-verifiers can require real navigation (e.g., the booked flight's detail page
-must have been visited before the booking POST).
+verifiers can require real navigation (e.g., the booked entity's detail page
+must have been visited before the mutation POST).
 """
 import json
 import os
+import re
 
 from . import sessions
 
 _TASKS_PATH = os.path.join(os.path.dirname(__file__), "tasks.json")
+_DEFAULT_SPEC = os.path.join(os.path.dirname(__file__), "spec", "env_spec.json")
 
 VERIFIERS = {}
 
@@ -30,7 +33,13 @@ def load_tasks():
         return {t["id"]: t for t in json.load(f)["tasks"]}
 
 
-def verify(task_id, sid):
+def load_default_spec():
+    with open(_DEFAULT_SPEC) as f:
+        return json.load(f)
+
+
+def verify(task_id, sid, spec=None):
+    spec = spec or load_default_spec()
     conn = sessions.connect(sid)
     if conn is None:
         return {"passed": False, "reason": f"unknown session {sid}"}
@@ -44,21 +53,28 @@ def verify(task_id, sid):
         conn.close()
         return {"passed": False, "reason": f"no verifier named {task['verifier']}"}
     try:
-        return fn(conn, task.get("params", {}), sid)
+        return fn(conn, task.get("params", {}), sid, spec)
     finally:
         conn.close()
 
 
+def detail_visit_path(spec, entity_id):
+    """'/flights/<int:eid>' + 24 -> 'flights/24' — the suffix request_log must
+    contain for a visit to count."""
+    path = spec["routes"]["detail"]["path"]
+    return re.sub(r"<int:\w+>", str(entity_id), path).lstrip("/")
+
+
 def _visited(conn, sid, suffix):
     row = conn.execute(
-        "SELECT 1 FROM request_log WHERE method='GET' AND path LIKE ? LIMIT 1",
+        "SELECT 1 FROM request_log WHERE method='GET' AND path = ? LIMIT 1",
         (f"/s/{sid}/{suffix}",),
     ).fetchone()
     return row is not None
 
 
 @verifier("booked_matching_flight")
-def booked_matching_flight(conn, params, sid):
+def booked_matching_flight(conn, params, sid, spec):
     """Expected = argmin over flights matching params; bookings must contain it.
 
     params: direct_only (bool), departs_after ("HH:MM"), sort_by
@@ -86,7 +102,7 @@ def booked_matching_flight(conn, params, sid):
     if booking is None:
         return {"passed": False, "reason": "no booking was made"}
 
-    if not _visited(conn, sid, f"flights/{booking['flight_id']}"):
+    if not _visited(conn, sid, detail_visit_path(spec, booking["flight_id"])):
         return {"passed": False,
                 "reason": "booking made without visiting the flight page — "
                           "suspected shortcut"}
