@@ -610,3 +610,15 @@ portable saved configs and invalid-action feedback. The combined LLM policy is
 v4; recorded v3 experiments remain historical evidence rather than being
 relabeled. All 103 tests pass, including Chromium. Real-site transfer remains
 the open empirical gate for the learned Gemini agent.
+
+## 2026-10-24 — Requested passing Washers recording
+
+Recorded a fresh headed Chromium run with `capture.run_agent --strategy smart`.
+The scripted browser visited five listing pages, compared 45 visible products,
+opened Washers and added one to the cart. The independent live checker verified
+Washers ($3.55) against all 50 API products and returned PASS.
+
+Portable evidence is in `fixtures/washers-pass/`: the original WebM, all 14
+trajectory steps with screenshots/DOM, and a 2× MP4 for presentation. Open
+`/fixtures/washers-pass/` for the labeled video player. This is a scripted
+success recording; the failed Gemini transfer remains unchanged.

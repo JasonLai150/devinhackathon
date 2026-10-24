@@ -1,0 +1,628 @@
+<!DOCTYPE html><html lang="en" data-beasties-container=""><head *transloco="let t">
+  <meta charset="utf-8">
+  <title>Practice Software Testing - Toolshop - v5.0</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Browse the Toolshop catalog and practice software testing and test automation on a free, modern web application.">
+  <style type="text/css" id="fa-auto-css">:root, :host {
+  --fa-font-solid: normal 900 1em/1 "Font Awesome 6 Free";
+  --fa-font-regular: normal 400 1em/1 "Font Awesome 6 Free";
+  --fa-font-light: normal 300 1em/1 "Font Awesome 6 Pro";
+  --fa-font-thin: normal 100 1em/1 "Font Awesome 6 Pro";
+  --fa-font-duotone: normal 900 1em/1 "Font Awesome 6 Duotone";
+  --fa-font-duotone-regular: normal 400 1em/1 "Font Awesome 6 Duotone";
+  --fa-font-duotone-light: normal 300 1em/1 "Font Awesome 6 Duotone";
+  --fa-font-duotone-thin: normal 100 1em/1 "Font Awesome 6 Duotone";
+  --fa-font-brands: normal 400 1em/1 "Font Awesome 6 Brands";
+  --fa-font-sharp-solid: normal 900 1em/1 "Font Awesome 6 Sharp";
+  --fa-font-sharp-regular: normal 400 1em/1 "Font Awesome 6 Sharp";
+  --fa-font-sharp-light: normal 300 1em/1 "Font Awesome 6 Sharp";
+  --fa-font-sharp-thin: normal 100 1em/1 "Font Awesome 6 Sharp";
+  --fa-font-sharp-duotone-solid: normal 900 1em/1 "Font Awesome 6 Sharp Duotone";
+  --fa-font-sharp-duotone-regular: normal 400 1em/1 "Font Awesome 6 Sharp Duotone";
+  --fa-font-sharp-duotone-light: normal 300 1em/1 "Font Awesome 6 Sharp Duotone";
+  --fa-font-sharp-duotone-thin: normal 100 1em/1 "Font Awesome 6 Sharp Duotone";
+}
+
+svg:not(:root).svg-inline--fa, svg:not(:host).svg-inline--fa {
+  overflow: visible;
+  box-sizing: content-box;
+}
+
+.svg-inline--fa {
+  display: var(--fa-display, inline-block);
+  height: 1em;
+  overflow: visible;
+  vertical-align: -0.125em;
+}
+.svg-inline--fa.fa-2xs {
+  vertical-align: 0.1em;
+}
+.svg-inline--fa.fa-xs {
+  vertical-align: 0em;
+}
+.svg-inline--fa.fa-sm {
+  vertical-align: -0.0714285705em;
+}
+.svg-inline--fa.fa-lg {
+  vertical-align: -0.2em;
+}
+.svg-inline--fa.fa-xl {
+  vertical-align: -0.25em;
+}
+.svg-inline--fa.fa-2xl {
+  vertical-align: -0.3125em;
+}
+.svg-inline--fa.fa-pull-left {
+  margin-right: var(--fa-pull-margin, 0.3em);
+  width: auto;
+}
+.svg-inline--fa.fa-pull-right {
+  margin-left: var(--fa-pull-margin, 0.3em);
+  width: auto;
+}
+.svg-inline--fa.fa-li {
+  width: var(--fa-li-width, 2em);
+  top: 0.25em;
+}
+.svg-inline--fa.fa-fw {
+  width: var(--fa-fw-width, 1.25em);
+}
+
+.fa-layers svg.svg-inline--fa {
+  bottom: 0;
+  left: 0;
+  margin: auto;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.fa-layers-counter, .fa-layers-text {
+  display: inline-block;
+  position: absolute;
+  text-align: center;
+}
+
+.fa-layers {
+  display: inline-block;
+  height: 1em;
+  position: relative;
+  text-align: center;
+  vertical-align: -0.125em;
+  width: 1em;
+}
+.fa-layers svg.svg-inline--fa {
+  transform-origin: center center;
+}
+
+.fa-layers-text {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transform-origin: center center;
+}
+
+.fa-layers-counter {
+  background-color: var(--fa-counter-background-color, #ff253a);
+  border-radius: var(--fa-counter-border-radius, 1em);
+  box-sizing: border-box;
+  color: var(--fa-inverse, #fff);
+  line-height: var(--fa-counter-line-height, 1);
+  max-width: var(--fa-counter-max-width, 5em);
+  min-width: var(--fa-counter-min-width, 1.5em);
+  overflow: hidden;
+  padding: var(--fa-counter-padding, 0.25em 0.5em);
+  right: var(--fa-right, 0);
+  text-overflow: ellipsis;
+  top: var(--fa-top, 0);
+  transform: scale(var(--fa-counter-scale, 0.25));
+  transform-origin: top right;
+}
+
+.fa-layers-bottom-right {
+  bottom: var(--fa-bottom, 0);
+  right: var(--fa-right, 0);
+  top: auto;
+  transform: scale(var(--fa-layers-scale, 0.25));
+  transform-origin: bottom right;
+}
+
+.fa-layers-bottom-left {
+  bottom: var(--fa-bottom, 0);
+  left: var(--fa-left, 0);
+  right: auto;
+  top: auto;
+  transform: scale(var(--fa-layers-scale, 0.25));
+  transform-origin: bottom left;
+}
+
+.fa-layers-top-right {
+  top: var(--fa-top, 0);
+  right: var(--fa-right, 0);
+  transform: scale(var(--fa-layers-scale, 0.25));
+  transform-origin: top right;
+}
+
+.fa-layers-top-left {
+  left: var(--fa-left, 0);
+  right: auto;
+  top: var(--fa-top, 0);
+  transform: scale(var(--fa-layers-scale, 0.25));
+  transform-origin: top left;
+}
+
+.fa-1x {
+  font-size: 1em;
+}
+
+.fa-2x {
+  font-size: 2em;
+}
+
+.fa-3x {
+  font-size: 3em;
+}
+
+.fa-4x {
+  font-size: 4em;
+}
+
+.fa-5x {
+  font-size: 5em;
+}
+
+.fa-6x {
+  font-size: 6em;
+}
+
+.fa-7x {
+  font-size: 7em;
+}
+
+.fa-8x {
+  font-size: 8em;
+}
+
+.fa-9x {
+  font-size: 9em;
+}
+
+.fa-10x {
+  font-size: 10em;
+}
+
+.fa-2xs {
+  font-size: 0.625em;
+  line-height: 0.1em;
+  vertical-align: 0.225em;
+}
+
+.fa-xs {
+  font-size: 0.75em;
+  line-height: 0.0833333337em;
+  vertical-align: 0.125em;
+}
+
+.fa-sm {
+  font-size: 0.875em;
+  line-height: 0.0714285718em;
+  vertical-align: 0.0535714295em;
+}
+
+.fa-lg {
+  font-size: 1.25em;
+  line-height: 0.05em;
+  vertical-align: -0.075em;
+}
+
+.fa-xl {
+  font-size: 1.5em;
+  line-height: 0.0416666682em;
+  vertical-align: -0.125em;
+}
+
+.fa-2xl {
+  font-size: 2em;
+  line-height: 0.03125em;
+  vertical-align: -0.1875em;
+}
+
+.fa-fw {
+  text-align: center;
+  width: 1.25em;
+}
+
+.fa-ul {
+  list-style-type: none;
+  margin-left: var(--fa-li-margin, 2.5em);
+  padding-left: 0;
+}
+.fa-ul > li {
+  position: relative;
+}
+
+.fa-li {
+  left: calc(-1 * var(--fa-li-width, 2em));
+  position: absolute;
+  text-align: center;
+  width: var(--fa-li-width, 2em);
+  line-height: inherit;
+}
+
+.fa-border {
+  border-color: var(--fa-border-color, #eee);
+  border-radius: var(--fa-border-radius, 0.1em);
+  border-style: var(--fa-border-style, solid);
+  border-width: var(--fa-border-width, 0.08em);
+  padding: var(--fa-border-padding, 0.2em 0.25em 0.15em);
+}
+
+.fa-pull-left {
+  float: left;
+  margin-right: var(--fa-pull-margin, 0.3em);
+}
+
+.fa-pull-right {
+  float: right;
+  margin-left: var(--fa-pull-margin, 0.3em);
+}
+
+.fa-beat {
+  animation-name: fa-beat;
+  animation-delay: var(--fa-animation-delay, 0s);
+  animation-direction: var(--fa-animation-direction, normal);
+  animation-duration: var(--fa-animation-duration, 1s);
+  animation-iteration-count: var(--fa-animation-iteration-count, infinite);
+  animation-timing-function: var(--fa-animation-timing, ease-in-out);
+}
+
+.fa-bounce {
+  animation-name: fa-bounce;
+  animation-delay: var(--fa-animation-delay, 0s);
+  animation-direction: var(--fa-animation-direction, normal);
+  animation-duration: var(--fa-animation-duration, 1s);
+  animation-iteration-count: var(--fa-animation-iteration-count, infinite);
+  animation-timing-function: var(--fa-animation-timing, cubic-bezier(0.28, 0.84, 0.42, 1));
+}
+
+.fa-fade {
+  animation-name: fa-fade;
+  animation-delay: var(--fa-animation-delay, 0s);
+  animation-direction: var(--fa-animation-direction, normal);
+  animation-duration: var(--fa-animation-duration, 1s);
+  animation-iteration-count: var(--fa-animation-iteration-count, infinite);
+  animation-timing-function: var(--fa-animation-timing, cubic-bezier(0.4, 0, 0.6, 1));
+}
+
+.fa-beat-fade {
+  animation-name: fa-beat-fade;
+  animation-delay: var(--fa-animation-delay, 0s);
+  animation-direction: var(--fa-animation-direction, normal);
+  animation-duration: var(--fa-animation-duration, 1s);
+  animation-iteration-count: var(--fa-animation-iteration-count, infinite);
+  animation-timing-function: var(--fa-animation-timing, cubic-bezier(0.4, 0, 0.6, 1));
+}
+
+.fa-flip {
+  animation-name: fa-flip;
+  animation-delay: var(--fa-animation-delay, 0s);
+  animation-direction: var(--fa-animation-direction, normal);
+  animation-duration: var(--fa-animation-duration, 1s);
+  animation-iteration-count: var(--fa-animation-iteration-count, infinite);
+  animation-timing-function: var(--fa-animation-timing, ease-in-out);
+}
+
+.fa-shake {
+  animation-name: fa-shake;
+  animation-delay: var(--fa-animation-delay, 0s);
+  animation-direction: var(--fa-animation-direction, normal);
+  animation-duration: var(--fa-animation-duration, 1s);
+  animation-iteration-count: var(--fa-animation-iteration-count, infinite);
+  animation-timing-function: var(--fa-animation-timing, linear);
+}
+
+.fa-spin {
+  animation-name: fa-spin;
+  animation-delay: var(--fa-animation-delay, 0s);
+  animation-direction: var(--fa-animation-direction, normal);
+  animation-duration: var(--fa-animation-duration, 2s);
+  animation-iteration-count: var(--fa-animation-iteration-count, infinite);
+  animation-timing-function: var(--fa-animation-timing, linear);
+}
+
+.fa-spin-reverse {
+  --fa-animation-direction: reverse;
+}
+
+.fa-pulse,
+.fa-spin-pulse {
+  animation-name: fa-spin;
+  animation-direction: var(--fa-animation-direction, normal);
+  animation-duration: var(--fa-animation-duration, 1s);
+  animation-iteration-count: var(--fa-animation-iteration-count, infinite);
+  animation-timing-function: var(--fa-animation-timing, steps(8));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fa-beat,
+.fa-bounce,
+.fa-fade,
+.fa-beat-fade,
+.fa-flip,
+.fa-pulse,
+.fa-shake,
+.fa-spin,
+.fa-spin-pulse {
+    animation-delay: -1ms;
+    animation-duration: 1ms;
+    animation-iteration-count: 1;
+    transition-delay: 0s;
+    transition-duration: 0s;
+  }
+}
+@keyframes fa-beat {
+  0%, 90% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(var(--fa-beat-scale, 1.25));
+  }
+}
+@keyframes fa-bounce {
+  0% {
+    transform: scale(1, 1) translateY(0);
+  }
+  10% {
+    transform: scale(var(--fa-bounce-start-scale-x, 1.1), var(--fa-bounce-start-scale-y, 0.9)) translateY(0);
+  }
+  30% {
+    transform: scale(var(--fa-bounce-jump-scale-x, 0.9), var(--fa-bounce-jump-scale-y, 1.1)) translateY(var(--fa-bounce-height, -0.5em));
+  }
+  50% {
+    transform: scale(var(--fa-bounce-land-scale-x, 1.05), var(--fa-bounce-land-scale-y, 0.95)) translateY(0);
+  }
+  57% {
+    transform: scale(1, 1) translateY(var(--fa-bounce-rebound, -0.125em));
+  }
+  64% {
+    transform: scale(1, 1) translateY(0);
+  }
+  100% {
+    transform: scale(1, 1) translateY(0);
+  }
+}
+@keyframes fa-fade {
+  50% {
+    opacity: var(--fa-fade-opacity, 0.4);
+  }
+}
+@keyframes fa-beat-fade {
+  0%, 100% {
+    opacity: var(--fa-beat-fade-opacity, 0.4);
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(var(--fa-beat-fade-scale, 1.125));
+  }
+}
+@keyframes fa-flip {
+  50% {
+    transform: rotate3d(var(--fa-flip-x, 0), var(--fa-flip-y, 1), var(--fa-flip-z, 0), var(--fa-flip-angle, -180deg));
+  }
+}
+@keyframes fa-shake {
+  0% {
+    transform: rotate(-15deg);
+  }
+  4% {
+    transform: rotate(15deg);
+  }
+  8%, 24% {
+    transform: rotate(-18deg);
+  }
+  12%, 28% {
+    transform: rotate(18deg);
+  }
+  16% {
+    transform: rotate(-22deg);
+  }
+  20% {
+    transform: rotate(22deg);
+  }
+  32% {
+    transform: rotate(-12deg);
+  }
+  36% {
+    transform: rotate(12deg);
+  }
+  40%, 100% {
+    transform: rotate(0deg);
+  }
+}
+@keyframes fa-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.fa-rotate-90 {
+  transform: rotate(90deg);
+}
+
+.fa-rotate-180 {
+  transform: rotate(180deg);
+}
+
+.fa-rotate-270 {
+  transform: rotate(270deg);
+}
+
+.fa-flip-horizontal {
+  transform: scale(-1, 1);
+}
+
+.fa-flip-vertical {
+  transform: scale(1, -1);
+}
+
+.fa-flip-both,
+.fa-flip-horizontal.fa-flip-vertical {
+  transform: scale(-1, -1);
+}
+
+.fa-rotate-by {
+  transform: rotate(var(--fa-rotate-angle, 0));
+}
+
+.fa-stack {
+  display: inline-block;
+  vertical-align: middle;
+  height: 2em;
+  position: relative;
+  width: 2.5em;
+}
+
+.fa-stack-1x,
+.fa-stack-2x {
+  bottom: 0;
+  left: 0;
+  margin: auto;
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: var(--fa-stack-z-index, auto);
+}
+
+.svg-inline--fa.fa-stack-1x {
+  height: 1em;
+  width: 1.25em;
+}
+.svg-inline--fa.fa-stack-2x {
+  height: 2em;
+  width: 2.5em;
+}
+
+.fa-inverse {
+  color: var(--fa-inverse, #fff);
+}
+
+.sr-only,
+.fa-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sr-only-focusable:not(:focus),
+.fa-sr-only-focusable:not(:focus) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.svg-inline--fa .fa-primary {
+  fill: var(--fa-primary-color, currentColor);
+  opacity: var(--fa-primary-opacity, 1);
+}
+
+.svg-inline--fa .fa-secondary {
+  fill: var(--fa-secondary-color, currentColor);
+  opacity: var(--fa-secondary-opacity, 0.4);
+}
+
+.svg-inline--fa.fa-swap-opacity .fa-primary {
+  opacity: var(--fa-secondary-opacity, 0.4);
+}
+
+.svg-inline--fa.fa-swap-opacity .fa-secondary {
+  opacity: var(--fa-primary-opacity, 1);
+}
+
+.svg-inline--fa mask .fa-primary,
+.svg-inline--fa mask .fa-secondary {
+  fill: black;
+}</style><link rel="canonical" href="https://practicesoftwaretesting.com/">
+  <link rel="preload" as="image" href="../assets/img/barn-2400x1600.avif" fetchpriority="high">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Practice Software Testing - Toolshop">
+  <meta property="og:title" content="Practice Software Testing">
+  <meta property="og:image" content="https://practicesoftwaretesting.com/assets/img/barn-2400x1600.avif">
+  <meta property="og:description" content="Browse the Toolshop catalog and practice software testing and test automation on a free, modern web application.">
+  <meta property="og:url" content="https://practicesoftwaretesting.com/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Practice Software Testing">
+  <meta name="twitter:description" content="Modern application used to learn software testing or test automation.">
+  <meta name="twitter:image" content="https://practicesoftwaretesting.com/assets/img/barn-2400x1600.avif">
+  <link rel="mask-icon" href="safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://practicesoftwaretesting.com/#organization",
+        "name": "Practice Software Testing - Toolshop",
+        "url": "https://practicesoftwaretesting.com/",
+        "logo": "https://practicesoftwaretesting.com/assets/img/barn-2400x1600.avif",
+        "description": "A free, modern web application for learning and practicing software testing and test automation."
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://practicesoftwaretesting.com/#website",
+        "name": "Practice Software Testing - Toolshop",
+        "url": "https://practicesoftwaretesting.com/",
+        "publisher": { "@id": "https://practicesoftwaretesting.com/#organization" }
+      }
+    ]
+  }
+  </script>
+<style>:root{--bs-blue:#0d6efd;--bs-indigo:#6610f2;--bs-purple:#6f42c1;--bs-pink:#d63384;--bs-red:#dc3545;--bs-orange:#fd7e14;--bs-yellow:#ffc107;--bs-green:#198754;--bs-teal:#20c997;--bs-cyan:#0dcaf0;--bs-black:#000;--bs-white:#fff;--bs-gray:#6c757d;--bs-gray-dark:#343a40;--bs-gray-100:#f8f9fa;--bs-gray-200:#e9ecef;--bs-gray-300:#dee2e6;--bs-gray-400:#ced4da;--bs-gray-500:#adb5bd;--bs-gray-600:#6c757d;--bs-gray-700:#495057;--bs-gray-800:#343a40;--bs-gray-900:#212529;--bs-primary:#0d6efd;--bs-secondary:#6c757d;--bs-success:#198754;--bs-info:#0dcaf0;--bs-warning:#ffc107;--bs-danger:#dc3545;--bs-light:#f8f9fa;--bs-dark:#212529;--bs-primary-rgb:13,110,253;--bs-secondary-rgb:108,117,125;--bs-success-rgb:25,135,84;--bs-info-rgb:13,202,240;--bs-warning-rgb:255,193,7;--bs-danger-rgb:220,53,69;--bs-light-rgb:248,249,250;--bs-dark-rgb:33,37,41;--bs-primary-text-emphasis:#052c65;--bs-secondary-text-emphasis:#2b2f32;--bs-success-text-emphasis:#0a3622;--bs-info-text-emphasis:#055160;--bs-warning-text-emphasis:#664d03;--bs-danger-text-emphasis:#58151c;--bs-light-text-emphasis:#495057;--bs-dark-text-emphasis:#495057;--bs-primary-bg-subtle:#cfe2ff;--bs-secondary-bg-subtle:#e2e3e5;--bs-success-bg-subtle:#d1e7dd;--bs-info-bg-subtle:#cff4fc;--bs-warning-bg-subtle:#fff3cd;--bs-danger-bg-subtle:#f8d7da;--bs-light-bg-subtle:#fcfcfd;--bs-dark-bg-subtle:#ced4da;--bs-primary-border-subtle:#9ec5fe;--bs-secondary-border-subtle:#c4c8cb;--bs-success-border-subtle:#a3cfbb;--bs-info-border-subtle:#9eeaf9;--bs-warning-border-subtle:#ffe69c;--bs-danger-border-subtle:#f1aeb5;--bs-light-border-subtle:#e9ecef;--bs-dark-border-subtle:#adb5bd;--bs-white-rgb:255,255,255;--bs-black-rgb:0,0,0;--bs-font-sans-serif:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans","Liberation Sans",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";--bs-font-monospace:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;--bs-gradient:linear-gradient(180deg, rgba(255, 255, 255, .15), rgba(255, 255, 255, 0));--bs-body-font-family:var(--bs-font-sans-serif);--bs-body-font-size:1rem;--bs-body-font-weight:400;--bs-body-line-height:1.5;--bs-body-color:#212529;--bs-body-color-rgb:33,37,41;--bs-body-bg:#fff;--bs-body-bg-rgb:255,255,255;--bs-emphasis-color:#000;--bs-emphasis-color-rgb:0,0,0;--bs-secondary-color:rgba(33, 37, 41, .75);--bs-secondary-color-rgb:33,37,41;--bs-secondary-bg:#e9ecef;--bs-secondary-bg-rgb:233,236,239;--bs-tertiary-color:rgba(33, 37, 41, .5);--bs-tertiary-color-rgb:33,37,41;--bs-tertiary-bg:#f8f9fa;--bs-tertiary-bg-rgb:248,249,250;--bs-heading-color:inherit;--bs-link-color:#0d6efd;--bs-link-color-rgb:13,110,253;--bs-link-decoration:underline;--bs-link-hover-color:#0a58ca;--bs-link-hover-color-rgb:10,88,202;--bs-code-color:#d63384;--bs-highlight-color:#212529;--bs-highlight-bg:#fff3cd;--bs-border-width:1px;--bs-border-style:solid;--bs-border-color:#dee2e6;--bs-border-color-translucent:rgba(0, 0, 0, .175);--bs-border-radius:.375rem;--bs-border-radius-sm:.25rem;--bs-border-radius-lg:.5rem;--bs-border-radius-xl:1rem;--bs-border-radius-xxl:2rem;--bs-border-radius-2xl:var(--bs-border-radius-xxl);--bs-border-radius-pill:50rem;--bs-box-shadow:0 .5rem 1rem rgba(0, 0, 0, .15);--bs-box-shadow-sm:0 .125rem .25rem rgba(0, 0, 0, .075);--bs-box-shadow-lg:0 1rem 3rem rgba(0, 0, 0, .175);--bs-box-shadow-inset:inset 0 1px 2px rgba(0, 0, 0, .075);--bs-focus-ring-width:.25rem;--bs-focus-ring-opacity:.25;--bs-focus-ring-color:rgba(13, 110, 253, .25);--bs-form-valid-color:#198754;--bs-form-valid-border-color:#198754;--bs-form-invalid-color:#dc3545;--bs-form-invalid-border-color:#dc3545}*,:after,:before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:var(--bs-body-font-family);font-size:var(--bs-body-font-size);font-weight:var(--bs-body-font-weight);line-height:var(--bs-body-line-height);color:var(--bs-body-color);text-align:var(--bs-body-text-align);background-color:var(--bs-body-bg);-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}:root{--bs-breakpoint-xs:0;--bs-breakpoint-sm:576px;--bs-breakpoint-md:768px;--bs-breakpoint-lg:992px;--bs-breakpoint-xl:1200px;--bs-breakpoint-xxl:1400px}:root{--bs-btn-close-filter: }:root{--bs-carousel-indicator-active-bg:#fff;--bs-carousel-caption-color:#fff;--bs-carousel-control-icon-filter: }html,body{height:100%;scroll-behavior:inherit!important}</style><link rel="stylesheet" href="styles-NGJBEA5C.css" media="all" onload="this.media='all'"><noscript><link rel="stylesheet" href="styles-NGJBEA5C.css"></noscript><style>.btn-link-style[_ngcontent-ng-c2913155081]{background:none;border:none;text-decoration:none;text-align:inherit;padding-left:.5rem;padding-right:.5rem}.btn-link-style[_ngcontent-ng-c2913155081]:focus{outline:2px solid #1E6098;outline-offset:2px}.st0[_ngcontent-ng-c2913155081]{fill:#8dc12f}.st1[_ngcontent-ng-c2913155081]{fill:#fff}.st2[_ngcontent-ng-c2913155081]{fill:#9dc83d}.st3[_ngcontent-ng-c2913155081]{fill:#1d6098}.st4[_ngcontent-ng-c2913155081]{fill:#5a585d}.gear[_ngcontent-ng-c2913155081]{transform-origin:50% 50%;transform-box:fill-box;-webkit-animation:_ngcontent-ng-c2913155081_frames 10s infinite linear;animation:_ngcontent-ng-c2913155081_frames 10s infinite linear}@keyframes _ngcontent-ng-c2913155081_frames{0%{-webkit-transform:rotate(0deg);transform:rotate(0)}to{-webkit-transform:rotate(359deg);transform:rotate(359deg)}}.badge[_ngcontent-ng-c2913155081]{padding-left:9px;padding-right:9px;-webkit-border-radius:9px;-moz-border-radius:9px;border-radius:9px}.label-warning[href][_ngcontent-ng-c2913155081], .badge-warning[href][_ngcontent-ng-c2913155081]{background-color:#c67605}#lblCartCount[_ngcontent-ng-c2913155081]{font-size:10px;color:#fff;vertical-align:top;margin-left:-10px;margin-top:-5px}.dropdown-menu[_ngcontent-ng-c2913155081]   li[_ngcontent-ng-c2913155081]{position:relative}.dropdown-menu[_ngcontent-ng-c2913155081]   .dropdown-submenu[_ngcontent-ng-c2913155081]{display:none;position:absolute;right:100%;top:-7px}.dropdown-menu[_ngcontent-ng-c2913155081] > li[_ngcontent-ng-c2913155081]:hover > .dropdown-submenu[_ngcontent-ng-c2913155081]{display:block}.accordion[_ngcontent-ng-c2913155081] > ul[_ngcontent-ng-c2913155081]{display:none}.accordion[_ngcontent-ng-c2913155081]:hover   ul[_ngcontent-ng-c2913155081]{display:block}.reports.nav-item.dropdown[_ngcontent-ng-c2913155081]:hover   .dropdown-menu[_ngcontent-ng-c2913155081]{display:block;right:100%;left:auto;margin-top:-25px}.testing-notification-bar[_ngcontent-ng-c2913155081]{background:linear-gradient(90deg,#205d96,#1a4f7f);color:#fff;padding:10px 0;text-align:center;font-size:14px;box-shadow:0 2px 4px #0000001a}.testing-notification-bar[_ngcontent-ng-c2913155081]   .container[_ngcontent-ng-c2913155081]{display:flex;justify-content:center;align-items:center;gap:15px}.testing-notification-bar[_ngcontent-ng-c2913155081]   span[_ngcontent-ng-c2913155081]{font-weight:500}.testing-guide-btn[_ngcontent-ng-c2913155081]{background:#fff;color:#205d96;border:none;padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;transition:all .3s ease}.testing-guide-btn[_ngcontent-ng-c2913155081]:hover{background:#f0f0f0;transform:translateY(-1px);box-shadow:0 2px 6px #00000026}.bug-hunting-btn[_ngcontent-ng-c2913155081]{background:#dc3545;color:#fff;border:none;padding:6px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;transition:all .3s ease}.bug-hunting-btn[_ngcontent-ng-c2913155081]:hover{background:#c82333;transform:translateY(-1px);box-shadow:0 2px 6px #00000026}</style><style>.ptt-explore-heading[_ngcontent-ng-c854836465]{font-size:.7rem;letter-spacing:.04em}.ptt-explore-link[_ngcontent-ng-c854836465]{color:inherit;text-decoration:none}.ptt-explore-link[_ngcontent-ng-c854836465]:hover   .ptt-explore-title[_ngcontent-ng-c854836465], .ptt-explore-link[_ngcontent-ng-c854836465]:focus-visible   .ptt-explore-title[_ngcontent-ng-c854836465]{text-decoration:underline}.ptt-explore-icon[_ngcontent-ng-c854836465]{flex:none;width:1.1rem;font-size:1rem;margin-top:.15rem}</style><style>.chat-widget[_ngcontent-ng-c3541368737]{position:fixed;bottom:20px;right:20px;z-index:9999;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,sans-serif}.chat-toggle-btn[_ngcontent-ng-c3541368737]{width:56px;height:56px;border-radius:50%;background-color:#1e6098;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 12px #1e609866;transition:transform .2s ease,box-shadow .2s ease}.chat-toggle-btn[_ngcontent-ng-c3541368737]:hover{transform:scale(1.05);box-shadow:0 6px 16px #1e609880}.chat-toggle-btn[_ngcontent-ng-c3541368737]:active{transform:scale(.95)}.chat-window[_ngcontent-ng-c3541368737]{width:360px;height:500px;background:#fff;border-radius:12px;box-shadow:0 8px 32px #00000026;display:flex;flex-direction:column;overflow:hidden;animation:_ngcontent-ng-c3541368737_slideUp .3s ease}@keyframes _ngcontent-ng-c3541368737_slideUp{0%{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}.chat-header[_ngcontent-ng-c3541368737]{background-color:#1e6098;color:#fff;padding:16px;display:flex;justify-content:space-between;align-items:center}.chat-title[_ngcontent-ng-c3541368737]{font-weight:600;font-size:16px}.chat-close-btn[_ngcontent-ng-c3541368737]{background:none;border:none;color:#fff;cursor:pointer;padding:4px;display:flex;align-items:center;justify-content:center;opacity:.8;transition:opacity .2s ease}.chat-close-btn[_ngcontent-ng-c3541368737]:hover{opacity:1}.chat-messages[_ngcontent-ng-c3541368737]{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;background-color:#f8f9fa}.chat-message[_ngcontent-ng-c3541368737]{max-width:85%;display:flex;flex-direction:column;gap:8px}.bot-message[_ngcontent-ng-c3541368737]{align-self:flex-start}.user-message[_ngcontent-ng-c3541368737]{align-self:flex-end}.message-content[_ngcontent-ng-c3541368737]{padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.4}.bot-message[_ngcontent-ng-c3541368737]   .message-content[_ngcontent-ng-c3541368737]{background-color:#fff;color:#333;border:1px solid #e0e0e0;border-bottom-left-radius:4px}.user-message[_ngcontent-ng-c3541368737]   .message-content[_ngcontent-ng-c3541368737]{background-color:#1e6098;color:#fff;border-bottom-right-radius:4px}.message-content.loading[_ngcontent-ng-c3541368737]{display:flex;gap:4px;padding:12px 16px}.dot[_ngcontent-ng-c3541368737]{width:8px;height:8px;background-color:#999;border-radius:50%;animation:_ngcontent-ng-c3541368737_bounce 1.4s infinite ease-in-out both}.dot[_ngcontent-ng-c3541368737]:nth-child(1){animation-delay:-.32s}.dot[_ngcontent-ng-c3541368737]:nth-child(2){animation-delay:-.16s}@keyframes _ngcontent-ng-c3541368737_bounce{0%,80%,to{transform:scale(0)}40%{transform:scale(1)}}.action-buttons[_ngcontent-ng-c3541368737]{display:flex;flex-wrap:wrap;gap:8px}.action-btn[_ngcontent-ng-c3541368737]{background-color:#fff;border:1px solid #1E6098;color:#1e6098;padding:8px 14px;border-radius:20px;font-size:13px;cursor:pointer;transition:background-color .2s ease,color .2s ease}.action-btn[_ngcontent-ng-c3541368737]:hover{background-color:#1e6098;color:#fff}.product-list[_ngcontent-ng-c3541368737]{display:flex;flex-direction:column;gap:8px;margin-top:4px}.product-card[_ngcontent-ng-c3541368737]{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:8px;cursor:pointer;transition:border-color .2s ease,box-shadow .2s ease}.product-card[_ngcontent-ng-c3541368737]:hover{border-color:#1e6098;box-shadow:0 2px 8px #1e609826}.product-image[_ngcontent-ng-c3541368737]{width:48px;height:48px;object-fit:cover;border-radius:6px;background-color:#f0f0f0}.product-info[_ngcontent-ng-c3541368737]{flex:1;min-width:0}.product-name[_ngcontent-ng-c3541368737]{font-size:13px;font-weight:500;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.product-price[_ngcontent-ng-c3541368737]{font-size:12px;color:#1e6098;font-weight:600}.chat-input-container[_ngcontent-ng-c3541368737]{display:flex;gap:8px;padding:12px;border-top:1px solid #e0e0e0;background:#fff}.chat-input[_ngcontent-ng-c3541368737]{flex:1;border:1px solid #e0e0e0;border-radius:20px;padding:10px 16px;font-size:14px;outline:none;transition:border-color .2s ease}.chat-input[_ngcontent-ng-c3541368737]:focus{border-color:#1e6098}.chat-send-btn[_ngcontent-ng-c3541368737]{width:40px;height:40px;border-radius:50%;background-color:#1e6098;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;transition:background-color .2s ease,transform .1s ease}.chat-send-btn[_ngcontent-ng-c3541368737]:hover:not(:disabled){background-color:#175a8a}.chat-send-btn[_ngcontent-ng-c3541368737]:active:not(:disabled){transform:scale(.95)}.chat-send-btn[_ngcontent-ng-c3541368737]:disabled{background-color:#ccc;cursor:not-allowed}.hidden-file-input[_ngcontent-ng-c3541368737]{display:none}@media (max-width: 420px){.chat-widget[_ngcontent-ng-c3541368737]{bottom:10px;right:10px}.chat-window[_ngcontent-ng-c3541368737]{width:calc(100vw - 20px);height:calc(100vh - 80px);max-height:600px}}</style><style>.live-widget[_ngcontent-ng-c4222135567]{position:fixed;bottom:20px;left:20px;z-index:9998;font-family:inherit}.live-toggle-btn[_ngcontent-ng-c4222135567]{position:relative;width:56px;height:56px;border-radius:50%;border:none;background:#dc3545;color:#fff;cursor:pointer;box-shadow:0 4px 12px #00000040;display:flex;align-items:center;justify-content:center;transition:transform .15s ease,background .15s ease}.live-toggle-btn[_ngcontent-ng-c4222135567]:hover{transform:scale(1.05)}.live-toggle-btn.active[_ngcontent-ng-c4222135567]{background:#495057}.live-badge[_ngcontent-ng-c4222135567]{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#212529;color:#fff;font-size:11px;font-weight:700;line-height:20px;text-align:center}.live-window[_ngcontent-ng-c4222135567]{width:320px;max-width:calc(100vw - 40px);background:#fff;border-radius:12px;box-shadow:0 8px 28px #00000038;overflow:hidden;margin-bottom:12px;display:flex;flex-direction:column;max-height:70vh}.live-header[_ngcontent-ng-c4222135567]{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#212529;color:#fff}.live-title[_ngcontent-ng-c4222135567]{display:flex;align-items:center;gap:8px;font-weight:600}.live-dot[_ngcontent-ng-c4222135567]{width:9px;height:9px;border-radius:50%;background:#6c757d}.live-dot.on[_ngcontent-ng-c4222135567]{background:#28d17c;box-shadow:0 0 #28d17cb3;animation:_ngcontent-ng-c4222135567_live-pulse 1.8s infinite}@keyframes _ngcontent-ng-c4222135567_live-pulse{0%{box-shadow:0 0 #28d17c99}70%{box-shadow:0 0 0 8px #28d17c00}to{box-shadow:0 0 #28d17c00}}.live-close-btn[_ngcontent-ng-c4222135567]{background:none;border:none;color:#fff;font-size:22px;line-height:1;cursor:pointer;opacity:.85}.live-close-btn[_ngcontent-ng-c4222135567]:hover{opacity:1}.live-stats[_ngcontent-ng-c4222135567]{display:flex;gap:8px;padding:12px 14px;background:#f8f9fa;border-bottom:1px solid #e9ecef}.live-stats[_ngcontent-ng-c4222135567] > div[_ngcontent-ng-c4222135567]{flex:1;display:flex;flex-direction:column}.live-stat-value[_ngcontent-ng-c4222135567]{font-size:20px;font-weight:700;color:#212529}.live-stat-label[_ngcontent-ng-c4222135567]{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#868e96}.live-feed[_ngcontent-ng-c4222135567]{overflow-y:auto;padding:6px 0;flex:1}.live-item[_ngcontent-ng-c4222135567]{padding:8px 14px;border-bottom:1px solid #f1f3f5;animation:_ngcontent-ng-c4222135567_live-slide-in .35s ease}.live-item[_ngcontent-ng-c4222135567]:last-child{border-bottom:none}@keyframes _ngcontent-ng-c4222135567_live-slide-in{0%{opacity:0;transform:translateY(-6px);background:#fff5f5}to{opacity:1;transform:translateY(0);background:transparent}}.live-item-main[_ngcontent-ng-c4222135567]{display:flex;align-items:baseline;justify-content:space-between;gap:8px}.live-item-name[_ngcontent-ng-c4222135567]{font-weight:600;color:#212529;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.live-badge-tag[_ngcontent-ng-c4222135567]{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;vertical-align:middle}.live-badge-tag.sold-out[_ngcontent-ng-c4222135567]{background:#f1d0d0;color:#b02a37}.live-badge-tag.low-stock[_ngcontent-ng-c4222135567]{background:#fff3cd;color:#997404}.live-item-amount[_ngcontent-ng-c4222135567]{font-weight:700;color:#dc3545;white-space:nowrap}.live-item-sub[_ngcontent-ng-c4222135567]{display:flex;justify-content:space-between;gap:8px;margin-top:2px;font-size:12px;color:#868e96}.live-empty[_ngcontent-ng-c4222135567]{padding:28px 14px;text-align:center;color:#adb5bd;font-size:13px}.live-footer[_ngcontent-ng-c4222135567]{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#f8f9fa;border-top:1px solid #e9ecef;font-size:11px;color:#868e96}.live-clear-btn[_ngcontent-ng-c4222135567]{background:none;border:none;color:#dc3545;font-size:12px;font-weight:600;cursor:pointer;padding:0}</style><style>@media (max-width: 1200px){.input-group-addon[_ngcontent-ng-c2621549667], .input-group-btn[_ngcontent-ng-c2621549667], .input-group[_ngcontent-ng-c2621549667]   .form-control[_ngcontent-ng-c2621549667]{display:block;margin-bottom:10px;clear:both}.input-group[_ngcontent-ng-c2621549667]   input[_ngcontent-ng-c2621549667]{width:100%}.input-group[_ngcontent-ng-c2621549667]{display:block}}.container[_ngcontent-ng-c2621549667]{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));grid-gap:15px}.card-img-top[_ngcontent-ng-c2621549667]{width:100%;height:15em;object-fit:cover;-webkit-transition:5s ease;transition:5s ease}.card-img-top[_ngcontent-ng-c2621549667]:hover{background-color:#d3d3d3;transform:scale(1.15);-webkit-transform:scale(1.15)}.card-img-wrapper[_ngcontent-ng-c2621549667]{overflow:hidden;width:auto;height:240px}.card[_ngcontent-ng-c2621549667]{transition:box-shadow .2s ease,background-color .2s ease}.card[_ngcontent-ng-c2621549667]:hover{background:#efefef;box-shadow:0 4px 12px #00000026}.card[_ngcontent-ng-c2621549667]:focus-within{box-shadow:0 0 0 2px #1e6098}.discounted[_ngcontent-ng-c2621549667]{text-decoration:line-through;font-style:italic;color:red;font-size:80%}@media (max-width: 576px){.lead[_ngcontent-ng-c2621549667]{height:75px!important}}@media (min-width: 577px) and (max-width: 768px){.lead[_ngcontent-ng-c2621549667]{height:106px!important}}@media (min-width: 769px) and (max-width: 992px){.lead[_ngcontent-ng-c2621549667]{height:145px!important}}@media (min-width: 993px) and (max-width: 1200px){.lead[_ngcontent-ng-c2621549667]{height:194px!important}}@media (min-width: 1201px) and (max-width: 1400px){.lead[_ngcontent-ng-c2621549667]{height:231px!important}}@media (min-width: 1400px){.lead[_ngcontent-ng-c2621549667]{height:268px!important}}.skeleton[_ngcontent-ng-c2621549667]   .card-img-wrapper[_ngcontent-ng-c2621549667]{background:linear-gradient(-45deg,#eee 40%,#fafafa,#eee 60%);background-size:300%;background-position-x:100%;animation:_ngcontent-ng-c2621549667_shimmer 1s infinite linear}.skeleton[_ngcontent-ng-c2621549667]   h5[_ngcontent-ng-c2621549667]{width:80%;height:22px;background:#eee;margin:5px 0;border-radius:4px;animation:_ngcontent-ng-c2621549667_shimmer 1.5s infinite}.skeleton[_ngcontent-ng-c2621549667]   .card-footer[_ngcontent-ng-c2621549667]   span[_ngcontent-ng-c2621549667]{width:20%;height:22px;background:#eee;border-radius:4px;margin:1px;animation:_ngcontent-ng-c2621549667_shimmer 1.5s infinite}@keyframes _ngcontent-ng-c2621549667_shimmer{0%{background-position:100% 0}to{background-position:-100% 0}}.spec-filter-title[_ngcontent-ng-c2621549667]{font-size:.9rem;font-weight:600;margin-bottom:4px}.compare-btn[_ngcontent-ng-c2621549667]{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;padding:0;border-radius:50%;background:#ffffffeb;color:#1e3a5f;border:1px solid rgba(30,58,95,.2);font-size:1rem;z-index:10;box-shadow:0 1px 3px #0000001a;opacity:.85;transition:opacity .2s ease,background-color .2s ease,transform .2s ease}.compare-btn[_ngcontent-ng-c2621549667]:hover{opacity:1;background:#fff;transform:scale(1.08)}.compare-btn.compare-btn-active[_ngcontent-ng-c2621549667]{opacity:1;background:#1e3a5f;color:#fff;border-color:#1e3a5f;box-shadow:0 2px 6px #1e3a5f66}.comparison-bar[_ngcontent-ng-c2621549667]{position:fixed;bottom:0;left:0;right:0;background:#1e3a5fd9;color:#fff;padding:8px 0;z-index:1050;font-size:.85rem;box-shadow:0 -1px 6px #0000001a}.comparison-bar[_ngcontent-ng-c2621549667]   .btn-sm[_ngcontent-ng-c2621549667]{font-size:.8rem;padding:3px 12px}.comparison-bar[_ngcontent-ng-c2621549667]   .btn-outline-light[_ngcontent-ng-c2621549667]{border-color:#fff6}.comparison-bar[_ngcontent-ng-c2621549667]   .btn-outline-light[_ngcontent-ng-c2621549667]:hover{background:#ffffff26}.eco-badge[_ngcontent-ng-c2621549667]{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-size:.75rem;font-weight:700;letter-spacing:.5px;border-radius:20px;box-shadow:0 2px 8px #10b98166;z-index:10;transition:transform .2s ease,box-shadow .2s ease}.eco-badge[_ngcontent-ng-c2621549667]:hover{transform:translateY(-2px);box-shadow:0 4px 12px #10b98180}.co2-rating-scale[_ngcontent-ng-c2621549667]{display:inline-flex;gap:2px;padding:4px;background-color:#f3f4f6;border-radius:8px;cursor:help;align-items:center}.co2-rating-scale[_ngcontent-ng-c2621549667]:before{content:"CO\2082:";font-size:.65rem;font-weight:600;color:#6b7280;margin-right:4px}.co2-letter[_ngcontent-ng-c2621549667]{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;font-size:.7rem;font-weight:600;border-radius:4px;transition:all .2s ease;background-color:transparent;color:#9ca3af}.co2-letter.active[_ngcontent-ng-c2621549667]{transform:scale(1.15);box-shadow:0 2px 4px #0003}.co2-letter.active.rating-a[_ngcontent-ng-c2621549667]{background-color:#10b981;color:#fff}.co2-letter.active.rating-b[_ngcontent-ng-c2621549667]{background-color:#84cc16;color:#fff}.co2-letter.active.rating-c[_ngcontent-ng-c2621549667]{background-color:#facc15;color:#1f2937}.co2-letter.active.rating-d[_ngcontent-ng-c2621549667]{background-color:#f97316;color:#fff}.co2-letter.active.rating-e[_ngcontent-ng-c2621549667]{background-color:#ef4444;color:#fff}</style><style>.ngx-slider{display:inline-block;position:relative;height:4px;width:100%;margin:35px 0 15px;vertical-align:middle;-webkit-user-select:none;user-select:none;touch-action:pan-y}  .ngx-slider.with-legend{margin-bottom:40px}  .ngx-slider[disabled]{cursor:not-allowed}  .ngx-slider[disabled] .ngx-slider-pointer{cursor:not-allowed;background-color:#d8e0f3}  .ngx-slider[disabled] .ngx-slider-draggable{cursor:not-allowed}  .ngx-slider[disabled] .ngx-slider-selection{background:#8b91a2}  .ngx-slider[disabled] .ngx-slider-tick{cursor:not-allowed}  .ngx-slider[disabled] .ngx-slider-tick.ngx-slider-selected{background:#8b91a2}  .ngx-slider .ngx-slider-span{white-space:nowrap;position:absolute;display:inline-block}  .ngx-slider .ngx-slider-base{width:100%;height:100%;padding:0}  .ngx-slider .ngx-slider-bar-wrapper{left:0;box-sizing:border-box;margin-top:-16px;padding-top:16px;width:100%;height:32px;z-index:1}  .ngx-slider .ngx-slider-draggable{cursor:move}  .ngx-slider .ngx-slider-bar{left:0;width:100%;height:4px;z-index:1;background:#d8e0f3;-webkit-border-radius:2px;-moz-border-radius:2px;border-radius:2px}  .ngx-slider .ngx-slider-bar-wrapper.ngx-slider-transparent .ngx-slider-bar{background:transparent}  .ngx-slider .ngx-slider-bar-wrapper.ngx-slider-left-out-selection .ngx-slider-bar{background:#df002d}  .ngx-slider .ngx-slider-bar-wrapper.ngx-slider-right-out-selection .ngx-slider-bar{background:#03a688}  .ngx-slider .ngx-slider-selection{z-index:2;background:#0db9f0;-webkit-border-radius:2px;-moz-border-radius:2px;border-radius:2px}  .ngx-slider .ngx-slider-pointer{cursor:pointer;width:32px;height:32px;top:-14px;background-color:#0db9f0;z-index:3;-webkit-border-radius:16px;-moz-border-radius:16px;border-radius:16px}  .ngx-slider .ngx-slider-pointer:after{content:"";width:8px;height:8px;position:absolute;top:12px;left:12px;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px;background:#fff}  .ngx-slider .ngx-slider-pointer:hover:after{background-color:#fff}  .ngx-slider .ngx-slider-pointer.ngx-slider-active{z-index:4}  .ngx-slider .ngx-slider-pointer.ngx-slider-active:after{background-color:#451aff}  .ngx-slider .ngx-slider-bubble{cursor:default;bottom:16px;padding:1px 3px;color:#55637d;font-size:16px}  .ngx-slider .ngx-slider-bubble.ngx-slider-limit{color:#55637d}  .ngx-slider .ngx-slider-ticks{box-sizing:border-box;width:100%;height:0;position:absolute;left:0;top:-3px;margin:0;z-index:1;list-style:none}  .ngx-slider .ngx-slider-ticks-values-under .ngx-slider-tick-value{top:auto;bottom:-36px}  .ngx-slider .ngx-slider-tick{text-align:center;cursor:pointer;width:10px;height:10px;background:#d8e0f3;border-radius:50%;position:absolute;top:0;left:0;margin-left:11px}  .ngx-slider .ngx-slider-tick.ngx-slider-selected{background:#0db9f0}  .ngx-slider .ngx-slider-tick-value{position:absolute;top:-34px;transform:translate(-50%)}  .ngx-slider .ngx-slider-tick-legend{position:absolute;top:24px;transform:translate(-50%);max-width:50px;white-space:normal}  .ngx-slider.vertical{position:relative;width:4px;height:100%;margin:0 20px;padding:0;vertical-align:baseline;touch-action:pan-x}  .ngx-slider.vertical .ngx-slider-base{width:100%;height:100%;padding:0}  .ngx-slider.vertical .ngx-slider-bar-wrapper{top:auto;left:0;margin:0 0 0 -16px;padding:0 0 0 16px;height:100%;width:32px}  .ngx-slider.vertical .ngx-slider-bar{bottom:0;left:auto;width:4px;height:100%}  .ngx-slider.vertical .ngx-slider-pointer{left:-14px!important;top:auto;bottom:0}  .ngx-slider.vertical .ngx-slider-bubble{left:16px!important;bottom:0}  .ngx-slider.vertical .ngx-slider-ticks{height:100%;width:0;left:-3px;top:0;z-index:1}  .ngx-slider.vertical .ngx-slider-tick{vertical-align:middle;margin-left:auto;margin-top:11px}  .ngx-slider.vertical .ngx-slider-tick-value{left:24px;top:auto;transform:translateY(-28%)}  .ngx-slider.vertical .ngx-slider-tick-legend{top:auto;right:24px;transform:translateY(-28%);max-width:none;white-space:nowrap}  .ngx-slider.vertical .ngx-slider-ticks-values-under .ngx-slider-tick-value{bottom:auto;left:auto;right:24px}  .ngx-slider *{transition:none}  .ngx-slider.animate .ngx-slider-bar-wrapper{transition:all linear .3s}  .ngx-slider.animate .ngx-slider-selection{transition:background-color linear .3s}  .ngx-slider.animate .ngx-slider-pointer{transition:all linear .3s}  .ngx-slider.animate .ngx-slider-pointer:after{transition:all linear .3s}  .ngx-slider.animate .ngx-slider-bubble{transition:all linear .3s}  .ngx-slider.animate .ngx-slider-bubble.ngx-slider-limit{transition:opacity linear .3s}  .ngx-slider.animate .ngx-slider-bubble.ngx-slider-combined{transition:opacity linear .3s}  .ngx-slider.animate .ngx-slider-tick{transition:background-color linear .3s}</style></head>
+<body>
+  <app-root ng-version="20.0.5"><div data-test="notification-bar" class="text-center p-2 bg-dark text-white"> View the <a target="_blank" href="https://testsmith-io.github.io/practice-software-testing/#/" class="text-white">Documentation</a> for this application.
+</div><app-header _nghost-ng-c2913155081=""><div _ngcontent-ng-c2913155081="" class="testing-notification-bar"><div _ngcontent-ng-c2913155081="" class="container"><span _ngcontent-ng-c2913155081="">Practice Black Box Testing &amp; Bug Hunting</span><button _ngcontent-ng-c2913155081="" class="testing-guide-btn"> Testing Guide </button><button _ngcontent-ng-c2913155081="" class="bug-hunting-btn"> 🐛 Bug Hunting </button><!----></div></div><nav _ngcontent-ng-c2913155081="" class="navbar navbar-expand-lg navbar-light bg-light"><div _ngcontent-ng-c2913155081="" class="container"><a _ngcontent-ng-c2913155081="" href="/" class="navbar-brand" title="Practice Software Testing - Toolshop"><svg _ngcontent-ng-c2913155081="" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="55 35 808.6 160" xml:space="preserve" style="width: 280px;"><g _ngcontent-ng-c2913155081="" transform="translate(-100 -390)"><path _ngcontent-ng-c2913155081="" d="m832.2 581h-194.8c-12.1 0-21.8-9.8-21.8-21.8v-19c0-12.1 9.8-21.8 21.8-21.8h194.8c12.1 0 21.8 9.8 21.8 21.8v19c0 12-9.8 21.8-21.8 21.8z" class="st0"></path><path _ngcontent-ng-c2913155081="" d="m685.3 562.1-1-0.1-0.3-0.1-0.3-0.3-0.1-0.6-0.1-0.9v-0.4l-0.1-0.5v-0.9l0.1-0.5v-0.6l0.1-0.5v-0.4-0.4-0.5-0.5-0.5-1-0.5l0.1-0.5v-0.5l-0.1-0.4 0.1-0.5v-0.5-1l-0.1-0.5 0.1-0.5v-0.4l0.1-0.4v-0.6-0.4l0.1-0.5v-0.2l-0.1-0.5v-0.6-0.4-0.5-0.5-0.3-0.6l-0.1-0.3 0.1-1v-0.5-0.4-0.4-0.6l-0.1-0.4 0.1-0.4-0.1-0.6v-0.5-0.5l0.1-0.4-0.1-0.6v-0.9l0.2-0.3 0.3-0.3 0.4-0.1 0.9-0.1h0.5 0.4 0.6 0.3 0.5l0.5-0.1 0.5 0.1h0.3 0.5 0.5l0.5-0.1h0.6 0.4l0.4 0.1 0.5-0.1 0.5 0.1h0.5l0.9-0.1 0.9 0.1h0.4l0.5 0.1 0.9 0.2 0.5 0.1 0.3 0.1 0.5 0.1 0.5 0.2 1.2 0.6 0.3 0.2 0.4 0.3 0.5 0.2 1 1 0.2 0.3 0.3 0.3 0.2 0.4 0.3 0.4 0.2 0.5 0.4 0.8 0.1 0.4 0.4 1 0.1 0.3v0.6l0.1 0.3 0.2 1v0.4 1l-0.1 0.4v0.5 0.5 0.4 0.4l-0.1 0.6v0.5 0.5l-0.1 0.3 0.1 0.5v0.5l-0.1 0.6v0.4 1 0.8l-0.1 0.6-0.1 0.4v0.5l-0.2 0.5-0.1 0.4-0.2 0.5-0.1 0.4-0.5 0.9-0.2 0.3-0.2 0.4-0.3 0.5-1 0.9-0.3 0.3-0.4 0.3-0.3 0.3-0.4 0.3-0.3 0.2-0.4 0.1-0.3 0.3-0.4 0.1-0.5 0.2-0.4 0.1-0.5 0.1-0.4 0.1-0.6 0.1h-0.3l-0.6 0.1h-1l-0.4 0.2h-0.9-0.4-0.6l-0.4-0.1-0.4 0.1h-0.5l-0.6 0.1h-0.3l-0.5-0.1-0.4-0.1h-0.5l-0.4 0.1-0.4-0.1-0.5 0.1h-1l-0.5-0.1-0.4 0.1zm5.9-4.6h0.5 0.5 0.5 0.6l0.9-0.1h0.5 0.4l1-0.2 1-0.4 0.4-0.2 0.5-0.2 0.3-0.2 0.4-0.3 0.7-0.7 0.3-0.8 0.2-0.4 0.1-0.4 0.2-0.5 0.1-0.5v-0.5l-0.1-0.9v-0.5-0.3l0.1-0.5v-1-0.4-0.6-0.4-0.6-0.5-0.9-0.6-0.8l-0.1-0.5v-0.6l-0.2-0.3-0.1-0.5-0.2-0.5-0.2-0.3-0.2-0.4-0.3-0.3-0.3-0.4-0.3-0.2-0.5-0.3-0.3-0.2-0.4-0.2-0.5-0.2-0.4-0.2-0.6-0.1h-0.4-0.5l-0.4-0.1-1 0.1h-0.4-0.5l-0.5-0.1-0.6 0.1h-0.3l-1-0.1-0.5 0.1-0.6-0.1-0.3 0.1-0.1 0.1v0.4 0.5l-0.1 0.3 0.1 0.5v0.5 0.4 0.6l0.1 0.3v0.6 0.5 0.4l-0.1 0.5v0.4 0.5 0.5l0.1 0.5v0.3l-0.1 0.5v0.5l0.1 0.6-0.1 0.4v0.5 0.6l0.1 0.4-0.1 0.9 0.1 0.5v0.5 0.5 0.5l-0.1 0.4v0.4l0.1 0.6-0.1 0.4 0.1 0.4-0.1 0.5v0.5 0.4 0.5 0.3l0.1 0.1h0.4l1-0.1h0.4l0.6 0.1 0.1-0.1z" class="st1"></path><path _ngcontent-ng-c2913155081="" d="m715.5 562.1-0.5-0.1-0.5 0.1-0.9-0.1-0.5 0.1h-0.6-0.5-0.5-0.8l-0.5-0.2-0.2-0.3-0.2-0.5v-0.8l0.1-0.6v-0.4l-0.1-0.5v-1.4l0.1-0.4-0.1-0.5 0.1-0.5v-0.6l0.1-0.4v-0.4-0.5-0.5l-0.1-0.5 0.1-0.4-0.1-0.6 0.1-0.4v-0.5l-0.1-0.6 0.1-0.4-0.1-0.6v-0.4-0.5-0.4-0.5l-0.1-0.6 0.1-0.4-0.1-0.5v-0.4-0.5l0.2-0.4 0.1-0.4-0.1-0.4v-1-0.5-0.5-0.4l-0.1-0.5v-0.6-0.4-0.9l0.1-0.4-0.1-0.6v-0.4-0.6-0.4l0.1-0.6v-0.4-0.9l0.2-0.4 0.3-0.4 0.3-0.1h1l0.4-0.1h0.5l0.5 0.1h0.5 0.5l0.9 0.1 0.4-0.1h0.5l0.4 0.1 0.5-0.1h0.4 0.5 0.5l0.4 0.1 0.6-0.1 0.5 0.1h0.4l0.6-0.1h0.5 0.4l0.4 0.1h0.5l0.4-0.1 0.5 0.1h0.5l0.4-0.1h0.6 0.5l0.9-0.1 0.9 0.1 0.5 0.1 0.5 0.7v0.9 0.5l-0.1 0.5 0.1 0.9-0.2 0.4-0.4 0.4-0.4 0.1-0.8-0.1h-1.4l-0.6 0.1h-0.4l-0.5-0.1-1 0.1h-0.4l-0.5-0.1-0.5 0.1-0.4-0.1-0.4 0.1-0.4 0.3h-0.5l-0.4-0.1h-0.9l-1 0.1h-1l-0.5-0.1-0.4 0.1h-0.3v0.4l-0.1 0.4v0.4 0.4 0.5l0.1 0.5v0.5l-0.1 0.4v0.5l0.1 0.5-0.1 0.4 0.1 0.5-0.1 0.4v0.5 0.4h0.1 0.3l0.6 0.1h0.3 0.5 0.6 0.5l0.4-0.1 0.4 0.1h0.6l0.5-0.1h0.4 1 0.4 0.5l0.4 0.1 0.5-0.1 0.5 0.1 0.5-0.1 0.4 0.1h0.5l0.9-0.1 0.4 0.2 0.4 0.3v0.3l0.1 1v0.4l-0.1 0.6v0.9l-0.1 0.5-0.2 0.3-0.5 0.2h-0.9-0.5-0.4-0.5l-0.5 0.1h-0.4l-0.5-0.1h-0.5-0.4-0.4-0.5-0.5l-0.4-0.1-0.5 0.1h-0.3l-0.5-0.1-0.5 0.1h-0.4l-0.5 0.1h-0.5-0.4-0.3l-0.1 0.1v0.3 0.5l-0.1 0.5v0.4 0.6l0.1 0.5v0.4 0.5l-0.1 0.4 0.1 0.5v0.9l-0.1 0.6 0.1 0.5-0.1 0.3 0.1 0.1h0.4l0.4-0.1 0.5 0.1h0.4 0.6l0.4 0.1 0.6-0.1h0.4l0.5 0.1h1l0.6-0.1h0.5 0.4 0.5l0.4 0.1 1.4-0.1 0.5 0.1 0.6-0.1h0.5l0.4 0.1 0.5-0.1h0.5 0.9l0.4 0.2 0.3 0.3 0.1 0.5 0.1 0.9v0.5l-0.1 0.4-0.1 0.9-0.1 0.5-0.3 0.3-1.4 0.1-0.4 0.1-0.5-0.1-0.4 0.1-0.8-0.3-0.6 0.1h-0.4l-0.4-0.1h-0.5-0.6l-0.4 0.1h-0.5-0.4l-0.5-0.1h-0.4l-0.6 0.1h-0.5-1.2-0.5-0.5-0.5-0.4-0.6z" class="st1"></path><path _ngcontent-ng-c2913155081="" d="m754.5 543.7-0.3 0.3-0.2 0.4-0.2 0.5-0.2 0.4-0.3 0.3-0.1 0.5-0.2 0.5-0.3 0.4-0.3 0.3-0.1 0.5-0.6 0.7-0.6 1.2-0.3 0.3-0.2 0.4-0.3 0.5-0.2 0.4-0.3 0.3-0.2 0.5-0.1 0.3-0.3 0.4-0.2 0.4-0.4 0.4-0.8 1.6-0.3 0.3-0.6 0.2h-0.7-0.2l-0.9 0.1-0.5-0.2-0.3-0.3-0.5-0.7-0.2-0.4-0.2-0.5-0.2-0.3-0.3-0.5-0.6-1.2-0.3-0.3-0.2-0.4-0.3-0.4-0.2-0.4-0.2-0.3-0.3-0.4-0.4-0.8-0.5-0.8-0.3-0.4-0.2-0.4-0.2-0.3-0.2-0.5-0.2-0.3-0.3-0.4-0.2-0.5-0.4-0.8 0.1-0.3-0.2-0.3-0.2 0.1v0.3 0.2 0.6 0.3 0.4 0.4 1.4 0.4 0.6l0.1 0.8-0.1 0.6 0.1 0.5v0.3 0.5 0.5l-0.1 0.5 0.1 0.4-0.1 1 0.1 0.4v0.6 0.4l0.1 0.5-0.1 0.5 0.1 0.4v0.6 0.5l-0.1 0.4v0.5 0.5 0.4 0.5 0.5 0.9l-0.2 0.5-0.3 0.2-0.5 0.1-0.9 0.1-0.4 0.1-0.4-0.1h-0.9l-0.4-0.1-0.4-0.4v-0.3l-0.2-0.9 0.1-0.5v-0.4-0.6-0.5-0.4l0.1-0.5v-0.4-0.6-0.4l-0.1-1 0.1-0.4v-0.6l-0.1-0.3 0.1-0.6v-0.5-0.3l-0.1-0.6v-0.3-0.6-0.4l-0.1-0.6 0.1-0.4v-0.4-0.5-0.5l0.1-0.5v-0.9-0.5l-0.1-0.5 0.1-0.4-0.1-0.5v-0.4-0.5l0.1-0.4v-0.5-1l-0.1-0.4 0.1-0.5-0.1-0.4v-0.5-0.5-0.5l0.1-0.5v-0.6l-0.1-0.4v-0.6-0.4-0.6l0.1-0.8 0.1-0.4 0.3-0.4 0.4-0.1 0.9-0.1h0.4 0.4 0.9l0.4 0.1 0.4 0.2 0.3 0.4 0.4 0.8 0.3 0.3 0.4 0.8 0.2 0.5 0.3 0.4 0.2 0.4 0.3 0.3 0.2 0.4 0.2 0.5 0.2 0.4 0.2 0.3 0.6 1.2 0.3 0.4 0.4 0.7 0.3 0.5 0.2 0.4 0.2 0.3 0.3 0.4 0.2 0.4 0.3 0.4 0.2 0.4 0.3 0.4 0.9 1.8 0.2 0.3 0.2 0.5 0.2 0.4 0.3 0.4 0.2 0.6h0.2l0.4-0.7 0.3-0.4 0.1-0.4 0.3-0.4 0.2-0.4 0.3-0.3 0.2-0.5 0.2-0.4 0.3-0.4 0.3-0.5 0.3-0.3 0.2-0.5 0.4-0.8 0.3-0.3 0.2-0.4 0.3-0.4 0.1-0.5 0.3-0.3 0.2-0.6 0.2-0.3 0.3-0.4 0.2-0.4 0.4-0.4 0.1-0.5 0.4-0.4 0.2-0.4 0.2-0.5 0.3-0.3 0.2-0.6 0.3-0.3 0.2-0.4 0.2-0.5 0.6-0.7 0.2-0.3 0.3-0.2 0.5-0.1h0.9 0.5 0.4 0.9l0.4 0.2 0.4 0.3 0.2 0.4v0.9 0.5l0.1 0.3-0.1 0.5v1l0.1 0.5v0.4l-0.1 0.6v0.9l0.1 0.6v0.9l-0.1 0.5v0.4 0.5l0.1 0.5v0.4l-0.1 0.5 0.1 0.4v0.6 0.4l-0.1 0.5v0.5l0.1 0.4v0.5 0.4l0.1 0.6v0.4 1 0.5 0.5 0.6 0.3l0.1 0.6v0.4 0.5 0.6l-0.1 0.5v0.6l0.1 0.4v0.5 0.5 0.4l0.1 0.4v0.6l0.1 0.5v0.4l-0.1 0.5v0.5 0.9l-0.2 0.4-0.3 0.4h-0.3-1-1l-1-0.1h-0.4l-0.2-0.3-0.2-0.5v-0.9-0.4-0.5-0.4l0.1-0.5-0.1-0.5v-0.6-0.4-0.6-0.4-0.4-0.6-0.3l-0.1-0.6v-0.5-0.8-0.5-0.4-0.4l0.1-0.5v-0.4l-0.1-0.5 0.1-0.6v-0.5l-0.1-0.9 0.1-0.5v-0.4-0.4l0.1-0.6v-0.3l0.1-0.5v-0.5l0.1-0.5v-1l-0.2-0.1-1 0.2z" class="st1"></path><path _ngcontent-ng-c2913155081="" d="m775.1 562.7h-0.4l-0.4-0.1-0.5-0.1h-0.4l-0.6-0.1h-0.5l-0.8-0.2-0.5-0.2-0.3-0.2-0.9-0.2-0.5-0.2-0.4-0.3-0.3-0.1-0.4-0.4-0.4-0.2-0.2-0.4-0.3-0.2-0.4-0.3-0.3-0.4-0.3-0.3-0.2-0.4-0.3-0.4-0.2-0.4-0.1-0.5-0.2-0.5-0.4-0.7v-0.5l-0.2-0.4-0.1-0.6v-0.9l-0.1-0.4v-1-0.4-0.5-1-0.5-1l-0.1-0.4v-0.4-0.5-0.6-1.8l0.1-0.6v-0.9-0.4-0.4l0.2-0.9 0.1-0.5v-0.5l0.2-0.3v-0.5l0.6-1.2 0.3-0.3 0.2-0.4 0.3-0.3 0.2-0.4 0.4-0.3 0.6-0.6 0.4-0.3 0.4-0.2 0.3-0.3 0.4-0.3 0.4-0.1 0.4-0.3 0.4-0.1 1-0.4 0.4-0.1 0.5-0.2 0.5-0.1h0.9l0.4-0.2 0.5 0.1h0.4l1-0.1h0.5 0.4l1 0.1 0.4 0.2h0.5l0.4 0.2 0.6 0.1 0.5 0.2h0.4l0.8 0.4 0.5 0.3 0.4 0.2 0.3 0.3 0.5 0.2 0.2 0.2 0.5 0.4 0.6 0.6 0.4 0.3 0.2 0.3 0.3 0.5 0.8 1.6 0.1 0.4 0.2 0.5 0.1 0.5 0.2 0.4v0.4l0.1 0.4 0.1 0.9v1 0.5 0.5 0.5 0.4l0.1 0.6v0.5 0.5 0.4l0.1 0.5-0.1 0.5v0.5 1.1 0.4l-0.1 0.5 0.1 0.4-0.1 1v0.5l-0.1 0.4v0.6 0.4 0.4l-0.2 0.5-0.1 0.5-0.2 0.5-0.2 0.4-0.1 0.4-0.3 0.5-0.2 0.4-0.3 0.2-0.2 0.4-0.3 0.4-0.4 0.3-0.6 0.6-0.5 0.2-0.3 0.2-0.5 0.3-0.4 0.3-0.3 0.2-0.4 0.2-0.5 0.2-0.9 0.2-0.4 0.1-0.5 0.2-0.5 0.1-0.4 0.1-0.5 0.1-0.9 0.1-0.5-0.1-1.1-0.4zm1.6-4.6 0.5-0.1 0.4-0.1 0.5-0.1 0.6-0.1 0.3-0.2 0.4-0.2 0.5-0.2 0.4-0.4 0.2-0.3 0.4-0.3 0.2-0.3 0.3-0.5 0.2-0.4 0.2-0.5v-0.5l0.1-0.3 0.1-0.6v-0.9l-0.1-0.5 0.1-0.6v-0.5-0.4-0.5-0.4-0.5l0.1-0.4-0.1-0.5v-0.5-1.1-0.5-0.4l-0.1-0.5 0.1-0.4v-0.9-0.5-0.5l-0.4-0.8-0.2-0.5-0.3-0.4-0.2-0.5-0.7-0.7-0.4-0.2-0.5-0.2-0.4-0.3-0.3-0.2h-0.5l-0.5-0.2h-0.5-0.5l-0.4-0.2-1.5 0.1-0.5 0.1h-0.6l-0.3 0.2-0.6 0.1-0.4 0.2-0.5 0.2-0.7 0.6-0.4 0.3-0.3 0.3-0.3 0.4-0.4 0.8-0.2 0.5v0.5l-0.2 0.4 0.1 0.6v0.9l-0.1 0.5v0.6 0.4 0.5l0.1 0.5-0.1 0.5 0.1 0.5-0.1 0.6v0.5l0.1 0.5v0.4 0.5 0.5 1 0.5 0.9l0.2 0.5v0.4l0.2 0.5 0.1 0.3 0.3 0.4 0.1 0.5 0.3 0.4 1 1 0.4 0.2 0.3 0.2 0.6 0.2 0.4 0.2 0.5 0.2h0.4l0.5 0.1h0.4 1l0.6-0.4z" class="st1"></path></g><polygon _ngcontent-ng-c2913155081="" points="119.8,118.9 109,109 103.8,114.4 120.9,129.3 149.6,97.9 144.1,92.3 	" class="st0"></polygon><g _ngcontent-ng-c2913155081="" class="gear"><path _ngcontent-ng-c2913155081="" d="M178.7,123.1l20.9-3.3V99.7l-20.9-4.2c-1.2-4.4-2.9-8.7-5.2-12.6L186,65.8l-14.2-14.2l-17.7,11.8l0,0
+		c-3.9-2.2-8.1-4-12.4-5.2l-4.2-20.9h-20.1l-3.2,20.9l0,0c-4.5,1.2-8.8,3-12.8,5.2l0,0L83.7,51.6L69.5,65.8L82,82.9l0,0
+		c-2.2,3.9-4,8.1-5.2,12.5l-20.9,4.2v20.1l20.9,3.3l0,0c1.2,4.4,3,8.6,5.2,12.5l0,0l-11.8,17.7l14.2,14.2l17.1-12.5
+		c3.9,2.2,8.1,4,12.6,5.2l0,0l3.2,20.8h20.1l4.2-20.9c4.4-1.2,8.4-2.9,12.3-5.1l17.1,12.5l14.2-14.2l-11.8-17.7
+		C175.7,131.6,177.5,127.5,178.7,123.1L178.7,123.1z M127.7,150.4c-22.8,0-41.3-18.5-41.3-41.3s18.5-41.3,41.3-41.3
+		S169,86.3,169,109.1S150.5,150.4,127.7,150.4z" class="st3"></path></g><path _ngcontent-ng-c2913155081="" d="M231.8,77.8h59v8.8h-25.1v50.1h-8.8V86.6h-25.1V77.8z" class="st3"></path><path _ngcontent-ng-c2913155081="" d="M307.4,77.8H345c2.9,0,5.5,1,7.5,3.1c2.1,2.1,3.1,4.6,3.1,7.5v37.7c0,2.9-1,5.5-3.1,7.5
+		c-2.1,2.1-4.6,3.1-7.5,3.1h-37.7c-2.9,0-5.5-1-7.5-3.1c-2.1-2.1-3.1-4.6-3.1-7.5V88.4c0-2.9,1-5.5,3.1-7.5
+		C301.9,78.8,304.4,77.8,307.4,77.8z M307.4,127.9H345c0.5,0,0.9-0.2,1.3-0.5c0.4-0.4,0.5-0.8,0.5-1.3V88.4c0-0.5-0.2-0.9-0.5-1.3
+		c-0.4-0.4-0.8-0.5-1.3-0.5h-37.7c-0.5,0-0.9,0.2-1.3,0.5c-0.4,0.4-0.5,0.8-0.5,1.3v37.7c0,0.5,0.2,0.9,0.5,1.3
+		C306.4,127.8,306.9,127.9,307.4,127.9z" class="st3"></path><path _ngcontent-ng-c2913155081="" d="M375.2,77.8h37.7c2.9,0,5.5,1,7.5,3.1c2.1,2.1,3.1,4.6,3.1,7.5v37.7c0,2.9-1,5.5-3.1,7.5
+		c-2.1,2.1-4.6,3.1-7.5,3.1h-37.7c-2.9,0-5.5-1-7.5-3.1c-2.1-2.1-3.1-4.6-3.1-7.5V88.4c0-2.9,1-5.5,3.1-7.5
+		C369.7,78.8,372.2,77.8,375.2,77.8z M375.2,127.9h37.7c0.5,0,0.9-0.2,1.3-0.5c0.4-0.4,0.5-0.8,0.5-1.3V88.4c0-0.5-0.2-0.9-0.5-1.3
+		c-0.4-0.4-0.8-0.5-1.3-0.5h-37.7c-0.5,0-0.9,0.2-1.3,0.5c-0.4,0.4-0.5,0.8-0.5,1.3v37.7c0,0.5,0.2,0.9,0.5,1.3
+		C374.3,127.8,374.7,127.9,375.2,127.9z" class="st3"></path><path _ngcontent-ng-c2913155081="" d="M432.6,136.8V77.7h8.8v50.2h50.1v8.8h-58.9V136.8z" class="st3"></path><path _ngcontent-ng-c2913155081="" d="M554.9,89.9v5.5H542v-4.8h-33.4v10.3h34.2c3.3,0,6.2,1.2,8.6,3.6c2.4,2.4,3.6,5.2,3.6,8.6v11.6
+		c0,3.3-1.2,6.2-3.6,8.6c-2.4,2.4-5.2,3.6-8.6,3.6H508c-3.3,0-6.2-1.2-8.6-3.5c-2.4-2.3-3.6-5.2-3.6-8.6v-5.5h12.7v4.8H542v-10.3
+		h-34c-3.3,0-6.2-1.2-8.6-3.5c-2.4-2.3-3.6-5.2-3.6-8.6V90.1c0-3.4,1.2-6.3,3.6-8.6c2.4-2.3,5.2-3.5,8.6-3.5h34.7
+		c3.3,0,6.2,1.2,8.6,3.6C553.7,83.7,554.9,86.6,554.9,89.9z" class="st4"></path><path _ngcontent-ng-c2913155081="" d="M611.2,77.8h12.7v59h-12.7v-23.1h-34.8v23.1h-12.7v-59h12.7v23.1h34.8V77.8z" class="st4"></path><path _ngcontent-ng-c2913155081="" d="M645.3,77.8H680c3.3,0,6.2,1.2,8.6,3.6c2.4,2.4,3.6,5.2,3.6,8.6v34.7c0,3.3-1.2,6.2-3.6,8.6
+		c-2.4,2.4-5.2,3.6-8.6,3.6h-34.7c-3.4,0-6.3-1.2-8.6-3.5s-3.5-5.2-3.5-8.6V90.1c0-3.4,1.2-6.3,3.5-8.6
+		C639,79,641.9,77.8,645.3,77.8z M645.9,90.6V124h33.4V90.6H645.9z" class="st4"></path><path _ngcontent-ng-c2913155081="" d="M701.2,77.9H748c3.3,0,6.2,1.2,8.6,3.6c2.4,2.4,3.6,5.2,3.6,8.6v15.2c0,3.3-1.2,6.2-3.6,8.6
+		c-2.4,2.4-5.3,3.6-8.6,3.6l-34.1,0.1c0.2,0,0.2,0.2,0.2,0.5c-0.1,0-0.2,0-0.2-0.1v18.9h-12.7V77.9z M713.8,90.6v14h33.4v-14H713.8z
+		" class="st4"></path></svg></a><button _ngcontent-ng-c2913155081="" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"><span _ngcontent-ng-c2913155081="" class="navbar-toggler-icon"></span></button><div _ngcontent-ng-c2913155081="" id="navbarSupportedContent" class="collapse navbar-collapse"><ul _ngcontent-ng-c2913155081="" role="menubar" aria-label="Main menu" class="navbar-nav ms-auto mb-2 mb-lg-0"><li _ngcontent-ng-c2913155081="" role="menuitem" class="nav-item"><a _ngcontent-ng-c2913155081="" data-test="nav-home" aria-current="page" href="/" class="nav-link active">Home</a></li><li _ngcontent-ng-c2913155081="" role="menuitem" class="nav-item dropdown"><button _ngcontent-ng-c2913155081="" type="button" data-test="nav-categories" data-bs-toggle="dropdown" aria-expanded="false" class="nav-link dropdown-toggle btn-link-style"> Categories </button><ul _ngcontent-ng-c2913155081="" aria-label="nav-categories" class="dropdown-menu"><li _ngcontent-ng-c2913155081=""><a _ngcontent-ng-c2913155081="" data-test="nav-hand-tools" routerlink="/category/hand-tools" class="dropdown-item" href="/category/hand-tools">Hand Tools</a></li><li _ngcontent-ng-c2913155081=""><a _ngcontent-ng-c2913155081="" data-test="nav-power-tools" routerlink="/category/power-tools" class="dropdown-item" href="/category/power-tools">Power Tools</a></li><li _ngcontent-ng-c2913155081=""><a _ngcontent-ng-c2913155081="" data-test="nav-other" routerlink="/category/other" class="dropdown-item" href="/category/other">Other</a></li><li _ngcontent-ng-c2913155081=""><a _ngcontent-ng-c2913155081="" data-test="nav-special-tools" routerlink="/category/special-tools" class="dropdown-item" href="/category/special-tools">Special Tools</a></li><li _ngcontent-ng-c2913155081=""><hr _ngcontent-ng-c2913155081="" class="dropdown-divider"></li><li _ngcontent-ng-c2913155081=""><a _ngcontent-ng-c2913155081="" data-test="nav-rentals" routerlink="/rentals" class="dropdown-item" href="/rentals">Rentals</a></li></ul></li><li _ngcontent-ng-c2913155081="" role="menuitem" class="nav-item"><a _ngcontent-ng-c2913155081="" data-test="nav-contact" routerlink="/contact" class="nav-link" href="/contact">Contact</a></li><li _ngcontent-ng-c2913155081="" role="menuitem" class="nav-item"><a _ngcontent-ng-c2913155081="" data-test="nav-sign-in" routerlink="/auth/login" class="nav-link" href="/auth/login">Sign in</a></li><!----><!----><!----><!----></ul><div _ngcontent-ng-c2913155081="" class="btn-group dropdown"><button _ngcontent-ng-c2913155081="" id="language" type="button" data-test="language-select" aria-label="Select language" data-bs-toggle="dropdown" aria-expanded="false" class="btn nav-link dropdown-toggle"><fa-icon _ngcontent-ng-c2913155081="" class="ng-fa-icon"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="globe" class="svg-inline--fa fa-globe fa-undefined fa-pull-undefined" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M352 256c0 22.2-1.2 43.6-3.3 64l-185.3 0c-2.2-20.4-3.3-41.8-3.3-64s1.2-43.6 3.3-64l185.3 0c2.2 20.4 3.3 41.8 3.3 64zm28.8-64l123.1 0c5.3 20.5 8.1 41.9 8.1 64s-2.8 43.5-8.1 64l-123.1 0c2.1-20.6 3.2-42 3.2-64s-1.1-43.4-3.2-64zm112.6-32l-116.7 0c-10-63.9-29.8-117.4-55.3-151.6c78.3 20.7 142 77.5 171.9 151.6zm-149.1 0l-176.6 0c6.1-36.4 15.5-68.6 27-94.7c10.5-23.6 22.2-40.7 33.5-51.5C239.4 3.2 248.7 0 256 0s16.6 3.2 27.8 13.8c11.3 10.8 23 27.9 33.5 51.5c11.6 26 20.9 58.2 27 94.7zm-209 0L18.6 160C48.6 85.9 112.2 29.1 190.6 8.4C165.1 42.6 145.3 96.1 135.3 160zM8.1 192l123.1 0c-2.1 20.6-3.2 42-3.2 64s1.1 43.4 3.2 64L8.1 320C2.8 299.5 0 278.1 0 256s2.8-43.5 8.1-64zM194.7 446.6c-11.6-26-20.9-58.2-27-94.6l176.6 0c-6.1 36.4-15.5 68.6-27 94.6c-10.5 23.6-22.2 40.7-33.5 51.5C272.6 508.8 263.3 512 256 512s-16.6-3.2-27.8-13.8c-11.3-10.8-23-27.9-33.5-51.5zM135.3 352c10 63.9 29.8 117.4 55.3 151.6C112.2 482.9 48.6 426.1 18.6 352l116.7 0zm358.1 0c-30 74.1-93.6 130.9-171.9 151.6c25.5-34.2 45.2-87.7 55.3-151.6l116.7 0z"></path></svg></fa-icon> EN <span _ngcontent-ng-c2913155081="" class="caret"></span></button><ul _ngcontent-ng-c2913155081="" id="dropdown-animated" role="menu" aria-labelledby="language" class="dropdown-menu dropdown-menu-right"><li _ngcontent-ng-c2913155081="" role="menuitem"><a _ngcontent-ng-c2913155081="" data-test="lang-de" class="dropdown-item">DE</a></li><li _ngcontent-ng-c2913155081="" role="menuitem"><a _ngcontent-ng-c2913155081="" data-test="lang-el" class="dropdown-item">EL</a></li><li _ngcontent-ng-c2913155081="" role="menuitem"><a _ngcontent-ng-c2913155081="" data-test="lang-en" class="dropdown-item">EN</a></li><li _ngcontent-ng-c2913155081="" role="menuitem"><a _ngcontent-ng-c2913155081="" data-test="lang-es" class="dropdown-item">ES</a></li><li _ngcontent-ng-c2913155081="" role="menuitem"><a _ngcontent-ng-c2913155081="" data-test="lang-fr" class="dropdown-item">FR</a></li><li _ngcontent-ng-c2913155081="" role="menuitem"><a _ngcontent-ng-c2913155081="" data-test="lang-nl" class="dropdown-item">NL</a></li><li _ngcontent-ng-c2913155081="" role="menuitem"><a _ngcontent-ng-c2913155081="" data-test="lang-tr" class="dropdown-item">TR</a></li></ul></div></div></div></nav><!----></app-header><div class="container"><router-outlet></router-outlet><app-overview _nghost-ng-c2621549667=""><div _ngcontent-ng-c2621549667="" class="jumbotron my-4"><h1 _ngcontent-ng-c2621549667="" class="visually-hidden">Practice Software Testing - Toolshop</h1><p _ngcontent-ng-c2621549667="" class="lead"><img _ngcontent-ng-c2621549667="" fetchpriority="high" width="2400" height="1600" alt="Banner" src="../assets/img/barn-2400x1600.avif" class="img-fluid"></p><hr _ngcontent-ng-c2621549667="" class="my-4"><div _ngcontent-ng-c2621549667="" data-test="course-promo" class="alert alert-info text-center mb-0"><svg _ngcontent-ng-c2621549667="" viewBox="0 0 640 512" width="1.1em" height="1.1em" fill="currentColor" aria-hidden="true" class="me-2 text-primary align-baseline"><path _ngcontent-ng-c2621549667="" d="M320 32c-8.1 0-16.1 1.4-23.7 4.1L15.8 137.4C6.3 140.9 0 149.9 0 160s6.3 19.1 15.8 22.6l57.9 20.9C57.3 229.3 48 259.8 48 291.9l0 28.1c0 28.4-10.8 57.7-22.3 80.8c-6.5 13-13.9 25.8-22.5 37.6C0 442.7-.9 448.3 .9 453.4s6 8.9 11.2 10.2l64 16c4.2 1.1 8.7 .3 12.4-2s6.3-6.1 7.1-10.4c8.6-42.8 4.3-81.2-2.1-108.7C90.3 344.3 86 329.8 80 316.5l0-24.6c0-30.2 10.2-58.7 27.9-81.5c12.9-15.5 29.6-28 49.2-35.7l157-61.7c8.2-3.2 17.5 .8 20.7 9s-.8 17.5-9 20.7l-157 61.7c-12.4 4.9-23.3 12.4-32.2 21.6l159.6 57.6c7.6 2.7 15.6 4.1 23.7 4.1s16.1-1.4 23.7-4.1L624.2 182.6c9.5-3.4 15.8-12.5 15.8-22.6s-6.3-19.1-15.8-22.6L343.7 36.1C336.1 33.4 328.1 32 320 32zM128 408c0 35.3 86 72 192 72s192-36.7 192-72L496.7 262.6 354.5 314c-11.1 4-22.8 6-34.5 6s-23.5-2-34.5-6L143.3 262.6 128 408z"></path></svg><span _ngcontent-ng-c2621549667="">Enjoyed testing this app? Level up with hands-on software testing courses.</span><a _ngcontent-ng-c2621549667="" href="https://onlinecourses.testsmith.io/?utm_source=pst&amp;utm_medium=homepage&amp;utm_campaign=app_promo" target="_blank" rel="noopener" data-test="course-promo-link" class="alert-link ms-1">Explore courses</a></div><!----><!----></div><div _ngcontent-ng-c2621549667="" class="row"></div><div _ngcontent-ng-c2621549667="" class="row"><button _ngcontent-ng-c2621549667="" type="button" data-bs-toggle="collapse" data-test="filters" data-bs-target="#filters" aria-expanded="false" aria-controls="collapseExample" class="btn btn-secondary d-block d-md-none btn-block mb-3"><fa-icon _ngcontent-ng-c2621549667="" class="ng-fa-icon"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="filter" class="svg-inline--fa fa-filter fa-undefined fa-pull-undefined" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M3.9 54.9C10.5 40.9 24.5 32 40 32l432 0c15.5 0 29.5 8.9 36.1 22.9s4.6 30.5-5.2 42.5L320 320.9 320 448c0 12.1-6.8 23.2-17.7 28.6s-23.8 4.3-33.5-3l-64-48c-8.1-6-12.8-15.5-12.8-25.6l0-79.1L9 97.3C-.7 85.4-2.8 68.8 3.9 54.9z"></path></svg></fa-icon> Filters </button><div _ngcontent-ng-c2621549667="" data-test="filters" id="filters" class="collapse d-md-block col-md-3 mb-3"><h4 _ngcontent-ng-c2621549667="" class="grid-title"><fa-icon _ngcontent-ng-c2621549667="" class="ng-fa-icon"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="arrows-up-down" class="svg-inline--fa fa-arrows-up-down fa-undefined fa-pull-undefined" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M182.6 9.4c-12.5-12.5-32.8-12.5-45.3 0l-96 96c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L128 109.3l0 293.5L86.6 361.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l96 96c12.5 12.5 32.8 12.5 45.3 0l96-96c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 402.7l0-293.5 41.4 41.4c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-96-96z"></path></svg></fa-icon> Sort </h4><hr _ngcontent-ng-c2621549667=""><form _ngcontent-ng-c2621549667="" novalidate="" autocomplete="off"><div _ngcontent-ng-c2621549667="" class="input-group mb-3"><select _ngcontent-ng-c2621549667="" aria-label="sort" data-test="sort" class="form-select"><option _ngcontent-ng-c2621549667="" value=""></option><option _ngcontent-ng-c2621549667="" value="name,asc">Name (A - Z)</option><option _ngcontent-ng-c2621549667="" value="name,desc">Name (Z - A)</option><option _ngcontent-ng-c2621549667="" value="price,desc">Price (High - Low)</option><option _ngcontent-ng-c2621549667="" value="price,asc">Price (Low - High)</option><option _ngcontent-ng-c2621549667="" value="co2_rating,asc">CO₂ Rating (A - E)</option><option _ngcontent-ng-c2621549667="" value="co2_rating,desc">CO₂ Rating (E - A)</option><!----></select></div></form><h4 _ngcontent-ng-c2621549667="" class="grid-title"><fa-icon _ngcontent-ng-c2621549667="" class="ng-fa-icon"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="arrows-left-right" class="svg-inline--fa fa-arrows-left-right fa-undefined fa-pull-undefined" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M406.6 374.6l96-96c12.5-12.5 12.5-32.8 0-45.3l-96-96c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224l-293.5 0 41.4-41.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-96 96c-12.5 12.5-12.5 32.8 0 45.3l96 96c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 288l293.5 0-41.4 41.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0z"></path></svg></fa-icon> Price Range </h4><hr _ngcontent-ng-c2621549667=""><div _ngcontent-ng-c2621549667="" class="input-group mb-3"><ngx-slider _ngcontent-ng-c2621549667="" _nghost-ng-c2097261832="" aria-label="ngx-slider" class="ngx-slider animate"><span _ngcontent-ng-c2097261832="" ngxsliderelement="" class="ngx-slider-span ngx-slider-bar-wrapper ngx-slider-left-out-selection" style="opacity: 1; visibility: hidden; transform: rotate(0deg);"><span _ngcontent-ng-c2097261832="" class="ngx-slider-span ngx-slider-bar"></span></span><span _ngcontent-ng-c2097261832="" ngxsliderelement="" class="ngx-slider-span ngx-slider-bar-wrapper ngx-slider-right-out-selection" style="opacity: 1; visibility: hidden; transform: rotate(0deg);"><span _ngcontent-ng-c2097261832="" class="ngx-slider-span ngx-slider-bar"></span></span><span _ngcontent-ng-c2097261832="" ngxsliderelement="" class="ngx-slider-span ngx-slider-bar-wrapper ngx-slider-full-bar" style="opacity: 1; visibility: visible; transform: rotate(0deg);"><span _ngcontent-ng-c2097261832="" class="ngx-slider-span ngx-slider-bar"></span></span><span _ngcontent-ng-c2097261832="" ngxsliderelement="" class="ngx-slider-span ngx-slider-bar-wrapper ngx-slider-selection-bar" style="opacity: 1; visibility: visible; left: 17px; width: 136px; transform: rotate(0deg);"><span _ngcontent-ng-c2097261832="" class="ngx-slider-span ngx-slider-bar ngx-slider-selection"></span></span><span _ngcontent-ng-c2097261832="" ngxsliderhandle="" class="ngx-slider-span ngx-slider-pointer ngx-slider-pointer-min" role="slider" tabindex="0" aria-orientation="horizontal" aria-label="ngx-slider" aria-labelledby="" aria-valuenow="1" aria-valuetext="1" aria-valuemin="0" aria-valuemax="200" style="opacity: 1; visibility: visible; left: 1px; transform: rotate(0deg);"></span><span _ngcontent-ng-c2097261832="" ngxsliderhandle="" class="ngx-slider-span ngx-slider-pointer ngx-slider-pointer-max" role="slider" tabindex="0" aria-orientation="horizontal" aria-label="ngx-slider-max" aria-labelledby="" aria-valuenow="100" aria-valuetext="100" aria-valuemin="0" aria-valuemax="200" style="display: inherit; opacity: 1; visibility: visible; left: 137px; transform: rotate(0deg);"></span><span _ngcontent-ng-c2097261832="" ngxsliderlabel="" class="ngx-slider-span ngx-slider-bubble ngx-slider-limit ngx-slider-floor" style="opacity: 0; visibility: visible; left: 0px; transform: rotate(0deg);">0</span><span _ngcontent-ng-c2097261832="" ngxsliderlabel="" class="ngx-slider-span ngx-slider-bubble ngx-slider-limit ngx-slider-ceil" style="opacity: 1; visibility: visible; left: 271px; transform: rotate(0deg);">200</span><span _ngcontent-ng-c2097261832="" ngxsliderlabel="" class="ngx-slider-span ngx-slider-bubble ngx-slider-model-value" style="opacity: 1; visibility: visible; left: 11px; transform: rotate(0deg);">1</span><span _ngcontent-ng-c2097261832="" ngxsliderlabel="" class="ngx-slider-span ngx-slider-bubble ngx-slider-model-high" style="opacity: 1; visibility: visible; left: 137px; transform: rotate(0deg);">100</span><span _ngcontent-ng-c2097261832="" ngxsliderlabel="" class="ngx-slider-span ngx-slider-bubble ngx-slider-combined" style="opacity: 0; visibility: visible; transform: rotate(0deg);"></span><span _ngcontent-ng-c2097261832="" ngxsliderelement="" class="ngx-slider-ticks" hidden="" style="opacity: 1; visibility: visible; transform: rotate(0deg);"><!----></span></ngx-slider></div><h4 _ngcontent-ng-c2621549667="" class="grid-title"><fa-icon _ngcontent-ng-c2621549667="" class="ng-fa-icon"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="magnifying-glass" class="svg-inline--fa fa-magnifying-glass fa-undefined fa-pull-undefined" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"></path></svg></fa-icon> Search </h4><hr _ngcontent-ng-c2621549667=""><form _ngcontent-ng-c2621549667="" novalidate="" autocomplete="off" class="ng-untouched ng-pristine ng-invalid"><div _ngcontent-ng-c2621549667="" class="input-group mb-3"><label _ngcontent-ng-c2621549667="" for="search-query" class="visually-hidden">Search</label><input _ngcontent-ng-c2621549667="" formcontrolname="query" id="search-query" data-test="search-query" type="text" class="form-control ng-untouched ng-pristine ng-invalid" placeholder="Search" style=""><button _ngcontent-ng-c2621549667="" type="reset" data-test="search-reset" class="btn btn-warning">X </button><button _ngcontent-ng-c2621549667="" type="submit" data-test="search-submit" class="btn btn-secondary">Search </button></div></form><h4 _ngcontent-ng-c2621549667="" class="grid-title"><fa-icon _ngcontent-ng-c2621549667="" class="ng-fa-icon"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="filter" class="svg-inline--fa fa-filter fa-undefined fa-pull-undefined" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M3.9 54.9C10.5 40.9 24.5 32 40 32l432 0c15.5 0 29.5 8.9 36.1 22.9s4.6 30.5-5.2 42.5L320 320.9 320 448c0 12.1-6.8 23.2-17.7 28.6s-23.8 4.3-33.5-3l-64-48c-8.1-6-12.8-15.5-12.8-25.6l0-79.1L9 97.3C-.7 85.4-2.8 68.8 3.9 54.9z"></path></svg></fa-icon> Filters </h4><hr _ngcontent-ng-c2621549667=""><h4 _ngcontent-ng-c2621549667="">By category:</h4><!----><fieldset _ngcontent-ng-c2621549667=""><legend _ngcontent-ng-c2621549667="" class="visually-hidden">Categories</legend><div _ngcontent-ng-c2621549667="" class="checkbox"><label _ngcontent-ng-c2621549667=""><input _ngcontent-ng-c2621549667="" type="checkbox" name="category_id" class="icheck" data-test="category-01M5QR023MWE70MPZ4JC576T89" value="01M5QR023MWE70MPZ4JC576T89" style=""><!----><!----> Hand Tools </label><ul _ngcontent-ng-c2621549667=""><fieldset _ngcontent-ng-c2621549667=""><legend _ngcontent-ng-c2621549667="" class="visually-hidden">Categories</legend><div _ngcontent-ng-c2621549667="" class="checkbox"><label _ngcontent-ng-c2621549667=""><!----><input _ngcontent-ng-c2621549667="" type="checkbox" name="category_id" class="icheck" data-test="category-01M5QR0250HYYDZ43V9W0EQ55M" value="01M5QR0250HYYDZ43V9W0EQ55M" style=""><!----> Hammer </label><!----></div><div _ngcontent-ng-c2621549667="" class="checkbox"><label _ngcontent-ng-c2621549667=""><!----><input _ngcontent-ng-c2621549667="" type="checkbox" name="category_id" class="icheck" data-test="category-01M5QR0250HYYDZ43V9W0EQ55N" value="01M5QR0250HYYDZ43V9W0EQ55N" style=""><!----> Hand Saw </label><!----></div><div _ngcontent-ng-c2621549667="" class="checkbox"><label _ngcontent-ng-c2621549667=""><!----><input _ngcontent-ng-c2621549667="" type="checkbox" name="category_id" class="icheck" data-test="category-01M5QR0250HYYDZ43V9W0EQ55P" value="01M5QR0250HYYDZ43V9W0EQ55P" style=""><!----> Wrench </label><!----></div><div _ngcontent-ng-c2621549667="" class="checkbox"><label _ngcontent-ng-c2621549667=""><!----><input _ngcontent-ng-c2621549667="" type="checkbox" name="category_id" class="icheck" data-test="category-01M5QR0250HYYDZ43V9W0EQ55Q" value="01M5QR0250HYYDZ43V9W0EQ55Q" style=""><!----> Screwdriver </label><!----></div><div _ngcontent-ng-c2621549667="" class="checkbox"><label _ngcontent-ng-c2621549667=""><!----><input _ngcontent-ng-c2621549667="" type="checkbox" name="category_id" class="icheck" data-test="category-01M5QR0250HYYDZ43V9W0EQ55R" value="01M5QR0250HYYDZ43V9W0EQ55R" style=""><!----> Pliers </label><!----></div><div _ngcontent-ng-c2621549667="" class="checkbox"><label _ngcontent-ng-c2621549667=""><!----><input _ngcontent-ng-c2621549667="" type="checkbox" name="category_id" class="icheck" data-test="category-01M5QR0250HYYDZ43V9W0EQ55S" value="01M5QR0250HYYDZ43V9W0EQ55S" style=""><!----> Chisels </label><!----></div><div _ngcontent-ng-c2621549667="" class="checkbox"><label _ngcontent-ng-c2621549667=""><!----><input _ngcontent-ng-c2621549667="" type="checkbox" name="category_id" class="icheck" data-test="category-01M5QR0250HYYDZ43V9W0EQ55T" value="01M5QR0250HYYDZ43V9W0EQ55T" style=""><!----> Measures </label><!----></div><!----></fieldset><!----></ul><!----></div><div _ngcontent-ng-c2621549667="" class="checkbox"><label _ngcontent-ng-c2621549667=""><input _ngcontent-ng-c2621549667="" type="checkbox" name="category_id" class="icheck" data-test="category-01M5QR023MWE70MPZ4JC576T8A" value="01M5QR023MWE70MPZ4JC576T8A" style=""><!----><!----> Power Tools </label><ul _ngcontent-ng-c2621549667=""><fieldset _ngcontent-ng-c2621549667=""><legend _ngcontent-ng-c2621549667="" class="visually-hidden">Categories</legend><div _ngcontent-ng-c2621549667="" class="checkbox"><label _ngcontent-ng-c2621549667=""><!----><input _ngcontent-ng-c2621549667="" type="checkbox" name="category_id" class="icheck" data-test="category-01M5QR0250HYYDZ43V9W0EQ55V" value="01M5QR0250HYYDZ43V9W0EQ55V" style=""><!----> Grinder </label><!----></div><div _ngcontent-ng-c2621549667="" class="checkbox"><label _ngcontent-ng-c2621549667=""><!----><input _ngcontent-ng-c2621549667="" type="checkbox" name="category_id" class="icheck" data-test="category-01M5QR0250HYYDZ43V9W0EQ55W" value="01M5QR0250HYYDZ43V9W0EQ55W" style=""><!----> Sander </label><!----></div><div _ngcontent-ng-c2621549667="" class="checkbox"><label _ngcontent-ng-c2621549667=""><!----><input _ngcontent-ng-c2621549667="" type="checkbox" name="category_id" class="icheck" data-test="category-01M5QR0250HYYDZ43V9W0EQ55X" value="01M5QR0250HYYDZ43V9W0EQ55X" style=""><!----> Saw </label><!----></div><div _ngcontent-ng-c2621549667="" class="checkbox"><label _ngcontent-ng-c2621549667=""><!----><input _ngcontent-ng-c2621549667="" type="checkbox" name="category_id" class="icheck" data-test="category-01M5QR0250HYYDZ43V9W0EQ55Y" value="01M5QR0250HYYDZ43V9W0EQ55Y" style=""><!----> Drill </label><!----></div><!----></fieldset><!----></ul><!----></div><div _ngcontent-ng-c2621549667="" class="checkbox"><label _ngcontent-ng-c2621549667=""><input _ngcontent-ng-c2621549667="" type="checkbox" name="category_id" class="icheck" data-test="category-01M5QR023MWE70MPZ4JC576T8B" value="01M5QR023MWE70MPZ4JC576T8B" style=""><!----><!----> Other </label><ul _ngcontent-ng-c2621549667=""><fieldset _ngcontent-ng-c2621549667=""><legend _ngcontent-ng-c2621549667="" class="visually-hidden">Categories</legend><div _ngcontent-ng-c2621549667="" class="checkbox"><label _ngcontent-ng-c2621549667=""><!----><input _ngcontent-ng-c2621549667="" type="checkbox" name="category_id" class="icheck" data-test="category-01M5QR0250HYYDZ43V9W0EQ55Z" value="01M5QR0250HYYDZ43V9W0EQ55Z" style=""><!----> Tool Belts </label><!----></div><div _ngcontent-ng-c2621549667="" class="checkbox"><label _ngcontent-ng-c2621549667=""><!----><input _ngcontent-ng-c2621549667="" type="checkbox" name="category_id" class="icheck" data-test="category-01M5QR0250HYYDZ43V9W0EQ560" value="01M5QR0250HYYDZ43V9W0EQ560" style=""><!----> Storage Solutions </label><!----></div><div _ngcontent-ng-c2621549667="" class="checkbox"><label _ngcontent-ng-c2621549667=""><!----><input _ngcontent-ng-c2621549667="" type="checkbox" name="category_id" class="icheck" data-test="category-01M5QR0250HYYDZ43V9W0EQ561" value="01M5QR0250HYYDZ43V9W0EQ561" style=""><!----> Workbench </label><!----></div><div _ngcontent-ng-c2621549667="" class="checkbox"><label _ngcontent-ng-c2621549667=""><!----><input _ngcontent-ng-c2621549667="" type="checkbox" name="category_id" class="icheck" data-test="category-01M5QR0250HYYDZ43V9W0EQ562" value="01M5QR0250HYYDZ43V9W0EQ562" style=""><!----> Safety Gear </label><!----></div><div _ngcontent-ng-c2621549667="" class="checkbox"><label _ngcontent-ng-c2621549667=""><!----><input _ngcontent-ng-c2621549667="" type="checkbox" name="category_id" class="icheck" data-test="category-01M5QR0250HYYDZ43V9W0EQ563" value="01M5QR0250HYYDZ43V9W0EQ563" style=""><!----> Fasteners </label><!----></div><!----></fieldset><!----></ul><!----></div><!----></fieldset><!----><div _ngcontent-ng-c2621549667="" class="py-2"></div><h4 _ngcontent-ng-c2621549667="">By brand:</h4><fieldset _ngcontent-ng-c2621549667=""><legend _ngcontent-ng-c2621549667="" class="visually-hidden">Brands</legend><div _ngcontent-ng-c2621549667="" class="checkbox"><label _ngcontent-ng-c2621549667=""><input _ngcontent-ng-c2621549667="" type="checkbox" name="brand_id" class="icheck" data-test="brand-01M5QR01R1GCVQQCA4RPD55CYD" value="01M5QR01R1GCVQQCA4RPD55CYD" style=""> ForgeFlex Tools</label></div><div _ngcontent-ng-c2621549667="" class="checkbox"><label _ngcontent-ng-c2621549667=""><input _ngcontent-ng-c2621549667="" type="checkbox" name="brand_id" class="icheck" data-test="brand-01M5QR01R1GCVQQCA4RPD55CYE" value="01M5QR01R1GCVQQCA4RPD55CYE" style=""> MightyCraft Hardware</label></div><!----></fieldset><div _ngcontent-ng-c2621549667="" class="py-2"></div><h4 _ngcontent-ng-c2621549667="">Sustainability:</h4><fieldset _ngcontent-ng-c2621549667=""><legend _ngcontent-ng-c2621549667="" class="visually-hidden">Eco-Friendly Products</legend><div _ngcontent-ng-c2621549667="" class="checkbox"><label _ngcontent-ng-c2621549667=""><input _ngcontent-ng-c2621549667="" type="checkbox" name="eco_friendly" data-test="eco-friendly-filter" class="icheck" style=""> Show only eco-friendly products</label></div></fieldset><!----></div><div _ngcontent-ng-c2621549667="" class="col-md-9"><!----><div _ngcontent-ng-c2621549667="" class="container" data-test=""><!----><a _ngcontent-ng-c2621549667="" class="card" style="text-decoration: none; color: black;" data-test="product-01M5QR027KWDCM6M8QR77WB7QK" href="/product/01M5QR027KWDCM6M8QR77WB7QK"><div _ngcontent-ng-c2621549667="" class="card-img-wrapper position-relative"><img _ngcontent-ng-c2621549667="" loading="lazy" class="card-img-top" alt="Sledgehammer" src="assets/img/products/hammer05.avif"><!----><button _ngcontent-ng-c2621549667="" data-test="compare-btn" class="btn compare-btn position-absolute top-0 start-0 m-2" title="Compare" aria-label="Compare" aria-pressed="false"><fa-icon _ngcontent-ng-c2621549667="" class="ng-fa-icon"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="scale-balanced" class="svg-inline--fa fa-scale-balanced fa-undefined fa-pull-undefined" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M384 32l128 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L398.4 96c-5.2 25.8-22.9 47.1-46.4 57.3L352 448l160 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-192 0-192 0c-17.7 0-32-14.3-32-32s14.3-32 32-32l160 0 0-294.7c-23.5-10.3-41.2-31.6-46.4-57.3L128 96c-17.7 0-32-14.3-32-32s14.3-32 32-32l128 0c14.6-19.4 37.8-32 64-32s49.4 12.6 64 32zm55.6 288l144.9 0L512 195.8 439.6 320zM512 416c-62.9 0-115.2-34-126-78.9c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C627.2 382 574.9 416 512 416zM126.8 195.8L54.4 320l144.9 0L126.8 195.8zM.9 337.1c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C242 382 189.7 416 126.8 416S11.7 382 .9 337.1z"></path></svg></fa-icon></button></div><div _ngcontent-ng-c2621549667="" class="card-body"><h5 _ngcontent-ng-c2621549667="" data-test="product-name" class="card-title"> Sledgehammer </h5><div _ngcontent-ng-c2621549667="" data-test="co2-rating-badge" class="co2-rating-scale" title="A = most environmentally friendly, E = higher environmental impact"><span _ngcontent-ng-c2621549667="" class="co2-letter">A</span><span _ngcontent-ng-c2621549667="" class="co2-letter">B</span><span _ngcontent-ng-c2621549667="" class="co2-letter">C</span><span _ngcontent-ng-c2621549667="" class="co2-letter active rating-d">D</span><span _ngcontent-ng-c2621549667="" class="co2-letter">E</span></div><!----></div><div _ngcontent-ng-c2621549667="" class="card-footer"><!----><span _ngcontent-ng-c2621549667="" class="float-end text-muted"><span _ngcontent-ng-c2621549667="" data-test="product-price">$17.75</span><!----></span></div></a><a _ngcontent-ng-c2621549667="" class="card" style="text-decoration: none; color: black;" data-test="product-01M5QR027NSM1BYF7PB60NPW1C" href="/product/01M5QR027NSM1BYF7PB60NPW1C"><div _ngcontent-ng-c2621549667="" class="card-img-wrapper position-relative"><img _ngcontent-ng-c2621549667="" loading="lazy" class="card-img-top" alt="Claw Hammer with Fiberglass Handle" src="assets/img/products/hammer06.avif"><!----><button _ngcontent-ng-c2621549667="" data-test="compare-btn" class="btn compare-btn position-absolute top-0 start-0 m-2" title="Compare" aria-label="Compare" aria-pressed="false"><fa-icon _ngcontent-ng-c2621549667="" class="ng-fa-icon"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="scale-balanced" class="svg-inline--fa fa-scale-balanced fa-undefined fa-pull-undefined" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M384 32l128 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L398.4 96c-5.2 25.8-22.9 47.1-46.4 57.3L352 448l160 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-192 0-192 0c-17.7 0-32-14.3-32-32s14.3-32 32-32l160 0 0-294.7c-23.5-10.3-41.2-31.6-46.4-57.3L128 96c-17.7 0-32-14.3-32-32s14.3-32 32-32l128 0c14.6-19.4 37.8-32 64-32s49.4 12.6 64 32zm55.6 288l144.9 0L512 195.8 439.6 320zM512 416c-62.9 0-115.2-34-126-78.9c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C627.2 382 574.9 416 512 416zM126.8 195.8L54.4 320l144.9 0L126.8 195.8zM.9 337.1c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C242 382 189.7 416 126.8 416S11.7 382 .9 337.1z"></path></svg></fa-icon></button></div><div _ngcontent-ng-c2621549667="" class="card-body"><h5 _ngcontent-ng-c2621549667="" data-test="product-name" class="card-title"> Claw Hammer with Fiberglass Handle </h5><div _ngcontent-ng-c2621549667="" data-test="co2-rating-badge" class="co2-rating-scale" title="A = most environmentally friendly, E = higher environmental impact"><span _ngcontent-ng-c2621549667="" class="co2-letter">A</span><span _ngcontent-ng-c2621549667="" class="co2-letter">B</span><span _ngcontent-ng-c2621549667="" class="co2-letter">C</span><span _ngcontent-ng-c2621549667="" class="co2-letter active rating-d">D</span><span _ngcontent-ng-c2621549667="" class="co2-letter">E</span></div><!----></div><div _ngcontent-ng-c2621549667="" class="card-footer"><!----><span _ngcontent-ng-c2621549667="" class="float-end text-muted"><span _ngcontent-ng-c2621549667="" data-test="product-price">$20.14</span><!----></span></div></a><a _ngcontent-ng-c2621549667="" class="card" style="text-decoration: none; color: black;" data-test="product-01M5QR027S1X6RY8ESSDSYVJFD" href="/product/01M5QR027S1X6RY8ESSDSYVJFD"><div _ngcontent-ng-c2621549667="" class="card-img-wrapper position-relative"><img _ngcontent-ng-c2621549667="" loading="lazy" class="card-img-top" alt="Court Hammer" src="assets/img/products/hammer07.avif"><!----><button _ngcontent-ng-c2621549667="" data-test="compare-btn" class="btn compare-btn position-absolute top-0 start-0 m-2" title="Compare" aria-label="Compare" aria-pressed="false"><fa-icon _ngcontent-ng-c2621549667="" class="ng-fa-icon"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="scale-balanced" class="svg-inline--fa fa-scale-balanced fa-undefined fa-pull-undefined" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M384 32l128 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L398.4 96c-5.2 25.8-22.9 47.1-46.4 57.3L352 448l160 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-192 0-192 0c-17.7 0-32-14.3-32-32s14.3-32 32-32l160 0 0-294.7c-23.5-10.3-41.2-31.6-46.4-57.3L128 96c-17.7 0-32-14.3-32-32s14.3-32 32-32l128 0c14.6-19.4 37.8-32 64-32s49.4 12.6 64 32zm55.6 288l144.9 0L512 195.8 439.6 320zM512 416c-62.9 0-115.2-34-126-78.9c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C627.2 382 574.9 416 512 416zM126.8 195.8L54.4 320l144.9 0L126.8 195.8zM.9 337.1c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C242 382 189.7 416 126.8 416S11.7 382 .9 337.1z"></path></svg></fa-icon></button></div><div _ngcontent-ng-c2621549667="" class="card-body"><h5 _ngcontent-ng-c2621549667="" data-test="product-name" class="card-title"> Court Hammer </h5><div _ngcontent-ng-c2621549667="" data-test="co2-rating-badge" class="co2-rating-scale" title="A = most environmentally friendly, E = higher environmental impact"><span _ngcontent-ng-c2621549667="" class="co2-letter">A</span><span _ngcontent-ng-c2621549667="" class="co2-letter">B</span><span _ngcontent-ng-c2621549667="" class="co2-letter">C</span><span _ngcontent-ng-c2621549667="" class="co2-letter active rating-d">D</span><span _ngcontent-ng-c2621549667="" class="co2-letter">E</span></div><!----></div><div _ngcontent-ng-c2621549667="" class="card-footer"><!----><span _ngcontent-ng-c2621549667="" class="float-end text-muted"><span _ngcontent-ng-c2621549667="" data-test="product-price">$18.63</span><!----></span></div></a><a _ngcontent-ng-c2621549667="" class="card" style="text-decoration: none; color: black;" data-test="product-01M5QR027VFKTBWZ58Z8PZV3HQ" href="/product/01M5QR027VFKTBWZ58Z8PZV3HQ"><div _ngcontent-ng-c2621549667="" class="card-img-wrapper position-relative"><img _ngcontent-ng-c2621549667="" loading="lazy" class="card-img-top" alt="Wood Saw" src="assets/img/products/saw01.avif"><span _ngcontent-ng-c2621549667="" data-test="eco-badge" class="eco-badge position-absolute top-0 end-0 m-2"><fa-icon _ngcontent-ng-c2621549667="" class="ng-fa-icon"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="leaf" class="svg-inline--fa fa-leaf fa-undefined fa-pull-undefined" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M272 96c-78.6 0-145.1 51.5-167.7 122.5c33.6-17 71.5-26.5 111.7-26.5l88 0c8.8 0 16 7.2 16 16s-7.2 16-16 16l-16 0-72 0s0 0 0 0c-16.6 0-32.7 1.9-48.3 5.4c-25.9 5.9-49.9 16.4-71.4 30.7c0 0 0 0 0 0C38.3 298.8 0 364.9 0 440l0 16c0 13.3 10.7 24 24 24s24-10.7 24-24l0-16c0-48.7 20.7-92.5 53.8-123.2C121.6 392.3 190.3 448 272 448l1 0c132.1-.7 239-130.9 239-291.4c0-42.6-7.5-83.1-21.1-119.6c-2.6-6.9-12.7-6.6-16.2-.1C455.9 72.1 418.7 96 376 96L272 96z"></path></svg></fa-icon> ECO </span><!----><button _ngcontent-ng-c2621549667="" data-test="compare-btn" class="btn compare-btn position-absolute top-0 start-0 m-2" title="Compare" aria-label="Compare" aria-pressed="false"><fa-icon _ngcontent-ng-c2621549667="" class="ng-fa-icon"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="scale-balanced" class="svg-inline--fa fa-scale-balanced fa-undefined fa-pull-undefined" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M384 32l128 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L398.4 96c-5.2 25.8-22.9 47.1-46.4 57.3L352 448l160 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-192 0-192 0c-17.7 0-32-14.3-32-32s14.3-32 32-32l160 0 0-294.7c-23.5-10.3-41.2-31.6-46.4-57.3L128 96c-17.7 0-32-14.3-32-32s14.3-32 32-32l128 0c14.6-19.4 37.8-32 64-32s49.4 12.6 64 32zm55.6 288l144.9 0L512 195.8 439.6 320zM512 416c-62.9 0-115.2-34-126-78.9c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C627.2 382 574.9 416 512 416zM126.8 195.8L54.4 320l144.9 0L126.8 195.8zM.9 337.1c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C242 382 189.7 416 126.8 416S11.7 382 .9 337.1z"></path></svg></fa-icon></button></div><div _ngcontent-ng-c2621549667="" class="card-body"><h5 _ngcontent-ng-c2621549667="" data-test="product-name" class="card-title"> Wood Saw </h5><div _ngcontent-ng-c2621549667="" data-test="co2-rating-badge" class="co2-rating-scale" title="A = most environmentally friendly, E = higher environmental impact"><span _ngcontent-ng-c2621549667="" class="co2-letter">A</span><span _ngcontent-ng-c2621549667="" class="co2-letter active rating-b">B</span><span _ngcontent-ng-c2621549667="" class="co2-letter">C</span><span _ngcontent-ng-c2621549667="" class="co2-letter">D</span><span _ngcontent-ng-c2621549667="" class="co2-letter">E</span></div><!----></div><div _ngcontent-ng-c2621549667="" class="card-footer"><!----><span _ngcontent-ng-c2621549667="" class="float-end text-muted"><span _ngcontent-ng-c2621549667="" data-test="product-price">$12.18</span><!----></span></div></a><a _ngcontent-ng-c2621549667="" class="card" style="text-decoration: none; color: black;" data-test="product-01M5QR027YJD4YH5A7BTZ0FQ46" href="/product/01M5QR027YJD4YH5A7BTZ0FQ46"><div _ngcontent-ng-c2621549667="" class="card-img-wrapper position-relative"><img _ngcontent-ng-c2621549667="" loading="lazy" class="card-img-top" alt="Adjustable Wrench" src="assets/img/products/wrench01.avif"><!----><button _ngcontent-ng-c2621549667="" data-test="compare-btn" class="btn compare-btn position-absolute top-0 start-0 m-2" title="Compare" aria-label="Compare" aria-pressed="false"><fa-icon _ngcontent-ng-c2621549667="" class="ng-fa-icon"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="scale-balanced" class="svg-inline--fa fa-scale-balanced fa-undefined fa-pull-undefined" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M384 32l128 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L398.4 96c-5.2 25.8-22.9 47.1-46.4 57.3L352 448l160 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-192 0-192 0c-17.7 0-32-14.3-32-32s14.3-32 32-32l160 0 0-294.7c-23.5-10.3-41.2-31.6-46.4-57.3L128 96c-17.7 0-32-14.3-32-32s14.3-32 32-32l128 0c14.6-19.4 37.8-32 64-32s49.4 12.6 64 32zm55.6 288l144.9 0L512 195.8 439.6 320zM512 416c-62.9 0-115.2-34-126-78.9c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C627.2 382 574.9 416 512 416zM126.8 195.8L54.4 320l144.9 0L126.8 195.8zM.9 337.1c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C242 382 189.7 416 126.8 416S11.7 382 .9 337.1z"></path></svg></fa-icon></button></div><div _ngcontent-ng-c2621549667="" class="card-body"><h5 _ngcontent-ng-c2621549667="" data-test="product-name" class="card-title"> Adjustable Wrench </h5><div _ngcontent-ng-c2621549667="" data-test="co2-rating-badge" class="co2-rating-scale" title="A = most environmentally friendly, E = higher environmental impact"><span _ngcontent-ng-c2621549667="" class="co2-letter">A</span><span _ngcontent-ng-c2621549667="" class="co2-letter">B</span><span _ngcontent-ng-c2621549667="" class="co2-letter">C</span><span _ngcontent-ng-c2621549667="" class="co2-letter active rating-d">D</span><span _ngcontent-ng-c2621549667="" class="co2-letter">E</span></div><!----></div><div _ngcontent-ng-c2621549667="" class="card-footer"><!----><span _ngcontent-ng-c2621549667="" class="float-end text-muted"><span _ngcontent-ng-c2621549667="" data-test="product-price">$20.33</span><!----></span></div></a><a _ngcontent-ng-c2621549667="" class="card" style="text-decoration: none; color: black;" data-test="product-01M5QR0281HG5WJK781FE95Z1R" href="/product/01M5QR0281HG5WJK781FE95Z1R"><div _ngcontent-ng-c2621549667="" class="card-img-wrapper position-relative"><img _ngcontent-ng-c2621549667="" loading="lazy" class="card-img-top" alt="Angled Spanner" src="assets/img/products/wrench02.avif"><!----><button _ngcontent-ng-c2621549667="" data-test="compare-btn" class="btn compare-btn position-absolute top-0 start-0 m-2" title="Compare" aria-label="Compare" aria-pressed="false"><fa-icon _ngcontent-ng-c2621549667="" class="ng-fa-icon"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="scale-balanced" class="svg-inline--fa fa-scale-balanced fa-undefined fa-pull-undefined" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M384 32l128 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L398.4 96c-5.2 25.8-22.9 47.1-46.4 57.3L352 448l160 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-192 0-192 0c-17.7 0-32-14.3-32-32s14.3-32 32-32l160 0 0-294.7c-23.5-10.3-41.2-31.6-46.4-57.3L128 96c-17.7 0-32-14.3-32-32s14.3-32 32-32l128 0c14.6-19.4 37.8-32 64-32s49.4 12.6 64 32zm55.6 288l144.9 0L512 195.8 439.6 320zM512 416c-62.9 0-115.2-34-126-78.9c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C627.2 382 574.9 416 512 416zM126.8 195.8L54.4 320l144.9 0L126.8 195.8zM.9 337.1c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C242 382 189.7 416 126.8 416S11.7 382 .9 337.1z"></path></svg></fa-icon></button></div><div _ngcontent-ng-c2621549667="" class="card-body"><h5 _ngcontent-ng-c2621549667="" data-test="product-name" class="card-title"> Angled Spanner </h5><div _ngcontent-ng-c2621549667="" data-test="co2-rating-badge" class="co2-rating-scale" title="A = most environmentally friendly, E = higher environmental impact"><span _ngcontent-ng-c2621549667="" class="co2-letter">A</span><span _ngcontent-ng-c2621549667="" class="co2-letter">B</span><span _ngcontent-ng-c2621549667="" class="co2-letter">C</span><span _ngcontent-ng-c2621549667="" class="co2-letter active rating-d">D</span><span _ngcontent-ng-c2621549667="" class="co2-letter">E</span></div><!----></div><div _ngcontent-ng-c2621549667="" class="card-footer"><!----><span _ngcontent-ng-c2621549667="" class="float-end text-muted"><span _ngcontent-ng-c2621549667="" data-test="product-price">$14.14</span><!----></span></div></a><a _ngcontent-ng-c2621549667="" class="card" style="text-decoration: none; color: black;" data-test="product-01M5QR0286KT4YVEW9CE949893" href="/product/01M5QR0286KT4YVEW9CE949893"><div _ngcontent-ng-c2621549667="" class="card-img-wrapper position-relative"><img _ngcontent-ng-c2621549667="" loading="lazy" class="card-img-top" alt="Open-end Spanners (Set)" src="assets/img/products/wrench03.avif"><!----><button _ngcontent-ng-c2621549667="" data-test="compare-btn" class="btn compare-btn position-absolute top-0 start-0 m-2" title="Compare" aria-label="Compare" aria-pressed="false"><fa-icon _ngcontent-ng-c2621549667="" class="ng-fa-icon"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="scale-balanced" class="svg-inline--fa fa-scale-balanced fa-undefined fa-pull-undefined" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M384 32l128 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L398.4 96c-5.2 25.8-22.9 47.1-46.4 57.3L352 448l160 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-192 0-192 0c-17.7 0-32-14.3-32-32s14.3-32 32-32l160 0 0-294.7c-23.5-10.3-41.2-31.6-46.4-57.3L128 96c-17.7 0-32-14.3-32-32s14.3-32 32-32l128 0c14.6-19.4 37.8-32 64-32s49.4 12.6 64 32zm55.6 288l144.9 0L512 195.8 439.6 320zM512 416c-62.9 0-115.2-34-126-78.9c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C627.2 382 574.9 416 512 416zM126.8 195.8L54.4 320l144.9 0L126.8 195.8zM.9 337.1c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C242 382 189.7 416 126.8 416S11.7 382 .9 337.1z"></path></svg></fa-icon></button></div><div _ngcontent-ng-c2621549667="" class="card-body"><h5 _ngcontent-ng-c2621549667="" data-test="product-name" class="card-title"> Open-end Spanners (Set) </h5><div _ngcontent-ng-c2621549667="" data-test="co2-rating-badge" class="co2-rating-scale" title="A = most environmentally friendly, E = higher environmental impact"><span _ngcontent-ng-c2621549667="" class="co2-letter">A</span><span _ngcontent-ng-c2621549667="" class="co2-letter">B</span><span _ngcontent-ng-c2621549667="" class="co2-letter">C</span><span _ngcontent-ng-c2621549667="" class="co2-letter active rating-d">D</span><span _ngcontent-ng-c2621549667="" class="co2-letter">E</span></div><!----></div><div _ngcontent-ng-c2621549667="" class="card-footer"><!----><span _ngcontent-ng-c2621549667="" class="float-end text-muted"><span _ngcontent-ng-c2621549667="" data-test="product-price">$38.51</span><!----></span></div></a><a _ngcontent-ng-c2621549667="" class="card" style="text-decoration: none; color: black;" data-test="product-01M5QR0289S49KQCBZJ34TYDBK" href="/product/01M5QR0289S49KQCBZJ34TYDBK"><div _ngcontent-ng-c2621549667="" class="card-img-wrapper position-relative"><img _ngcontent-ng-c2621549667="" loading="lazy" class="card-img-top" alt="Phillips Screwdriver" src="assets/img/products/screwdriver01.avif"><!----><button _ngcontent-ng-c2621549667="" data-test="compare-btn" class="btn compare-btn position-absolute top-0 start-0 m-2" title="Compare" aria-label="Compare" aria-pressed="false"><fa-icon _ngcontent-ng-c2621549667="" class="ng-fa-icon"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="scale-balanced" class="svg-inline--fa fa-scale-balanced fa-undefined fa-pull-undefined" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M384 32l128 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L398.4 96c-5.2 25.8-22.9 47.1-46.4 57.3L352 448l160 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-192 0-192 0c-17.7 0-32-14.3-32-32s14.3-32 32-32l160 0 0-294.7c-23.5-10.3-41.2-31.6-46.4-57.3L128 96c-17.7 0-32-14.3-32-32s14.3-32 32-32l128 0c14.6-19.4 37.8-32 64-32s49.4 12.6 64 32zm55.6 288l144.9 0L512 195.8 439.6 320zM512 416c-62.9 0-115.2-34-126-78.9c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C627.2 382 574.9 416 512 416zM126.8 195.8L54.4 320l144.9 0L126.8 195.8zM.9 337.1c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C242 382 189.7 416 126.8 416S11.7 382 .9 337.1z"></path></svg></fa-icon></button></div><div _ngcontent-ng-c2621549667="" class="card-body"><h5 _ngcontent-ng-c2621549667="" data-test="product-name" class="card-title"> Phillips Screwdriver </h5><div _ngcontent-ng-c2621549667="" data-test="co2-rating-badge" class="co2-rating-scale" title="A = most environmentally friendly, E = higher environmental impact"><span _ngcontent-ng-c2621549667="" class="co2-letter">A</span><span _ngcontent-ng-c2621549667="" class="co2-letter">B</span><span _ngcontent-ng-c2621549667="" class="co2-letter active rating-c">C</span><span _ngcontent-ng-c2621549667="" class="co2-letter">D</span><span _ngcontent-ng-c2621549667="" class="co2-letter">E</span></div><!----></div><div _ngcontent-ng-c2621549667="" class="card-footer"><!----><span _ngcontent-ng-c2621549667="" class="float-end text-muted"><span _ngcontent-ng-c2621549667="" data-test="product-price">$4.92</span><!----></span></div></a><a _ngcontent-ng-c2621549667="" class="card" style="text-decoration: none; color: black;" data-test="product-01M5QR028BQACAD6R3MW3YAHWB" href="/product/01M5QR028BQACAD6R3MW3YAHWB"><div _ngcontent-ng-c2621549667="" class="card-img-wrapper position-relative"><img _ngcontent-ng-c2621549667="" loading="lazy" class="card-img-top" alt="Mini Screwdriver" src="assets/img/products/screwdriver02.avif"><!----><button _ngcontent-ng-c2621549667="" data-test="compare-btn" class="btn compare-btn position-absolute top-0 start-0 m-2" title="Compare" aria-label="Compare" aria-pressed="false"><fa-icon _ngcontent-ng-c2621549667="" class="ng-fa-icon"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="scale-balanced" class="svg-inline--fa fa-scale-balanced fa-undefined fa-pull-undefined" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M384 32l128 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L398.4 96c-5.2 25.8-22.9 47.1-46.4 57.3L352 448l160 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-192 0-192 0c-17.7 0-32-14.3-32-32s14.3-32 32-32l160 0 0-294.7c-23.5-10.3-41.2-31.6-46.4-57.3L128 96c-17.7 0-32-14.3-32-32s14.3-32 32-32l128 0c14.6-19.4 37.8-32 64-32s49.4 12.6 64 32zm55.6 288l144.9 0L512 195.8 439.6 320zM512 416c-62.9 0-115.2-34-126-78.9c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C627.2 382 574.9 416 512 416zM126.8 195.8L54.4 320l144.9 0L126.8 195.8zM.9 337.1c-2.6-11 1-22.3 6.7-32.1l95.2-163.2c5-8.6 14.2-13.8 24.1-13.8s19.1 5.3 24.1 13.8l95.2 163.2c5.7 9.8 9.3 21.1 6.7 32.1C242 382 189.7 416 126.8 416S11.7 382 .9 337.1z"></path></svg></fa-icon></button></div><div _ngcontent-ng-c2621549667="" class="card-body"><h5 _ngcontent-ng-c2621549667="" data-test="product-name" class="card-title"> Mini Screwdriver </h5><div _ngcontent-ng-c2621549667="" data-test="co2-rating-badge" class="co2-rating-scale" title="A = most environmentally friendly, E = higher environmental impact"><span _ngcontent-ng-c2621549667="" class="co2-letter">A</span><span _ngcontent-ng-c2621549667="" class="co2-letter">B</span><span _ngcontent-ng-c2621549667="" class="co2-letter active rating-c">C</span><span _ngcontent-ng-c2621549667="" class="co2-letter">D</span><span _ngcontent-ng-c2621549667="" class="co2-letter">E</span></div><!----></div><div _ngcontent-ng-c2621549667="" class="card-footer"><!----><span _ngcontent-ng-c2621549667="" class="float-end text-muted"><span _ngcontent-ng-c2621549667="" data-test="product-price">$13.96</span><!----></span></div></a><!----></div><!----><!----><div _ngcontent-ng-c2621549667="" class="mt-3"><app-pagination _ngcontent-ng-c2621549667=""><nav><ul class="pagination"><li class="page-item"><button type="button" data-test="pagination-prev" aria-label="Previous" class="page-link"><span aria-hidden="true">«</span></button></li><li class="page-item"><button type="button" class="page-link" aria-label="Page-1">1</button></li><li class="page-item active"><button type="button" class="page-link" aria-label="Page-2">2</button></li><li class="page-item"><button type="button" class="page-link" aria-label="Page-3">3</button></li><li class="page-item"><button type="button" class="page-link" aria-label="Page-4">4</button></li><li class="page-item"><button type="button" class="page-link" aria-label="Page-5">5</button></li><!----><li class="page-item"><button type="button" data-test="pagination-next" aria-label="Next" class="page-link"><span aria-hidden="true">»</span></button></li></ul></nav><!----></app-pagination></div></div><!----></div><!----><!----></app-overview><!----></div><app-footer _nghost-ng-c854836465=""><footer _ngcontent-ng-c854836465="" class="mt-4"><div _ngcontent-ng-c854836465="" data-test="footer-explore" class="ptt-explore bg-body-tertiary border-top border-bottom py-3 small"><div _ngcontent-ng-c854836465="" class="container"><div _ngcontent-ng-c854836465="" class="ptt-explore-heading text-uppercase text-muted fw-semibold mb-2 text-center">Learn &amp; Explore</div><div _ngcontent-ng-c854836465="" class="row g-3 justify-content-center"><div _ngcontent-ng-c854836465="" class="col-12 col-md-4"><a _ngcontent-ng-c854836465="" href="https://onlinecourses.testsmith.io" target="_blank" rel="noopener" data-test="footer-learn-courses" class="ptt-explore-link d-flex align-items-start justify-content-center gap-2"><svg _ngcontent-ng-c854836465="" viewBox="0 0 640 512" width="1em" height="1em" fill="currentColor" aria-hidden="true" class="ptt-explore-icon text-secondary"><path _ngcontent-ng-c854836465="" d="M320 32c-8.1 0-16.1 1.4-23.7 4.1L15.8 137.4C6.3 140.9 0 149.9 0 160s6.3 19.1 15.8 22.6l57.9 20.9C57.3 229.3 48 259.8 48 291.9l0 28.1c0 28.4-10.8 57.7-22.3 80.8c-6.5 13-13.9 25.8-22.5 37.6C0 442.7-.9 448.3 .9 453.4s6 8.9 11.2 10.2l64 16c4.2 1.1 8.7 .3 12.4-2s6.3-6.1 7.1-10.4c8.6-42.8 4.3-81.2-2.1-108.7C90.3 344.3 86 329.8 80 316.5l0-24.6c0-30.2 10.2-58.7 27.9-81.5c12.9-15.5 29.6-28 49.2-35.7l157-61.7c8.2-3.2 17.5 .8 20.7 9s-.8 17.5-9 20.7l-157 61.7c-12.4 4.9-23.3 12.4-32.2 21.6l159.6 57.6c7.6 2.7 15.6 4.1 23.7 4.1s16.1-1.4 23.7-4.1L624.2 182.6c9.5-3.4 15.8-12.5 15.8-22.6s-6.3-19.1-15.8-22.6L343.7 36.1C336.1 33.4 328.1 32 320 32zM128 408c0 35.3 86 72 192 72s192-36.7 192-72L496.7 262.6 354.5 314c-11.1 4-22.8 6-34.5 6s-23.5-2-34.5-6L143.3 262.6 128 408z"></path></svg><span _ngcontent-ng-c854836465=""><span _ngcontent-ng-c854836465="" class="ptt-explore-title d-block text-body fw-semibold">Learn Test Automation</span><span _ngcontent-ng-c854836465="" class="text-muted">Hands-on courses for Playwright, Robot Framework, APIs and more</span></span></a></div><div _ngcontent-ng-c854836465="" class="col-12 col-md-4"><a _ngcontent-ng-c854836465="" href="https://api-spector.dev" target="_blank" rel="noopener" data-test="footer-learn-spector" class="ptt-explore-link d-flex align-items-start justify-content-center gap-2"><svg _ngcontent-ng-c854836465="" viewBox="0 0 640 512" width="1em" height="1em" fill="currentColor" aria-hidden="true" class="ptt-explore-icon text-secondary"><path _ngcontent-ng-c854836465="" d="M175 389.4c-9.8 16-15 34.3-15 53.1c-10 3.5-20.8 5.5-32 5.5c-53 0-96-43-96-96L32 64C14.3 64 0 49.7 0 32S14.3 0 32 0L96 0l64 0 64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l0 245.9-49 79.6zM96 64l0 96 64 0 0-96L96 64zM352 0L480 0l32 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l0 150.9L629.7 406.2c6.7 10.9 10.3 23.5 10.3 36.4c0 38.3-31.1 69.4-69.4 69.4l-309.2 0c-38.3 0-69.4-31.1-69.4-69.4c0-12.8 3.6-25.4 10.3-36.4L320 214.9 320 64c-17.7 0-32-14.3-32-32s14.3-32 32-32l32 0zm32 64l0 160c0 5.9-1.6 11.7-4.7 16.8L330.5 320l171 0-48.8-79.2c-3.1-5-4.7-10.8-4.7-16.8l0-160-64 0z"></path></svg><span _ngcontent-ng-c854836465=""><span _ngcontent-ng-c854836465="" class="ptt-explore-title d-block text-body fw-semibold">API Spector</span><span _ngcontent-ng-c854836465="" class="text-muted">Open-source API testing, mocking and contract testing</span></span></a></div><div _ngcontent-ng-c854836465="" class="col-12 col-md-4"><a _ngcontent-ng-c854836465="" href="https://github.com/testsmith-io/practice-software-testing" target="_blank" rel="noopener" data-test="footer-learn-github" class="ptt-explore-link d-flex align-items-start justify-content-center gap-2"><svg _ngcontent-ng-c854836465="" viewBox="0 0 640 512" width="1em" height="1em" fill="currentColor" aria-hidden="true" class="ptt-explore-icon text-secondary"><path _ngcontent-ng-c854836465="" d="M392.8 1.2c-17-4.9-34.7 5-39.6 22l-128 448c-4.9 17 5 34.7 22 39.6s34.7-5 39.6-22l128-448c4.9-17-5-34.7-22-39.6zm80.6 120.1c-12.5 12.5-12.5 32.8 0 45.3L562.7 256l-89.4 89.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l112-112c12.5-12.5 12.5-32.8 0-45.3l-112-112c-12.5-12.5-32.8-12.5-45.3 0zm-306.7 0c-12.5-12.5-32.8-12.5-45.3 0l-112 112c-12.5 12.5-12.5 32.8 0 45.3l112 112c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256l89.4-89.4c12.5-12.5 12.5-32.8 0-45.3z"></path></svg><span _ngcontent-ng-c854836465=""><span _ngcontent-ng-c854836465="" class="ptt-explore-title d-block text-body fw-semibold">GitHub</span><span _ngcontent-ng-c854836465="" class="text-muted">Source code, issues and contributions</span></span></a></div></div></div></div><!----><div _ngcontent-ng-c854836465="" class="container-fluid text-center bg-light py-2"><div _ngcontent-ng-c854836465="">This is a DEMO application, used for software testing training purpose. | <a _ngcontent-ng-c854836465="" routerlink="privacy" href="/privacy">Privacy Policy</a> | Banner photo by <a _ngcontent-ng-c854836465="" target="_blank" href="https://unsplash.com/@barnimages">Barn Images</a> on <a _ngcontent-ng-c854836465="" target="_blank" href="https://unsplash.com/photos/t5YUoHW6zRo">Unsplash</a>.</div><div _ngcontent-ng-c854836465="" class="text-muted"> v2.5 | Built 2026-10-11 | Angular 20.0.5 </div></div></footer><!----></app-footer><app-chat-widget _nghost-ng-c3541368737=""><div _ngcontent-ng-c3541368737="" class="chat-widget"><button _ngcontent-ng-c3541368737="" aria-label="Open chat" data-test="chat-toggle" class="chat-toggle-btn"><svg _ngcontent-ng-c3541368737="" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path _ngcontent-ng-c3541368737="" d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></button><!----><!----></div><!----></app-chat-widget><app-live-activity-widget _nghost-ng-c4222135567=""><div _ngcontent-ng-c4222135567="" class="live-widget"><!----><button _ngcontent-ng-c4222135567="" type="button" data-test="live-activity-toggle" class="live-toggle-btn" aria-label="Show live shop activity"><svg _ngcontent-ng-c4222135567="" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path _ngcontent-ng-c4222135567="" d="M4 11a9 9 0 0 1 9 9"></path><path _ngcontent-ng-c4222135567="" d="M4 4a16 16 0 0 1 16 16"></path><circle _ngcontent-ng-c4222135567="" cx="5" cy="19" r="1"></circle></svg><!----></button></div></app-live-activity-widget></app-root>
+<link rel="modulepreload" href="chunk-2LPTYWDZ.js"><link rel="modulepreload" href="chunk-NL7EYMFL.js"><link rel="modulepreload" href="chunk-SS5V56Y4.js"><link rel="modulepreload" href="chunk-ASGR4LAJ.js"><link rel="modulepreload" href="chunk-V6JUSCA4.js"><link rel="modulepreload" href="chunk-NGEDD5VW.js"><link rel="modulepreload" href="chunk-YPVC3LSK.js"><link rel="modulepreload" href="chunk-AF7JJAKC.js"><link rel="modulepreload" href="chunk-VTD2Z4OM.js"><link rel="modulepreload" href="chunk-VQWSWP6Q.js"><script src="polyfills-P3D37GLB.js" type="module"></script><script src="scripts-WL2QHKC5.js" defer=""></script><script src="main-GAD5H2ZL.js" type="module"></script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a4fbd322dd30d6ed',t:'MTc5Mjg3NDcyMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><iframe height="1" width="1" style="position: absolute; top: 0px; left: 0px; border: none; visibility: hidden;"></iframe><script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon="{&quot;version&quot;:&quot;2024.11.0&quot;,&quot;token&quot;:&quot;df13a0ecec6e47d4a531b7da7efbd6fc&quot;,&quot;r&quot;:1,&quot;spa&quot;:2}" crossorigin="anonymous"></script>
+
+
+</body></html>

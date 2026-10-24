@@ -1,0 +1,801 @@
+{
+  "task": "Add the cheapest product in the store to your cart.",
+  "site_url": "https://practicesoftwaretesting.com",
+  "agent": {
+    "strategy": "smart",
+    "memory": false,
+    "max_steps": 30,
+    "policy_version": "toolshop-observe-act-v2",
+    "provider": "scripted"
+  },
+  "memory_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "video_path": "fixtures/washers-pass/video/washers-pass/daafede8b236897558744975ac05aa02.webm",
+  "steps": [
+    {
+      "i": 0,
+      "action": "navigate to product listing (page 1)",
+      "url": "https://practicesoftwaretesting.com/",
+      "screenshot_path": "fixtures/washers-pass/shots/washers-pass/000.png",
+      "dom_path": "fixtures/washers-pass/dom/washers-pass/000.html",
+      "listing": {
+        "page": 1,
+        "products": [
+          {
+            "id": "01M5QR026K2CB13PHA0S7MXNJ0",
+            "name": "Combination Pliers",
+            "price": 14.15,
+            "href": "/product/01M5QR026K2CB13PHA0S7MXNJ0"
+          },
+          {
+            "id": "01M5QR026R1MSS3W8ZR441CHWH",
+            "name": "Pliers",
+            "price": 12.01,
+            "href": "/product/01M5QR026R1MSS3W8ZR441CHWH"
+          },
+          {
+            "id": "01M5QR026WXZH5VHJ3JK897X23",
+            "name": "Bolt Cutters",
+            "price": 48.41,
+            "href": "/product/01M5QR026WXZH5VHJ3JK897X23"
+          },
+          {
+            "id": "01M5QR0270VXHSN786ZHHGYMMV",
+            "name": "Long Nose Pliers",
+            "price": 14.24,
+            "href": "/product/01M5QR0270VXHSN786ZHHGYMMV"
+          },
+          {
+            "id": "01M5QR0272NGSF4WZXCV2DMMRC",
+            "name": "Slip Joint Pliers",
+            "price": 9.17,
+            "href": "/product/01M5QR0272NGSF4WZXCV2DMMRC"
+          },
+          {
+            "id": "01M5QR0275CZ564AJ7XNB2V8DH",
+            "name": "Claw Hammer with Shock Reduction Grip",
+            "price": 13.41,
+            "href": "/product/01M5QR0275CZ564AJ7XNB2V8DH"
+          },
+          {
+            "id": "01M5QR02787C94ZSQ2DR3VXAGB",
+            "name": "Hammer",
+            "price": 12.58,
+            "href": "/product/01M5QR02787C94ZSQ2DR3VXAGB"
+          },
+          {
+            "id": "01M5QR027D7C47B4MK20D1RTZ8",
+            "name": "Claw Hammer",
+            "price": 11.48,
+            "href": "/product/01M5QR027D7C47B4MK20D1RTZ8"
+          },
+          {
+            "id": "01M5QR027GQKWJ3Y7AHTPA51ZD",
+            "name": "Thor Hammer",
+            "price": 11.14,
+            "href": "/product/01M5QR027GQKWJ3Y7AHTPA51ZD"
+          }
+        ]
+      }
+    },
+    {
+      "i": 1,
+      "action": "read products on page 1 (9 products seen so far)",
+      "url": "https://practicesoftwaretesting.com/",
+      "screenshot_path": "fixtures/washers-pass/shots/washers-pass/001.png",
+      "dom_path": "fixtures/washers-pass/dom/washers-pass/001.html",
+      "listing": {
+        "page": 1,
+        "products": [
+          {
+            "id": "01M5QR026K2CB13PHA0S7MXNJ0",
+            "name": "Combination Pliers",
+            "price": 14.15,
+            "href": "/product/01M5QR026K2CB13PHA0S7MXNJ0"
+          },
+          {
+            "id": "01M5QR026R1MSS3W8ZR441CHWH",
+            "name": "Pliers",
+            "price": 12.01,
+            "href": "/product/01M5QR026R1MSS3W8ZR441CHWH"
+          },
+          {
+            "id": "01M5QR026WXZH5VHJ3JK897X23",
+            "name": "Bolt Cutters",
+            "price": 48.41,
+            "href": "/product/01M5QR026WXZH5VHJ3JK897X23"
+          },
+          {
+            "id": "01M5QR0270VXHSN786ZHHGYMMV",
+            "name": "Long Nose Pliers",
+            "price": 14.24,
+            "href": "/product/01M5QR0270VXHSN786ZHHGYMMV"
+          },
+          {
+            "id": "01M5QR0272NGSF4WZXCV2DMMRC",
+            "name": "Slip Joint Pliers",
+            "price": 9.17,
+            "href": "/product/01M5QR0272NGSF4WZXCV2DMMRC"
+          },
+          {
+            "id": "01M5QR0275CZ564AJ7XNB2V8DH",
+            "name": "Claw Hammer with Shock Reduction Grip",
+            "price": 13.41,
+            "href": "/product/01M5QR0275CZ564AJ7XNB2V8DH"
+          },
+          {
+            "id": "01M5QR02787C94ZSQ2DR3VXAGB",
+            "name": "Hammer",
+            "price": 12.58,
+            "href": "/product/01M5QR02787C94ZSQ2DR3VXAGB"
+          },
+          {
+            "id": "01M5QR027D7C47B4MK20D1RTZ8",
+            "name": "Claw Hammer",
+            "price": 11.48,
+            "href": "/product/01M5QR027D7C47B4MK20D1RTZ8"
+          },
+          {
+            "id": "01M5QR027GQKWJ3Y7AHTPA51ZD",
+            "name": "Thor Hammer",
+            "price": 11.14,
+            "href": "/product/01M5QR027GQKWJ3Y7AHTPA51ZD"
+          }
+        ]
+      }
+    },
+    {
+      "i": 2,
+      "action": "click next page (now on page 2)",
+      "url": "https://practicesoftwaretesting.com/",
+      "screenshot_path": "fixtures/washers-pass/shots/washers-pass/002.png",
+      "dom_path": "fixtures/washers-pass/dom/washers-pass/002.html",
+      "listing": {
+        "page": 2,
+        "products": [
+          {
+            "id": "01M5QR027KWDCM6M8QR77WB7QK",
+            "name": "Sledgehammer",
+            "price": 17.75,
+            "href": "/product/01M5QR027KWDCM6M8QR77WB7QK"
+          },
+          {
+            "id": "01M5QR027NSM1BYF7PB60NPW1C",
+            "name": "Claw Hammer with Fiberglass Handle",
+            "price": 20.14,
+            "href": "/product/01M5QR027NSM1BYF7PB60NPW1C"
+          },
+          {
+            "id": "01M5QR027S1X6RY8ESSDSYVJFD",
+            "name": "Court Hammer",
+            "price": 18.63,
+            "href": "/product/01M5QR027S1X6RY8ESSDSYVJFD"
+          },
+          {
+            "id": "01M5QR027VFKTBWZ58Z8PZV3HQ",
+            "name": "Wood Saw",
+            "price": 12.18,
+            "href": "/product/01M5QR027VFKTBWZ58Z8PZV3HQ"
+          },
+          {
+            "id": "01M5QR027YJD4YH5A7BTZ0FQ46",
+            "name": "Adjustable Wrench",
+            "price": 20.33,
+            "href": "/product/01M5QR027YJD4YH5A7BTZ0FQ46"
+          },
+          {
+            "id": "01M5QR0281HG5WJK781FE95Z1R",
+            "name": "Angled Spanner",
+            "price": 14.14,
+            "href": "/product/01M5QR0281HG5WJK781FE95Z1R"
+          },
+          {
+            "id": "01M5QR0286KT4YVEW9CE949893",
+            "name": "Open-end Spanners (Set)",
+            "price": 38.51,
+            "href": "/product/01M5QR0286KT4YVEW9CE949893"
+          },
+          {
+            "id": "01M5QR0289S49KQCBZJ34TYDBK",
+            "name": "Phillips Screwdriver",
+            "price": 4.92,
+            "href": "/product/01M5QR0289S49KQCBZJ34TYDBK"
+          },
+          {
+            "id": "01M5QR028BQACAD6R3MW3YAHWB",
+            "name": "Mini Screwdriver",
+            "price": 13.96,
+            "href": "/product/01M5QR028BQACAD6R3MW3YAHWB"
+          }
+        ]
+      }
+    },
+    {
+      "i": 3,
+      "action": "read products on page 2 (18 products seen so far)",
+      "url": "https://practicesoftwaretesting.com/",
+      "screenshot_path": "fixtures/washers-pass/shots/washers-pass/003.png",
+      "dom_path": "fixtures/washers-pass/dom/washers-pass/003.html",
+      "listing": {
+        "page": 2,
+        "products": [
+          {
+            "id": "01M5QR027KWDCM6M8QR77WB7QK",
+            "name": "Sledgehammer",
+            "price": 17.75,
+            "href": "/product/01M5QR027KWDCM6M8QR77WB7QK"
+          },
+          {
+            "id": "01M5QR027NSM1BYF7PB60NPW1C",
+            "name": "Claw Hammer with Fiberglass Handle",
+            "price": 20.14,
+            "href": "/product/01M5QR027NSM1BYF7PB60NPW1C"
+          },
+          {
+            "id": "01M5QR027S1X6RY8ESSDSYVJFD",
+            "name": "Court Hammer",
+            "price": 18.63,
+            "href": "/product/01M5QR027S1X6RY8ESSDSYVJFD"
+          },
+          {
+            "id": "01M5QR027VFKTBWZ58Z8PZV3HQ",
+            "name": "Wood Saw",
+            "price": 12.18,
+            "href": "/product/01M5QR027VFKTBWZ58Z8PZV3HQ"
+          },
+          {
+            "id": "01M5QR027YJD4YH5A7BTZ0FQ46",
+            "name": "Adjustable Wrench",
+            "price": 20.33,
+            "href": "/product/01M5QR027YJD4YH5A7BTZ0FQ46"
+          },
+          {
+            "id": "01M5QR0281HG5WJK781FE95Z1R",
+            "name": "Angled Spanner",
+            "price": 14.14,
+            "href": "/product/01M5QR0281HG5WJK781FE95Z1R"
+          },
+          {
+            "id": "01M5QR0286KT4YVEW9CE949893",
+            "name": "Open-end Spanners (Set)",
+            "price": 38.51,
+            "href": "/product/01M5QR0286KT4YVEW9CE949893"
+          },
+          {
+            "id": "01M5QR0289S49KQCBZJ34TYDBK",
+            "name": "Phillips Screwdriver",
+            "price": 4.92,
+            "href": "/product/01M5QR0289S49KQCBZJ34TYDBK"
+          },
+          {
+            "id": "01M5QR028BQACAD6R3MW3YAHWB",
+            "name": "Mini Screwdriver",
+            "price": 13.96,
+            "href": "/product/01M5QR028BQACAD6R3MW3YAHWB"
+          }
+        ]
+      }
+    },
+    {
+      "i": 4,
+      "action": "click next page (now on page 3)",
+      "url": "https://practicesoftwaretesting.com/",
+      "screenshot_path": "fixtures/washers-pass/shots/washers-pass/004.png",
+      "dom_path": "fixtures/washers-pass/dom/washers-pass/004.html",
+      "listing": {
+        "page": 3,
+        "products": [
+          {
+            "id": "01M5QR028EVZQ0D09WDRSSDFHG",
+            "name": "Chisels Set",
+            "price": 12.96,
+            "href": "/product/01M5QR028EVZQ0D09WDRSSDFHG"
+          },
+          {
+            "id": "01M5QR028HSS6754019BZKK4BG",
+            "name": "Wood Carving Chisels",
+            "price": 45.23,
+            "href": "/product/01M5QR028HSS6754019BZKK4BG"
+          },
+          {
+            "id": "01M5QR028MS9R5RK5KS62649F5",
+            "name": "Swiss Woodcarving Chisels",
+            "price": 22.96,
+            "href": "/product/01M5QR028MS9R5RK5KS62649F5"
+          },
+          {
+            "id": "01M5QR028P62VTKQ1YB2679FCY",
+            "name": "Tape Measure 7.5m",
+            "price": 7.23,
+            "href": "/product/01M5QR028P62VTKQ1YB2679FCY"
+          },
+          {
+            "id": "01M5QR028SR5HZKSC57Q7KT1T8",
+            "name": "Measuring Tape",
+            "price": 10.07,
+            "href": "/product/01M5QR028SR5HZKSC57Q7KT1T8"
+          },
+          {
+            "id": "01M5QR028YBH2BR5EY8FRJXSVS",
+            "name": "Tape Measure 5m",
+            "price": 12.91,
+            "href": "/product/01M5QR028YBH2BR5EY8FRJXSVS"
+          },
+          {
+            "id": "01M5QR0292M9AHEVGM4Z9C3Y1A",
+            "name": "Square Ruler",
+            "price": 15.75,
+            "href": "/product/01M5QR0292M9AHEVGM4Z9C3Y1A"
+          },
+          {
+            "id": "01M5QR0296J87R0STAMR08MQHX",
+            "name": "Safety Goggles",
+            "price": 24.26,
+            "href": "/product/01M5QR0296J87R0STAMR08MQHX"
+          },
+          {
+            "id": "01M5QR029BWTD5XVY7E1YRC5JV",
+            "name": "Safety Helmet Face Shield",
+            "price": 35.62,
+            "href": "/product/01M5QR029BWTD5XVY7E1YRC5JV"
+          }
+        ]
+      }
+    },
+    {
+      "i": 5,
+      "action": "read products on page 3 (27 products seen so far)",
+      "url": "https://practicesoftwaretesting.com/",
+      "screenshot_path": "fixtures/washers-pass/shots/washers-pass/005.png",
+      "dom_path": "fixtures/washers-pass/dom/washers-pass/005.html",
+      "listing": {
+        "page": 3,
+        "products": [
+          {
+            "id": "01M5QR028EVZQ0D09WDRSSDFHG",
+            "name": "Chisels Set",
+            "price": 12.96,
+            "href": "/product/01M5QR028EVZQ0D09WDRSSDFHG"
+          },
+          {
+            "id": "01M5QR028HSS6754019BZKK4BG",
+            "name": "Wood Carving Chisels",
+            "price": 45.23,
+            "href": "/product/01M5QR028HSS6754019BZKK4BG"
+          },
+          {
+            "id": "01M5QR028MS9R5RK5KS62649F5",
+            "name": "Swiss Woodcarving Chisels",
+            "price": 22.96,
+            "href": "/product/01M5QR028MS9R5RK5KS62649F5"
+          },
+          {
+            "id": "01M5QR028P62VTKQ1YB2679FCY",
+            "name": "Tape Measure 7.5m",
+            "price": 7.23,
+            "href": "/product/01M5QR028P62VTKQ1YB2679FCY"
+          },
+          {
+            "id": "01M5QR028SR5HZKSC57Q7KT1T8",
+            "name": "Measuring Tape",
+            "price": 10.07,
+            "href": "/product/01M5QR028SR5HZKSC57Q7KT1T8"
+          },
+          {
+            "id": "01M5QR028YBH2BR5EY8FRJXSVS",
+            "name": "Tape Measure 5m",
+            "price": 12.91,
+            "href": "/product/01M5QR028YBH2BR5EY8FRJXSVS"
+          },
+          {
+            "id": "01M5QR0292M9AHEVGM4Z9C3Y1A",
+            "name": "Square Ruler",
+            "price": 15.75,
+            "href": "/product/01M5QR0292M9AHEVGM4Z9C3Y1A"
+          },
+          {
+            "id": "01M5QR0296J87R0STAMR08MQHX",
+            "name": "Safety Goggles",
+            "price": 24.26,
+            "href": "/product/01M5QR0296J87R0STAMR08MQHX"
+          },
+          {
+            "id": "01M5QR029BWTD5XVY7E1YRC5JV",
+            "name": "Safety Helmet Face Shield",
+            "price": 35.62,
+            "href": "/product/01M5QR029BWTD5XVY7E1YRC5JV"
+          }
+        ]
+      }
+    },
+    {
+      "i": 6,
+      "action": "click next page (now on page 4)",
+      "url": "https://practicesoftwaretesting.com/",
+      "screenshot_path": "fixtures/washers-pass/shots/washers-pass/006.png",
+      "dom_path": "fixtures/washers-pass/dom/washers-pass/006.html",
+      "listing": {
+        "page": 4,
+        "products": [
+          {
+            "id": "01M5QR029E4V3S0VKNH0EZ1QMW",
+            "name": "Protective Gloves",
+            "price": 21.42,
+            "href": "/product/01M5QR029E4V3S0VKNH0EZ1QMW"
+          },
+          {
+            "id": "01M5QR029JA2BTGJFDY78MAY36",
+            "name": "Super-thin Protection Gloves",
+            "price": 38.45,
+            "href": "/product/01M5QR029JA2BTGJFDY78MAY36"
+          },
+          {
+            "id": "01M5QR029MN78STRJ1SQ7QQVD0",
+            "name": "Construction Helmet",
+            "price": 41.29,
+            "href": "/product/01M5QR029MN78STRJ1SQ7QQVD0"
+          },
+          {
+            "id": "01M5QR029R2VY4AW38M41MM9BY",
+            "name": "Ear Protection",
+            "price": 18.58,
+            "href": "/product/01M5QR029R2VY4AW38M41MM9BY"
+          },
+          {
+            "id": "01M5QR029VHB6SVSR72HV90K91",
+            "name": "Screws",
+            "price": 6.25,
+            "href": "/product/01M5QR029VHB6SVSR72HV90K91"
+          },
+          {
+            "id": "01M5QR029YA16CY1H62YEW44T5",
+            "name": "Nuts and bolts",
+            "price": 5.55,
+            "href": "/product/01M5QR029YA16CY1H62YEW44T5"
+          },
+          {
+            "id": "01M5QR02A2WTFGN5K6R6EHFZZM",
+            "name": "Cross-head screws",
+            "price": 7.99,
+            "href": "/product/01M5QR02A2WTFGN5K6R6EHFZZM"
+          },
+          {
+            "id": "01M5QR02A9156GZDDTS7P11FT1",
+            "name": "Flat-Head Wood Screws",
+            "price": 3.95,
+            "href": "/product/01M5QR02A9156GZDDTS7P11FT1"
+          },
+          {
+            "id": "01M5QR02AK0TQ9JW8JXHTBSRNR",
+            "name": "M4 Nuts",
+            "price": 4.65,
+            "href": "/product/01M5QR02AK0TQ9JW8JXHTBSRNR"
+          }
+        ]
+      }
+    },
+    {
+      "i": 7,
+      "action": "read products on page 4 (36 products seen so far)",
+      "url": "https://practicesoftwaretesting.com/",
+      "screenshot_path": "fixtures/washers-pass/shots/washers-pass/007.png",
+      "dom_path": "fixtures/washers-pass/dom/washers-pass/007.html",
+      "listing": {
+        "page": 4,
+        "products": [
+          {
+            "id": "01M5QR029E4V3S0VKNH0EZ1QMW",
+            "name": "Protective Gloves",
+            "price": 21.42,
+            "href": "/product/01M5QR029E4V3S0VKNH0EZ1QMW"
+          },
+          {
+            "id": "01M5QR029JA2BTGJFDY78MAY36",
+            "name": "Super-thin Protection Gloves",
+            "price": 38.45,
+            "href": "/product/01M5QR029JA2BTGJFDY78MAY36"
+          },
+          {
+            "id": "01M5QR029MN78STRJ1SQ7QQVD0",
+            "name": "Construction Helmet",
+            "price": 41.29,
+            "href": "/product/01M5QR029MN78STRJ1SQ7QQVD0"
+          },
+          {
+            "id": "01M5QR029R2VY4AW38M41MM9BY",
+            "name": "Ear Protection",
+            "price": 18.58,
+            "href": "/product/01M5QR029R2VY4AW38M41MM9BY"
+          },
+          {
+            "id": "01M5QR029VHB6SVSR72HV90K91",
+            "name": "Screws",
+            "price": 6.25,
+            "href": "/product/01M5QR029VHB6SVSR72HV90K91"
+          },
+          {
+            "id": "01M5QR029YA16CY1H62YEW44T5",
+            "name": "Nuts and bolts",
+            "price": 5.55,
+            "href": "/product/01M5QR029YA16CY1H62YEW44T5"
+          },
+          {
+            "id": "01M5QR02A2WTFGN5K6R6EHFZZM",
+            "name": "Cross-head screws",
+            "price": 7.99,
+            "href": "/product/01M5QR02A2WTFGN5K6R6EHFZZM"
+          },
+          {
+            "id": "01M5QR02A9156GZDDTS7P11FT1",
+            "name": "Flat-Head Wood Screws",
+            "price": 3.95,
+            "href": "/product/01M5QR02A9156GZDDTS7P11FT1"
+          },
+          {
+            "id": "01M5QR02AK0TQ9JW8JXHTBSRNR",
+            "name": "M4 Nuts",
+            "price": 4.65,
+            "href": "/product/01M5QR02AK0TQ9JW8JXHTBSRNR"
+          }
+        ]
+      }
+    },
+    {
+      "i": 8,
+      "action": "click next page (now on page 5)",
+      "url": "https://practicesoftwaretesting.com/",
+      "screenshot_path": "fixtures/washers-pass/shots/washers-pass/008.png",
+      "dom_path": "fixtures/washers-pass/dom/washers-pass/008.html",
+      "listing": {
+        "page": 5,
+        "products": [
+          {
+            "id": "01M5QR02AR3AXNECZ9M8FFEC0H",
+            "name": "Washers",
+            "price": 3.55,
+            "href": "/product/01M5QR02AR3AXNECZ9M8FFEC0H"
+          },
+          {
+            "id": "01M5QR02AVJ5N5B60BEZ1PPDCX",
+            "name": "Drawer Tool Cabinet",
+            "price": 89.55,
+            "href": "/product/01M5QR02AVJ5N5B60BEZ1PPDCX"
+          },
+          {
+            "id": "01M5QR02B4NNCAHQPV82BFE6E1",
+            "name": "Tool Cabinet",
+            "price": 86.71,
+            "href": "/product/01M5QR02B4NNCAHQPV82BFE6E1"
+          },
+          {
+            "id": "01M5QR02C36JSGQ0M0QPS8SDR2",
+            "name": "Leather toolbelt",
+            "price": 61.16,
+            "href": "/product/01M5QR02C36JSGQ0M0QPS8SDR2"
+          },
+          {
+            "id": "01M5QR02C62SGPYPEX2PCP0TN3",
+            "name": "Sheet Sander",
+            "price": 58.48,
+            "href": "/product/01M5QR02C62SGPYPEX2PCP0TN3"
+          },
+          {
+            "id": "01M5QR02CA6TH52AABJBQVME31",
+            "name": "Belt Sander",
+            "price": 73.59,
+            "href": "/product/01M5QR02CA6TH52AABJBQVME31"
+          },
+          {
+            "id": "01M5QR02CE3ATH7MT1MXHCX0RK",
+            "name": "Circular Saw",
+            "price": 80.19,
+            "href": "/product/01M5QR02CE3ATH7MT1MXHCX0RK"
+          },
+          {
+            "id": "01M5QR02CYVE2FZ1600J9YPTPS",
+            "name": "Cordless Drill 24V",
+            "price": 66.54,
+            "href": "/product/01M5QR02CYVE2FZ1600J9YPTPS"
+          },
+          {
+            "id": "01M5QR02D52MGNX0S1XJ4YW2FX",
+            "name": "Cordless Drill 12V",
+            "price": 46.5,
+            "href": "/product/01M5QR02D52MGNX0S1XJ4YW2FX"
+          }
+        ]
+      }
+    },
+    {
+      "i": 9,
+      "action": "read products on page 5 (45 products seen so far)",
+      "url": "https://practicesoftwaretesting.com/",
+      "screenshot_path": "fixtures/washers-pass/shots/washers-pass/009.png",
+      "dom_path": "fixtures/washers-pass/dom/washers-pass/009.html",
+      "listing": {
+        "page": 5,
+        "products": [
+          {
+            "id": "01M5QR02AR3AXNECZ9M8FFEC0H",
+            "name": "Washers",
+            "price": 3.55,
+            "href": "/product/01M5QR02AR3AXNECZ9M8FFEC0H"
+          },
+          {
+            "id": "01M5QR02AVJ5N5B60BEZ1PPDCX",
+            "name": "Drawer Tool Cabinet",
+            "price": 89.55,
+            "href": "/product/01M5QR02AVJ5N5B60BEZ1PPDCX"
+          },
+          {
+            "id": "01M5QR02B4NNCAHQPV82BFE6E1",
+            "name": "Tool Cabinet",
+            "price": 86.71,
+            "href": "/product/01M5QR02B4NNCAHQPV82BFE6E1"
+          },
+          {
+            "id": "01M5QR02C36JSGQ0M0QPS8SDR2",
+            "name": "Leather toolbelt",
+            "price": 61.16,
+            "href": "/product/01M5QR02C36JSGQ0M0QPS8SDR2"
+          },
+          {
+            "id": "01M5QR02C62SGPYPEX2PCP0TN3",
+            "name": "Sheet Sander",
+            "price": 58.48,
+            "href": "/product/01M5QR02C62SGPYPEX2PCP0TN3"
+          },
+          {
+            "id": "01M5QR02CA6TH52AABJBQVME31",
+            "name": "Belt Sander",
+            "price": 73.59,
+            "href": "/product/01M5QR02CA6TH52AABJBQVME31"
+          },
+          {
+            "id": "01M5QR02CE3ATH7MT1MXHCX0RK",
+            "name": "Circular Saw",
+            "price": 80.19,
+            "href": "/product/01M5QR02CE3ATH7MT1MXHCX0RK"
+          },
+          {
+            "id": "01M5QR02CYVE2FZ1600J9YPTPS",
+            "name": "Cordless Drill 24V",
+            "price": 66.54,
+            "href": "/product/01M5QR02CYVE2FZ1600J9YPTPS"
+          },
+          {
+            "id": "01M5QR02D52MGNX0S1XJ4YW2FX",
+            "name": "Cordless Drill 12V",
+            "price": 46.5,
+            "href": "/product/01M5QR02D52MGNX0S1XJ4YW2FX"
+          }
+        ]
+      }
+    },
+    {
+      "i": 10,
+      "action": "compared 45 products; global cheapest: Washers ($3.55)",
+      "url": "https://practicesoftwaretesting.com/",
+      "screenshot_path": "fixtures/washers-pass/shots/washers-pass/010.png",
+      "dom_path": "fixtures/washers-pass/dom/washers-pass/010.html",
+      "listing": {
+        "page": 5,
+        "products": [
+          {
+            "id": "01M5QR02AR3AXNECZ9M8FFEC0H",
+            "name": "Washers",
+            "price": 3.55,
+            "href": "/product/01M5QR02AR3AXNECZ9M8FFEC0H"
+          },
+          {
+            "id": "01M5QR02AVJ5N5B60BEZ1PPDCX",
+            "name": "Drawer Tool Cabinet",
+            "price": 89.55,
+            "href": "/product/01M5QR02AVJ5N5B60BEZ1PPDCX"
+          },
+          {
+            "id": "01M5QR02B4NNCAHQPV82BFE6E1",
+            "name": "Tool Cabinet",
+            "price": 86.71,
+            "href": "/product/01M5QR02B4NNCAHQPV82BFE6E1"
+          },
+          {
+            "id": "01M5QR02C36JSGQ0M0QPS8SDR2",
+            "name": "Leather toolbelt",
+            "price": 61.16,
+            "href": "/product/01M5QR02C36JSGQ0M0QPS8SDR2"
+          },
+          {
+            "id": "01M5QR02C62SGPYPEX2PCP0TN3",
+            "name": "Sheet Sander",
+            "price": 58.48,
+            "href": "/product/01M5QR02C62SGPYPEX2PCP0TN3"
+          },
+          {
+            "id": "01M5QR02CA6TH52AABJBQVME31",
+            "name": "Belt Sander",
+            "price": 73.59,
+            "href": "/product/01M5QR02CA6TH52AABJBQVME31"
+          },
+          {
+            "id": "01M5QR02CE3ATH7MT1MXHCX0RK",
+            "name": "Circular Saw",
+            "price": 80.19,
+            "href": "/product/01M5QR02CE3ATH7MT1MXHCX0RK"
+          },
+          {
+            "id": "01M5QR02CYVE2FZ1600J9YPTPS",
+            "name": "Cordless Drill 24V",
+            "price": 66.54,
+            "href": "/product/01M5QR02CYVE2FZ1600J9YPTPS"
+          },
+          {
+            "id": "01M5QR02D52MGNX0S1XJ4YW2FX",
+            "name": "Cordless Drill 12V",
+            "price": 46.5,
+            "href": "/product/01M5QR02D52MGNX0S1XJ4YW2FX"
+          }
+        ]
+      }
+    },
+    {
+      "i": 11,
+      "action": "open product detail: Washers",
+      "url": "https://practicesoftwaretesting.com/product/01M5QR02AR3AXNECZ9M8FFEC0H",
+      "screenshot_path": "fixtures/washers-pass/shots/washers-pass/011.png",
+      "dom_path": "fixtures/washers-pass/dom/washers-pass/011.html",
+      "listing": {
+        "page": -1,
+        "products": []
+      }
+    },
+    {
+      "i": 12,
+      "action": "click 'Add to cart'",
+      "url": "https://practicesoftwaretesting.com/product/01M5QR02AR3AXNECZ9M8FFEC0H",
+      "screenshot_path": "fixtures/washers-pass/shots/washers-pass/012.png",
+      "dom_path": "fixtures/washers-pass/dom/washers-pass/012.html",
+      "listing": {
+        "page": -1,
+        "products": []
+      }
+    },
+    {
+      "i": 13,
+      "action": "checker: cart contains Washers ($3.55) \u2014 the cheapest of 50 products",
+      "url": "https://practicesoftwaretesting.com/checkout",
+      "screenshot_path": "fixtures/washers-pass/shots/washers-pass/013.png",
+      "dom_path": "fixtures/washers-pass/dom/washers-pass/013.html",
+      "listing": {
+        "page": -1,
+        "products": []
+      }
+    }
+  ],
+  "outcome": "passed",
+  "failure_step": null,
+  "checker": {
+    "passed": true,
+    "code": "correct",
+    "expected": {
+      "id": "01M5QR02AR3AXNECZ9M8FFEC0H",
+      "name": "Washers",
+      "price": 3.55,
+      "n_products": 50
+    },
+    "cart": [
+      {
+        "name": "Washers",
+        "price": 3.55,
+        "quantity": 1
+      }
+    ],
+    "reason": "cart contains Washers ($3.55) \u2014 the cheapest of 50 products"
+  },
+  "expected": {
+    "id": "01M5QR02AR3AXNECZ9M8FFEC0H",
+    "name": "Washers",
+    "price": 3.55,
+    "n_products": 50
+  },
+  "duration_s": 117.4
+}
