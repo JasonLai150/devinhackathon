@@ -227,7 +227,9 @@ def _openai(prompt, config, max_tokens=None):
     return body["choices"][0]["message"].get("content") or ""
 
 
-def _gemini(prompt, config, max_tokens=8192):
+def _gemini(prompt, config, max_tokens=None):
+    if max_tokens is None and config.temperature is not None:
+        max_tokens = 8192
     model = quote(config.model.removeprefix("models/"), safe="")
     headers = {
         "x-goog-api-key": os.environ.get("GEMINI_API_KEY") or os.environ["GOOGLE_API_KEY"],
@@ -246,7 +248,7 @@ def _gemini(prompt, config, max_tokens=8192):
         raise ProviderError("Gemini returned no candidate: " + _safe_error_text(reason, headers))
     candidate = candidates[0]
     if candidate.get("finishReason") not in (None, "STOP"):
-        raise ProviderError("Gemini did not complete its response: " +
+        raise ProviderError("Gemini response incomplete: " +
                             _safe_error_text(candidate["finishReason"], headers))
     text = "".join(part.get("text", "") for part in candidate.get("content", {}).get("parts", [])
                    if not part.get("thought"))

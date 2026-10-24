@@ -62,3 +62,13 @@ Implementation validation: 91 tests passed, including Chromium, provider
 behavior, observation normalization, verified exploration, and continuation with
 an unchanged evaluation fingerprint. The teammate's OpenAI-compatible endpoint
 support and compact demo layout were integrated.
+
+The experiment above predates the later teammate merge through `51d04c5`.
+That merge adds structured reproduction evidence, safer restored configs,
+invalid-action feedback and the ReEnvision frontend. The combined LLM adapter is
+version `toolshop-observe-act-v4`; the scripted adapter remains v2 for the
+bundled rehearsal. The recorded v3 results are preserved as historical evidence.
+They cannot be resumed under a different policy version; new experiments must
+establish a fresh baseline.
+
+The final integrated regression suite passed **103 tests**, including Chromium.

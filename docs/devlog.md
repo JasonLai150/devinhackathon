@@ -603,3 +603,10 @@ archived-artifact display and the compact five-stage demo. The compact page now
 selects a matched run via `?artifacts=`, plays its actual videos, plots only valid
 comparable evaluation points, and displays failed/pending transfers honestly.
 Invalid/interrupted live runs cannot fall back to an apparent learning curve.
+
+Final integration preserved teammate changes through `51d04c5`, including
+ReEnvision branding, the live sandbox panel, structured reproduction checks,
+portable saved configs and invalid-action feedback. The combined LLM policy is
+v4; recorded v3 experiments remain historical evidence rather than being
+relabeled. All 103 tests pass, including Chromium. Real-site transfer remains
+the open empirical gate for the learned Gemini agent.

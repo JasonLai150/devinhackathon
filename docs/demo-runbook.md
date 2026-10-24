@@ -185,7 +185,7 @@ To add learning rounds after a completed round (including a failed transfer),
 retain the original baseline, component and evaluation set:
 
 ```bash
-.venv/bin/python -m loop.continue_experiment .integration/gemini-demo-v2 \
+.venv/bin/python -m loop.continue_experiment .integration/gemini-run \
   --rounds 1 --attempts 1 --concurrency 1 --headed --explore
 ```
 
@@ -197,6 +197,9 @@ attempts remain in `transfer_history.json` and the episode matrix. During
 training, the dashboard labels the previous transfer video as a previous attempt.
 Incomplete/interrupted rounds require a fresh run rather than silently overwriting
 partial evidence.
+Likewise, an older policy's run (including the recorded `gemini-demo-v2` and
+`gemini-demo-v3` experiments) cannot be continued after an observation/tool-policy
+change. It remains viewable; start a fresh experiment to evaluate the new policy.
 
 ```bash
 PORT=8012 .venv/bin/python dashboard/serve.py

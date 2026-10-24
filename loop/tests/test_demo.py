@@ -468,6 +468,7 @@ def test_cancelled_experiment_retains_an_interrupted_manifest(tmp_path, monkeypa
         async def run(self, *args, **kwargs):
             raise asyncio.CancelledError
     monkeypatch.setattr(experiment, "BrowserAgent", CancelledAgent)
+    monkeypatch.setattr(experiment, "make_llm", lambda model: lambda prompt: "unused")
     args = experiment.parser().parse_args(["--out", str(tmp_path / "cancelled")])
     with pytest.raises(asyncio.CancelledError):
         asyncio.run(experiment.run(args, ModelConfig("injected-test", "fixture")))
