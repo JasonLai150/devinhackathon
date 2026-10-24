@@ -158,11 +158,12 @@ async function main() {
     manifest ? (manifest.trajectory_path ? fetchJson(manifest.trajectory_path) : Promise.resolve(null))
              : fetchJson("fixtures/trajectory.json"),
     manifest ? Promise.resolve(manifest.spec) : fetchJson("fixtures/env_spec.json"),
-    manifest ? fetchJson(`${ARTIFACTS}/repro_report.json`) : Promise.resolve(null),
-    manifest ? fetchJson(`${ARTIFACTS}/metrics.json`) : Promise.resolve(null),
-    manifest ? fetchText(`${ARTIFACTS}/skill_notes.md`) : Promise.resolve(null),
-    manifest ? fetchJson(`${ARTIFACTS}/transfer_result.json`) : Promise.resolve(null),
-    manifest ? fetchJsonl(`${ARTIFACTS}/rollouts.jsonl`) : Promise.resolve(null),
+    // Committed runs may ship raw artifacts without a manifest — still show them.
+    fetchJson(`${ARTIFACTS}/repro_report.json`),
+    fetchJson(`${ARTIFACTS}/metrics.json`),
+    fetchText(`${ARTIFACTS}/skill_notes.md`),
+    fetchJson(`${ARTIFACTS}/transfer_result.json`),
+    fetchJsonl(`${ARTIFACTS}/rollouts.jsonl`, "fixtures/rollouts.jsonl"),
   ]);
   const report = manifest?.generation_report;
   const r0 = (rollouts || []).filter(r => r.phase === "repro");
@@ -235,6 +236,13 @@ async function main() {
   } else {
     document.getElementById("curve-notes").textContent =
       "No comparable evaluation baseline yet. Repro and transfer results are not a learning curve.";
+    if (metrics?.metrics?.length) {
+      // Legacy/committed records without evaluation_id — show as reference,
+      // clearly labeled non-comparable.
+      drawRateChart(document.getElementById("chart-rate"), metrics.metrics);
+      document.getElementById("rate-legend").innerHTML =
+        '<span><i class="sw" style="background:#8b949e"></i>recorded rounds (not a comparable curve)</span>';
+    }
   }
 
   /* ---- failure-signature chart ---- */
