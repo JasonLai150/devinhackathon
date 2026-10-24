@@ -16,6 +16,7 @@ from .site_config import SEL, SITE_URL
 
 _SETTLE_MS = 1800  # SPA re-render / API latency on the real site
 POLICY_VERSION = "toolshop-observe-act-v2"
+LLM_POLICY_VERSION = "toolshop-observe-act-v3"
 
 
 def _dismiss_overlays(page):
@@ -199,7 +200,27 @@ def run_llm(page, rec, task, llm, memory="", max_steps=30, entry_url=SITE_URL):
                                   "seen_products": list(seen.values()), "actions": action_history})
             )
         )
-        act = json.loads(raw[raw.find("{"):raw.rfind("}") + 1])
+        try:
+            act = json.loads(raw[raw.find("{"):raw.rfind("}") + 1])
+            if not isinstance(act, dict):
+                raise ValueError("action must be a JSON object")
+            a = act.get("action")
+            if a == "goto_page":
+                if not state["cards"] or str(act.get("n")) not in state["pages"]:
+                    raise ValueError("requested page is not available in the current listing view")
+                int(act["n"])
+            elif a == "open_product":
+                if str(act.get("id")) not in seen:
+                    raise ValueError("requested product has not been observed")
+            elif a == "add_to_cart":
+                if not state["can_add_to_cart"]:
+                    raise ValueError("add_to_cart requires a product detail page")
+            elif a != "done":
+                raise ValueError("unknown action; choose one of the available tools")
+        except (ValueError, KeyError, TypeError) as error:
+            action_history.append({"action": "invalid", "error": str(error)})
+            rec(f"LLM invalid action: {error}")
+            continue
         action_history.append(act)
         a = act.get("action")
         if a == "done":
@@ -213,8 +234,6 @@ def run_llm(page, rec, task, llm, memory="", max_steps=30, entry_url=SITE_URL):
             rec(f"LLM: go to page {act['n']}")
         elif a == "open_product":
             card = seen.get(str(act["id"]))
-            if card is None:
-                raise ValueError("agent selected an unseen product")
             _open_product(page, card)
             rec(f"LLM: open product {act['id']}")
         elif a == "add_to_cart":

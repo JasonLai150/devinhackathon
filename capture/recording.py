@@ -7,6 +7,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 
+def listing_observation(page):
+    """Persist the visible listing evidence used to compare failure causes."""
+    from .agents import _cards, _current_page
+    products = _cards(page)
+    return {"page": _current_page(page), "products": products}
+
+
 def artifact_ref(path):
     path = Path(path).resolve()
     try:
@@ -30,7 +37,8 @@ class BrowserRecording:
         page.screenshot(path=str(shot))
         dom.write_text(page.content())
         self.steps.append({"i": index, "action": action, "url": page.url,
-                           "screenshot_path": artifact_ref(shot), "dom_path": artifact_ref(dom)})
+                           "screenshot_path": artifact_ref(shot), "dom_path": artifact_ref(dom),
+                           "listing": listing_observation(page)})
 
     def finish(self, task, entry, metadata, notes_hash, verdict, error, video_path=None):
         trajectory = {

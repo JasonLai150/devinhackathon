@@ -1,5 +1,6 @@
 """transfer: stub checker honesty, checker delegation, rehearse path."""
 import asyncio
+import json
 
 import pytest
 
@@ -77,3 +78,79 @@ def test_real_checker_requires_one_verified_cart_item(monkeypatch):
     assert checker.verify(None, expected)["passed"]
     rows[0]["price"] = None
     assert not checker.verify(None, expected)["passed"]
+
+
+@pytest.mark.parametrize("provider,model,temperature,key", [
+    ("openai", "saved-model", 0.2, "OPENAI_API_KEY"),
+    ("gemini", "gemini-3.8-flash", None, "GEMINI_API_KEY"),
+])
+def test_saved_agent_restores_settings_and_checks_memory(tmp_path, monkeypatch,
+                                                         provider, model, temperature, key):
+    from capture.llm import ModelConfig
+    from loop.agent_browser import BrowserAgent
+    from loop.improve import write_agent_config
+    from loop.memory import MemoryStore
+
+    monkeypatch.setenv(key, "test-placeholder")
+    monkeypatch.setenv("CAPTURE_LLM_MODEL", "different-model")
+    spec = config.load_spec("fixtures/env_spec.json")
+    task = config.load_tasks(spec=spec)["shop-cheapest"]
+    agent = BrowserAgent("llm", spec, model_config=ModelConfig(provider, model, temperature),
+                         llm_fn=lambda prompt: "unused", max_steps=17)
+    memory = MemoryStore(str(tmp_path / "notes.md"))
+    memory.save("Compare every page.")
+    path = tmp_path / "agent.json"
+    write_agent_config(str(path), agent, task, memory, [], [0], [100], {})
+    _, _, _, restored, notes = transfer.load_saved_agent(path)
+    assert restored.metadata == agent.metadata
+    assert notes == "Compare every page."
+    cfg = json.loads(path.read_text())
+    assert cfg["memory_path"] == "notes.md"
+    import shutil
+    copied = tmp_path / "portable"
+    copied.mkdir()
+    for name in ("agent.json", cfg["spec_path"], cfg["memory_path"]):
+        shutil.copy2(tmp_path / name, copied / name)
+    assert transfer.load_saved_agent(copied / "agent.json")[4] == notes
+    changed = dict(cfg)
+    changed["agent_metadata"] = {**cfg["agent_metadata"], "policy_version": "old-policy"}
+    (copied / "agent.json").write_text(json.dumps(changed))
+    with pytest.raises(ValueError, match="browser policy"):
+        transfer.load_saved_agent(copied / "agent.json")
+    (copied / "agent.json").write_text(json.dumps(cfg))
+    (copied / cfg["spec_path"]).write_text("{}")
+    with pytest.raises(ValueError, match="spec hash"):
+        transfer.load_saved_agent(copied / "agent.json")
+    memory.save("changed")
+    with pytest.raises(ValueError, match="memory hash"):
+        transfer.load_saved_agent(path)
+    (tmp_path / "notes.md").unlink()
+    with pytest.raises(FileNotFoundError):
+        transfer.load_saved_agent(path)
+
+
+def test_checker_exception_produces_failed_transfer(task):
+    from loop.agent import Agent, EpisodeResult
+    class Complete(Agent):
+        async def run(self, *args, **kwargs):
+            return EpisodeResult()
+    def broken(*args):
+        raise RuntimeError("checker unavailable")
+    rec = asyncio.run(transfer.transfer(Complete(), task, "https://example.test", checker=broken))
+    assert not rec["passed"] and "checker unavailable" in rec["reason"]
+
+
+def test_missing_explicit_config_cannot_start_transfer(tmp_path):
+    with pytest.raises(FileNotFoundError):
+        transfer.main(["--config", str(tmp_path / "missing.json")])
+
+
+def test_failed_agent_cannot_pass_a_successful_checker(task):
+    from loop.agent import Agent, EpisodeResult
+    class Failed(Agent):
+        async def run(self, *args, **kwargs):
+            return EpisodeResult(ok=False)
+    rec = asyncio.run(transfer.transfer(
+        Failed(), task, "https://example.test",
+        checker=lambda *args: {"passed": True, "reason": "cart exists"}))
+    assert not rec["passed"] and "agent execution failed" in rec["reason"]

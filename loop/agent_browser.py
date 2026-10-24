@@ -35,9 +35,9 @@ class BrowserAgent(Agent):
 
     @property
     def metadata(self):
-        from capture.agents import POLICY_VERSION
+        from capture.agents import POLICY_VERSION, LLM_POLICY_VERSION
         return {"strategy": self.strategy, "max_steps": self.max_steps,
-                "policy_version": POLICY_VERSION,
+                "policy_version": LLM_POLICY_VERSION if self.strategy == "llm" else POLICY_VERSION,
                 **(self.model_config.metadata() if self.model_config else
                    {"provider": "injected-test" if self.llm_fn else "scripted", "model": None})}
 

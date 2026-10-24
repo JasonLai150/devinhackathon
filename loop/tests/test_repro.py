@@ -34,7 +34,8 @@ def run(factory, strategy, task, spec, seeds=range(10)):
 def test_naive_reproduces(factory, task, spec):
     episodes = run(factory, "naive", task, spec)
     report = repro_check.build_report("sim:naive", task, spec, episodes, None)
-    assert report["reproduced"] is True
+    assert report["sandbox_reproduced"] is True
+    assert report["reproduced"] is False
     assert report["failures"] > 0
     assert report["signature_failures"] == report["failures"]
 
@@ -68,3 +69,44 @@ def test_infrastructure_error_is_not_pagination_repro(factory, task, spec):
     state = client.get_state(session["session_id"])
     result = repro_check.classify(state, spec, {"passed": False, "reason": "error: broken JS"})
     assert result["signature_failure"] is False
+
+
+def test_unrelated_cart_failure_is_not_pagination():
+    shop = config.load_spec("fixtures/env_spec.json")
+    state = {"tables": {
+        "products": [{"id": 1}, {"id": 2}],
+        "cart_items": [{"product_id": 1, "quantity": 2}],
+        "request_log": [{"path": "/s/example/api/products?page=1"}]}}
+    result = repro_check.classify(state, shop, {
+        "passed": False, "reason": "expected exactly one item with quantity 1"})
+    assert result["signature_failure"] is False
+
+
+def test_missing_or_unrelated_real_evidence_cannot_confirm_reproduction(task, spec):
+    episodes = [{"passed": False, "signature_failure": True}]
+    for trajectory in (None, {"outcome": "failed", "failure_step": 2,
+                             "steps": [], "checker": {"passed": False}}):
+        report = repro_check.build_report("browser:llm", task, spec, episodes, trajectory)
+        assert report["reproduced"] is False
+
+
+def test_real_and_sandbox_failure_causes_must_match():
+    shop = config.load_spec("fixtures/env_spec.json")
+    trace = {
+        "site_url": shop["site_url"], "outcome": "failed",
+        "checker": {"passed": False, "code": "wrong_choice",
+                    "cart": [{"name": "Pliers", "price": 9, "quantity": 1}],
+                    "expected": {"name": "Washers", "price": 3}},
+        "steps": [{"listing": {"page": 1, "products": [{"name": "Pliers", "price": 9}]}}]}
+    episode = {"passed": False, "signature_failure": True}
+    report = repro_check.build_report("browser:auto", {"id": "shop-cheapest"}, shop, [episode], trace)
+    assert report["reproduced"]
+    trace["steps"].append({"listing": {"page": 2, "products": [{"name": "Washers", "price": 3}]}})
+    assert not repro_check.build_report(
+        "browser:auto", {"id": "shop-cheapest"}, shop, [episode], trace)["reproduced"]
+    trace["steps"].pop()
+    trace["site_url"] = "https://another-site.test"
+    assert not repro_check.build_report(
+        "browser:auto", {"id": "shop-cheapest"}, shop, [episode], trace)["reproduced"]
+    trace["checker"]["cart"][0]["quantity"] = 2
+    assert repro_check.real_failure(trace)["failure_kind"] is None

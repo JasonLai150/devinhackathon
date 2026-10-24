@@ -124,12 +124,22 @@ async def improve(client_factory, agent, task, rounds,
 
 def write_agent_config(path, agent, task, memory, history, train_seeds,
                        eval_seeds, eval_overrides):
+    path = Path(path).resolve()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    memory.save(memory.load())
+    spec_path = path.with_suffix(".spec.json")
+    spec_path.write_text(json.dumps(agent.spec, indent=2))
     cfg = {
+        "schema_version": 2,
         "agent": agent.agent_id,
         "agent_metadata": getattr(agent, "metadata", {}),
         "task_id": task["id"],
+        "task": task,
+        "spec_path": spec_path.name,
+        "spec_hash": hashlib.sha256(spec_path.read_bytes()).hexdigest(),
         "rounds": len(history),
-        "memory_path": memory.path,
+        "memory_path": os.path.relpath(Path(memory.path).resolve(), path.parent),
+        "memory_hash": hashlib.sha256(memory.load().encode()).hexdigest(),
         "train_seeds": list(train_seeds),
         "eval_seeds": list(eval_seeds),
         "eval_overrides": eval_overrides,

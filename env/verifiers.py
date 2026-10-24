@@ -115,6 +115,7 @@ def booked_matching_flight(conn, params, sid, spec):
         actual = conn.execute("SELECT * FROM flights WHERE id = ?",
                               (booking["flight_id"],)).fetchone()
         return {"passed": False,
+                "code": "wrong_choice", "expected_ids": [expected["id"]],
                 "reason": f"booked {actual['flight_no']} (${actual['price']}), "
                           f"expected {expected['flight_no']} (${expected['price']})"}
     return {"passed": True,
@@ -142,5 +143,6 @@ def cart_matching_product(conn, params, sid, spec):
         return {"passed": False, "reason": "cart mutation before detail visit — suspected shortcut"}
     if item["product_id"] not in acceptable:
         return {"passed": False,
+                "code": "wrong_choice", "expected_ids": sorted(acceptable),
                 "reason": f"wrong cart product; expected matching price ${target_price:.2f}"}
     return {"passed": True, "reason": f"cart contains the matching product at ${target_price:.2f}"}

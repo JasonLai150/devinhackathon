@@ -23,6 +23,7 @@ from playwright.sync_api import sync_playwright
 
 from . import agents, checker, llm as llm_mod
 from .site_config import SITE_URL, TASK
+from .recording import listing_observation
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -83,6 +84,7 @@ def run(task, strategy, out_path, run_name, headless=True, video=False,
                 "url": page.url,
                 "screenshot_path": _rel(shot) if shot else None,
                 "dom_path": _rel(dom) if dom else None,
+                "listing": listing_observation(page),
             })
             if failure_hint:
                 failure_step_hint = i
@@ -115,7 +117,8 @@ def run(task, strategy, out_path, run_name, headless=True, video=False,
         "task": task,
         "site_url": SITE_URL,
         "agent": {"strategy": strategy, "memory": bool(memory), "max_steps": max_steps,
-                  "policy_version": agents.POLICY_VERSION,
+                  "policy_version": (agents.LLM_POLICY_VERSION if strategy == "llm"
+                                     else agents.POLICY_VERSION),
                   **(model.metadata() if model else {"provider": "scripted"})},
         "memory_hash": hashlib.sha256((memory or "").encode()).hexdigest(),
         "video_path": video_path,
