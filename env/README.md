@@ -37,6 +37,16 @@ Writes `component/component.html` + `component.js` + `generate_report.json`.
 Provider picked from `ANTHROPIC_API_KEY` / `OPENAI_API_KEY`; model via
 `ENV_LLM_MODEL`.
 
+## Simulate a rollout (integration reference for C)
+
+```bash
+python -m env.simulate_agent --task t2 --seeds 0-9
+```
+
+`naive` (page-1-only) reproduces the pagination failure — ~4/10 pass on t2.
+`smart` (paginates fully) goes 10/10. Same request sequence a real rollout
+makes: reset → entry → api pages → detail → book → verify.
+
 ## Spec anatomy
 
 `spec/env_spec.json` drives everything: `entities` (tables + generator),

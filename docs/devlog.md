@@ -164,3 +164,33 @@ python -m pytest env/tests # tests
 - Needs A's real captured component to exercise codegen for real.
 - Optional: `POST /sessions/<sid>/delete` cleanup endpoint if C wants it.
 - Second domain (stretch) = new spec + generator fn + templates reuse.
+
+## 2026-10-24 — B: rollout simulator (integration reference for C)
+
+### Built
+
+- **`env/simulate_agent.py`** — scripted agent driving the real contract via
+  the Flask test client (no server, no LLM). Two strategies:
+  - `naive` — reads only page 1 of the paginated stub and books the cheapest
+    *visible* match → reproduces the failure mode
+  - `smart` — paginates through all pages → the fixed behavior
+- CLI: `python -m env.simulate_agent --task t2 --seeds 0-9`.
+
+**Result on t2 (cheapest direct), seeds 0–9: naive 4/10, smart 10/10.** On t1
+(cheapest overall): naive 1/5, smart 5/5. Naive fails precisely when the
+target flight sits past page 1 — the mini version of fail→reproduce→fix→green.
+
+This doubles as C's integration reference (the exact request sequence a real
+agent rollout should make: `reset → entry → api pages → detail → book →
+verify`) and as a deterministic demo fallback if the live agent misbehaves.
+
+### Flags
+
+- **`/state` is unguarded** — an agent could read the full DB dump and skip
+  pagination entirely (request_log only covers `/s/` paths, and the verifier
+  doesn't forbid it). For the demo: instruct agents not to call `/state`, or
+  gate it behind a header/token if needed. Flagged, not fixed — deciding
+  whether "reading /state" counts as cheating is a semantics call worth a
+  team conversation.
+- Simulator assumes backend_calls[0] is the listing API — fine for the
+  fixture; generalize if a spec has multiple calls.
