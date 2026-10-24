@@ -95,7 +95,10 @@ async def run_round(client_factory, agent, task, seeds, round_no,
     async def one(seed):
         key = cache_key(task["id"], seed, agent.agent_id, skill_notes)
         if cache is not None and key in cache:
-            return cache[key]
+            # Same key = same deterministic episode; re-tag with the
+            # round/phase asking for it now.
+            return {**cache[key], "round": round_no,
+                    "phase": phase or cache[key].get("phase")}
         async with sem:
             rec = await run_episode(client_factory(), agent, task, seed,
                                     round_no, overrides, skill_notes,
