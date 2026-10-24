@@ -1,0 +1,211 @@
+{
+  "task_id": "t2",
+  "agent": "sim:naive",
+  "spec_failure_note": "dev fixture \u2014 pagination is the intended failure mode",
+  "spec_failure_step": null,
+  "trajectory_failure_step": null,
+  "episodes": [
+    {
+      "round": 0,
+      "task_id": "t2",
+      "seed": 0,
+      "agent": "sim:naive",
+      "phase": "repro",
+      "session_id": "4-y5fJ-ZT-o",
+      "steps": 4,
+      "actions": [
+        "/s/4-y5fJ-ZT-o/",
+        "/api/flights?page=1",
+        "/flights/3",
+        "POST /flights/3/book"
+      ],
+      "passed": false,
+      "reason": "booked FL102 ($460), expected FL123 ($172)",
+      "max_listing_page_seen": 0,
+      "never_paginated": true,
+      "booked_from_page1": true,
+      "signature_failure": true
+    },
+    {
+      "round": 0,
+      "task_id": "t2",
+      "seed": 1,
+      "agent": "sim:naive",
+      "phase": "repro",
+      "session_id": "xuc7JEtwPgs",
+      "steps": 4,
+      "actions": [
+        "/s/xuc7JEtwPgs/",
+        "/api/flights?page=1",
+        "/flights/1",
+        "POST /flights/1/book"
+      ],
+      "passed": true,
+      "reason": "booked FL100 at $171",
+      "signature_failure": false
+    },
+    {
+      "round": 0,
+      "task_id": "t2",
+      "seed": 2,
+      "agent": "sim:naive",
+      "phase": "repro",
+      "session_id": "-Bh6Wp1g0P8",
+      "steps": 4,
+      "actions": [
+        "/s/-Bh6Wp1g0P8/",
+        "/api/flights?page=1",
+        "/flights/9",
+        "POST /flights/9/book"
+      ],
+      "passed": false,
+      "reason": "booked FL108 ($355), expected FL118 ($159)",
+      "max_listing_page_seen": 0,
+      "never_paginated": true,
+      "booked_from_page1": true,
+      "signature_failure": true
+    },
+    {
+      "round": 0,
+      "task_id": "t2",
+      "seed": 3,
+      "agent": "sim:naive",
+      "phase": "repro",
+      "session_id": "SEJGwr8-_XU",
+      "steps": 4,
+      "actions": [
+        "/s/SEJGwr8-_XU/",
+        "/api/flights?page=1",
+        "/flights/10",
+        "POST /flights/10/book"
+      ],
+      "passed": true,
+      "reason": "booked FL109 at $178",
+      "signature_failure": false
+    },
+    {
+      "round": 0,
+      "task_id": "t2",
+      "seed": 4,
+      "agent": "sim:naive",
+      "phase": "repro",
+      "session_id": "-fA08mAenlg",
+      "steps": 4,
+      "actions": [
+        "/s/-fA08mAenlg/",
+        "/api/flights?page=1",
+        "/flights/6",
+        "POST /flights/6/book"
+      ],
+      "passed": false,
+      "reason": "booked FL105 ($213), expected FL110 ($161)",
+      "max_listing_page_seen": 0,
+      "never_paginated": true,
+      "booked_from_page1": true,
+      "signature_failure": true
+    },
+    {
+      "round": 0,
+      "task_id": "t2",
+      "seed": 5,
+      "agent": "sim:naive",
+      "phase": "repro",
+      "session_id": "8nr24q--1Bo",
+      "steps": 4,
+      "actions": [
+        "/s/8nr24q--1Bo/",
+        "/api/flights?page=1",
+        "/flights/8",
+        "POST /flights/8/book"
+      ],
+      "passed": false,
+      "reason": "booked FL107 ($216), expected FL122 ($173)",
+      "max_listing_page_seen": 0,
+      "never_paginated": true,
+      "booked_from_page1": true,
+      "signature_failure": true
+    },
+    {
+      "round": 0,
+      "task_id": "t2",
+      "seed": 6,
+      "agent": "sim:naive",
+      "phase": "repro",
+      "session_id": "tpdu-Rqghd8",
+      "steps": 4,
+      "actions": [
+        "/s/tpdu-Rqghd8/",
+        "/api/flights?page=1",
+        "/flights/4",
+        "POST /flights/4/book"
+      ],
+      "passed": false,
+      "reason": "booked FL103 ($238), expected FL127 ($142)",
+      "max_listing_page_seen": 0,
+      "never_paginated": true,
+      "booked_from_page1": true,
+      "signature_failure": true
+    },
+    {
+      "round": 0,
+      "task_id": "t2",
+      "seed": 7,
+      "agent": "sim:naive",
+      "phase": "repro",
+      "session_id": "PA0lf4pGcnI",
+      "steps": 4,
+      "actions": [
+        "/s/PA0lf4pGcnI/",
+        "/api/flights?page=1",
+        "/flights/9",
+        "POST /flights/9/book"
+      ],
+      "passed": true,
+      "reason": "booked FL108 at $143",
+      "signature_failure": false
+    },
+    {
+      "round": 0,
+      "task_id": "t2",
+      "seed": 8,
+      "agent": "sim:naive",
+      "phase": "repro",
+      "session_id": "OFldyEC150U",
+      "steps": 4,
+      "actions": [
+        "/s/OFldyEC150U/",
+        "/api/flights?page=1",
+        "/flights/2",
+        "POST /flights/2/book"
+      ],
+      "passed": false,
+      "reason": "booked FL101 ($217), expected FL114 ($142)",
+      "max_listing_page_seen": 0,
+      "never_paginated": true,
+      "booked_from_page1": true,
+      "signature_failure": true
+    },
+    {
+      "round": 0,
+      "task_id": "t2",
+      "seed": 9,
+      "agent": "sim:naive",
+      "phase": "repro",
+      "session_id": "8Es2W54cFoY",
+      "steps": 4,
+      "actions": [
+        "/s/8Es2W54cFoY/",
+        "/api/flights?page=1",
+        "/flights/8",
+        "POST /flights/8/book"
+      ],
+      "passed": true,
+      "reason": "booked FL107 at $151",
+      "signature_failure": false
+    }
+  ],
+  "n": 10,
+  "failures": 6,
+  "signature_failures": 6,
+  "reproduced": true
+}

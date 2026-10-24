@@ -1,0 +1,22 @@
+{
+  "task_id": "t2",
+  "seed": null,
+  "phase": "transfer",
+  "agent": "sim:auto",
+  "passed": true,
+  "reason": "booked FL127 at $144",
+  "steps": 7,
+  "actions": [
+    "/s/rNy_3I9kDk4/",
+    "/api/flights?page=1",
+    "/api/flights?page=2",
+    "/api/flights?page=3",
+    "/api/flights?page=4",
+    "/flights/28",
+    "POST /flights/28/book"
+  ],
+  "round": 3,
+  "target_url": "/s/rNy_3I9kDk4/",
+  "mode": "rehearse",
+  "checker": "env:/verify"
+}
