@@ -11,11 +11,28 @@ Env:
 
 import json
 import os
+import urllib.error
 import urllib.request
+from urllib.parse import urlsplit
 from dataclasses import asdict, dataclass
 
 _ANTHROPIC_DEFAULT = "claude-sonnet-4-20250514"
 _OPENAI_DEFAULT = "gpt-4o-mini"
+
+
+class ProviderError(RuntimeError):
+    """A provider's HTTP error with safe, useful response details."""
+
+
+def _safe_error_text(value, headers):
+    text = str(value)
+    secrets = [os.environ.get(k) for k in ("ANTHROPIC_API_KEY", "OPENAI_API_KEY")]
+    secrets.extend(v.removeprefix("Bearer ") for k, v in headers.items()
+                   if k.lower() in ("x-api-key", "authorization"))
+    for secret in secrets:
+        if secret:
+            text = text.replace(secret, "[REDACTED]")
+    return " ".join(text.split())[:1500]
 
 
 @dataclass(frozen=True)
@@ -58,11 +75,27 @@ def _post(url, headers, payload):
     req = urllib.request.Request(
         url, data=json.dumps(payload).encode(), headers=headers, method="POST"
     )
-    with urllib.request.urlopen(req, timeout=60) as r:
-        return json.load(r)
+    try:
+        with urllib.request.urlopen(req, timeout=60) as r:
+            return json.load(r)
+    except urllib.error.HTTPError as error:
+        detail = {}
+        try:
+            body = json.loads(error.read(65536))
+            if isinstance(body, dict) and isinstance(body.get("error"), dict):
+                detail = body["error"]
+        except (ValueError, UnicodeError):
+            pass
+        error_type = _safe_error_text(detail.get("type", "request_failed"), headers)
+        message = _safe_error_text(detail.get("message", "Provider did not return a JSON error message."), headers)
+        request_id = _safe_error_text(error.headers.get("request-id", "") if error.headers else "", headers)
+        raise ProviderError(
+            f"{urlsplit(url).hostname}: HTTP {error.code} ({error_type}): {message}"
+            + (f" [request_id={request_id}]" if request_id else "")
+        ) from None
 
 
-def _anthropic(prompt, config):
+def _anthropic(prompt, config, max_tokens=4096):
     body = _post(
         "https://api.anthropic.com/v1/messages",
         {
@@ -73,14 +106,14 @@ def _anthropic(prompt, config):
         {
             "model": config.model,
             "temperature": config.temperature,
-            "max_tokens": 4096,
+            "max_tokens": max_tokens,
             "messages": [{"role": "user", "content": prompt}],
         },
     )
     return "".join(b.get("text", "") for b in body["content"])
 
 
-def _openai(prompt, config):
+def _openai(prompt, config, max_tokens=None):
     body = _post(
         "https://api.openai.com/v1/chat/completions",
         {
@@ -91,6 +124,16 @@ def _openai(prompt, config):
             "model": config.model,
             "temperature": config.temperature,
             "messages": [{"role": "user", "content": prompt}],
+            **({"max_tokens": max_tokens} if max_tokens is not None else {}),
         },
     )
     return body["choices"][0]["message"]["content"]
+
+
+def check_provider(config):
+    """One tiny request validates the exact configured model before browser work."""
+    call = _anthropic if config.provider == "anthropic" else _openai
+    response = call("Reply with only OK.", config, max_tokens=16)
+    if not isinstance(response, str) or not response.strip():
+        raise ProviderError("Provider returned no text during the model check.")
+    return {"ok": True, **config.metadata(), "max_output_tokens": 16}

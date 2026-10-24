@@ -27,6 +27,20 @@ Do not put keys in artifacts, docs, commands committed to Git, or chat.
 Preflight reports availability only and makes no model requests. A missing
 credential returns exit status 2 and writes `preflight.json`, not fake rollouts.
 
+To verify API access as well, make one small request to the configured model:
+
+```bash
+.venv/bin/python -m loop.experiment --provider anthropic \
+  --preflight --check-provider --out .integration/claude-check
+```
+
+This check has a 16-token output limit. Actual experiment commands perform it
+automatically before opening browsers. HTTP failures retain the provider's
+error type/message and request ID with credentials redacted, so account,
+model-access and request problems can be diagnosed. If a browser episode later
+encounters an execution error, the experiment stops with `status: error`;
+that is not evidence that the task was solved or that a harder task is needed.
+
 ## Run the genuine experiment
 
 ```bash
