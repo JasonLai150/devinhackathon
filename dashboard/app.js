@@ -1,4 +1,4 @@
-/* Failure-to-Env dashboard — static, artifact-driven, data-viz first.
+/* ReEnvision dashboard — static, artifact-driven, data-viz first.
    Serve repo root (dashboard/serve.py) and open /dashboard/.
    Sources: a run manifest and its matched artifacts; ?artifacts= selects a run. */
 
