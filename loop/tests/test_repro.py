@@ -60,3 +60,11 @@ def test_passing_episode_is_not_a_signature_failure(factory, task, spec):
     for e in episodes:
         if e["passed"]:
             assert e["signature_failure"] is False
+
+
+def test_infrastructure_error_is_not_pagination_repro(factory, task, spec):
+    client = factory()
+    session = client.reset(seed=42)
+    state = client.get_state(session["session_id"])
+    result = repro_check.classify(state, spec, {"passed": False, "reason": "error: broken JS"})
+    assert result["signature_failure"] is False

@@ -81,3 +81,32 @@ def test_report_written(tmp_path):
     generate.generate(SPEC, str(tmp_path), llm=fake_llm(VALID_COMPONENT))
     rep = json.loads((tmp_path / "generate_report.json").read_text())
     assert rep["path"] == "generated"
+
+
+def test_a_spec_resolves_repo_relative_capture(tmp_path):
+    spec_path = os.path.join(os.path.dirname(SPEC), "..", "..", "fixtures", "env_spec.json")
+    report = generate.generate(spec_path, str(tmp_path), llm=None)
+    assert report["path"] == "verbatim"
+    assert 'id="product-grid"' in (tmp_path / "component.html").read_text()
+    assert "function renderItems" in (tmp_path / "component.js").read_text()
+    assert "fixtures/captured/component.html" not in (tmp_path / "component.html").read_text()
+
+
+def test_codegen_prompt_contains_source_and_route_contract(tmp_path):
+    prompts = []
+    def llm(prompt):
+        prompts.append(prompt)
+        return json.dumps(VALID_COMPONENT)
+    generate.generate(SPEC, str(tmp_path), llm=llm)
+    assert "async function loadFlights" in prompts[0]
+    assert "/flights/<int:eid>" in prompts[0]
+    assert "total_pages" in prompts[0]
+
+
+def test_missing_capture_is_not_a_successful_fallback(tmp_path):
+    spec = json.load(open(SPEC))
+    spec["component"]["html"] = "does-not-exist.html"
+    path = tmp_path / "spec.json"
+    path.write_text(json.dumps(spec))
+    with pytest.raises(FileNotFoundError):
+        generate.generate(str(path), str(tmp_path / "out"), llm=None)

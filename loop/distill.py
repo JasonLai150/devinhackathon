@@ -58,9 +58,12 @@ def _heuristic(notes, successes, failures):
     paginated = any(
         re.search(r"\?page=([2-9]|\d\d+)", a)
         for r in successes for a in r.get("actions", []))
-    missed_later_pages = failures and not any(
-        re.search(r"\?page=([2-9]|\d\d+)", a)
-        for r in failures for a in r.get("actions", []))
+    missed_later_pages = any(
+        "expected" in r.get("reason", "").lower()
+        and not r.get("reason", "").startswith("error:")
+        and not any(re.search(r"(?:\?page=|on page )([2-9]|\d\d+)", a)
+                    for a in r.get("actions", []))
+        for r in failures)
     if paginated or missed_later_pages:
         add("- Always paginate through ALL result pages "
             "(?page=1..total_pages) before choosing — the best match is "

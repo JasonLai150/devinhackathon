@@ -38,8 +38,10 @@ def load_json(path):
         return json.load(f)
 
 
-def load_tasks(path=None):
+def load_tasks(path=None, spec=None):
     """env/tasks.json -> {task_id: task}. Same shape as verifiers.load_tasks."""
+    if path is None and spec and "tasks" in spec:
+        return {t["id"]: t for t in spec["tasks"]}
     return {t["id"]: t for t in load_json(path or tasks_path())["tasks"]}
 
 

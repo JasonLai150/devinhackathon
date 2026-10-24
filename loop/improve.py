@@ -123,7 +123,7 @@ def main(argv=None):
     args = ap.parse_args(argv)
 
     spec = config.load_spec(args.spec)
-    task = config.load_tasks(args.tasks)[args.task]
+    task = config.load_tasks(args.tasks, spec)[args.task]
     agent = make_agent(args.agent, spec)
     memory = MemoryStore(args.memory or
                          config.artifact_path("skill_notes.md"))

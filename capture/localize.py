@@ -10,6 +10,7 @@ Two modes (per PLAN.md — hand-written spec first, automate after):
 """
 
 import argparse
+import copy
 import json
 from pathlib import Path
 
@@ -23,6 +24,26 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 SPEC_TEMPLATE = {
     "name": "toolshop-cheapest-product",
     "site_url": SITE_URL,
+    "tasks": [
+        {"id": "shop-cheapest", "instruction": "Add exactly one of the cheapest product in the store to your cart.",
+         "verifier": "cart_matching_product", "params": {}},
+        {"id": "shop-pliers", "instruction": "Add exactly one of the cheapest product in the Pliers category to your cart.",
+         "verifier": "cart_matching_product", "params": {"category": "Pliers"}},
+        {"id": "shop-fasteners", "instruction": "Add exactly one of the cheapest product in the Fasteners category to your cart.",
+         "verifier": "cart_matching_product", "params": {"category": "Fasteners"}},
+        {"id": "shop-expensive", "instruction": "Add exactly one of the most expensive product in the store to your cart.",
+         "verifier": "cart_matching_product", "params": {"order": "desc"}}
+    ],
+    "label_sets": [
+        {"site_heading": "Toolshop", "search_button": "Search",
+         "book_button": "Add to cart", "results_heading": "Products"},
+        {"site_heading": "Toolshop", "search_button": "Find products",
+         "book_button": "Add item", "results_heading": "Available products"},
+        {"site_heading": "Toolshop", "search_button": "Go",
+         "book_button": "Add to basket", "results_heading": "Matching products"},
+        {"site_heading": "Toolshop", "search_button": "Browse",
+         "book_button": "Add product", "results_heading": "Catalog"}
+    ],
     "interaction": (
         "product listing is paginated (9 items per page across 4-6 pages); "
         "the cheapest product is typically NOT on page 1 — the agent must "
@@ -52,7 +73,7 @@ SPEC_TEMPLATE = {
             },
             "form_fields": [
                 {"name": "quantity", "type": "number",
-                 "label": "Quantity", "required": True}
+                 "label": "Quantity", "required": True, "default": 1, "min": 1}
             ],
         }
     },
@@ -61,7 +82,8 @@ SPEC_TEMPLATE = {
         "detail": {"path": "/products/<int:eid>", "entity": "products",
                    "title_field": "name"},
         "mutation": {"path": "/products/<int:eid>/cart", "method": "POST",
-                     "table": "cart_items", "fk_column": "product_id"},
+                     "table": "cart_items", "fk_column": "product_id",
+                     "data_test": "add-to-cart"},
         "confirmation": {"path": "/cart-items/<int:bid>", "table": "cart_items",
                          "join": {"table": "products", "fk": "product_id",
                                   "fields": ["name", "category", "price"]}},
@@ -111,7 +133,7 @@ Return JSON only."""
 
 
 def build_spec(trajectory):
-    spec = dict(SPEC_TEMPLATE)
+    spec = copy.deepcopy(SPEC_TEMPLATE)
     spec["failure_step"] = trajectory.get("failure_step")
     steps = trajectory.get("steps", [])
     picked = next(
@@ -151,10 +173,9 @@ def main(argv=None):
     ap.add_argument("--trajectory",
                     default=str(REPO_ROOT / "fixtures/trajectory.json"))
     ap.add_argument("--llm", action="store_true")
-    ap.add_argument("--out", nargs=2,
-                    default=[str(REPO_ROOT / "fixtures/env_spec.json"),
-                             str(REPO_ROOT / "env/spec/env_spec.json")],
-                    help="output paths (fixtures contract + env/spec copy)")
+    ap.add_argument("--out", nargs="+",
+                    default=[str(REPO_ROOT / "fixtures/env_spec.json")],
+                    help="output paths (keeps the flights dev fixture intact)")
     a = ap.parse_args(argv)
 
     trajectory = json.loads(Path(a.trajectory).read_text())

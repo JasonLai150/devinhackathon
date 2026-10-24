@@ -28,7 +28,9 @@ def verifier(name):
     return deco
 
 
-def load_tasks():
+def load_tasks(spec=None):
+    if spec and "tasks" in spec:
+        return {t["id"]: t for t in spec["tasks"]}
     with open(_TASKS_PATH) as f:
         return {t["id"]: t for t in json.load(f)["tasks"]}
 
@@ -43,7 +45,7 @@ def verify(task_id, sid, spec=None):
     conn = sessions.connect(sid)
     if conn is None:
         return {"passed": False, "reason": f"unknown session {sid}"}
-    tasks = load_tasks()
+    tasks = load_tasks(spec)
     if task_id not in tasks:
         conn.close()
         return {"passed": False, "reason": f"unknown task {task_id}"}
@@ -65,10 +67,11 @@ def detail_visit_path(spec, entity_id):
     return re.sub(r"<int:\w+>", str(entity_id), path).lstrip("/")
 
 
-def _visited(conn, sid, suffix):
+def _visited(conn, sid, suffix, before=None):
     row = conn.execute(
-        "SELECT 1 FROM request_log WHERE method='GET' AND path = ? LIMIT 1",
-        (f"/s/{sid}/{suffix}",),
+        "SELECT 1 FROM request_log WHERE method='GET' AND path = ? "
+        "AND ts <= ? LIMIT 1",
+        (f"/s/{sid}/{suffix}", before if before is not None else float("inf")),
     ).fetchone()
     return row is not None
 
@@ -102,7 +105,8 @@ def booked_matching_flight(conn, params, sid, spec):
     if booking is None:
         return {"passed": False, "reason": "no booking was made"}
 
-    if not _visited(conn, sid, detail_visit_path(spec, booking["flight_id"])):
+    if not _visited(conn, sid, detail_visit_path(spec, booking["flight_id"]),
+                    booking["created_at"]):
         return {"passed": False,
                 "reason": "booking made without visiting the flight page — "
                           "suspected shortcut"}
@@ -115,3 +119,28 @@ def booked_matching_flight(conn, params, sid, spec):
                           f"expected {expected['flight_no']} (${expected['price']})"}
     return {"passed": True,
             "reason": f"booked {expected['flight_no']} at ${expected['price']}"}
+
+
+@verifier("cart_matching_product")
+def cart_matching_product(conn, params, sid, spec):
+    products = [dict(r) for r in conn.execute("SELECT * FROM products")]
+    pool = [p for p in products
+            if not params.get("category") or p["category"] == params["category"]]
+    if not pool:
+        return {"passed": False, "reason": "no products match task constraints"}
+    target_price = (max if params.get("order") == "desc" else min)(
+        p["price"] for p in pool)
+    acceptable = {p["id"] for p in pool if p["price"] == target_price}
+    cart = conn.execute("SELECT * FROM cart_items ORDER BY id").fetchall()
+    if not cart:
+        return {"passed": False, "reason": "no cart item was added"}
+    if len(cart) != 1 or cart[0]["quantity"] != 1:
+        return {"passed": False, "reason": "expected exactly one item with quantity 1"}
+    item = cart[0]
+    if not _visited(conn, sid, detail_visit_path(spec, item["product_id"]),
+                    item["created_at"]):
+        return {"passed": False, "reason": "cart mutation before detail visit — suspected shortcut"}
+    if item["product_id"] not in acceptable:
+        return {"passed": False,
+                "reason": f"wrong cart product; expected matching price ${target_price:.2f}"}
+    return {"passed": True, "reason": f"cart contains the matching product at ${target_price:.2f}"}

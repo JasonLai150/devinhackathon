@@ -93,12 +93,19 @@ async def run_round(client_factory, agent, task, seeds, round_no,
     sem = asyncio.Semaphore(concurrency)
 
     async def one(seed):
-        key = cache_key(task["id"], seed, agent.agent_id, skill_notes)
+        context = json.dumps({"task": task, "spec": getattr(agent, "spec", {}),
+                              "overrides": overrides or {}}, sort_keys=True)
+        key = cache_key(task["id"], seed, agent.agent_id, skill_notes) + ":" + \
+            hashlib.sha256(context.encode()).hexdigest()[:16]
         if cache is not None and key in cache:
-            # Same key = same deterministic episode; re-tag with the
-            # round/phase asking for it now.
-            return {**cache[key], "round": round_no,
-                    "phase": phase or cache[key].get("phase")}
+            cached = cache[key]
+            try:
+                await asyncio.to_thread(client_factory().get_state, cached["session_id"])
+            except Exception:
+                pass  # The server restarted or session expired; rerun it.
+            else:
+                return {**cached, "round": round_no,
+                        "phase": phase or cached.get("phase")}
         async with sem:
             rec = await run_episode(client_factory(), agent, task, seed,
                                     round_no, overrides, skill_notes,

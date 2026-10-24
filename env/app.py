@@ -21,6 +21,7 @@ import os
 import random
 import re
 import time
+from pathlib import Path
 
 from flask import Flask, abort, jsonify, redirect, request, send_file
 from flask.templating import render_template
@@ -50,8 +51,8 @@ def create_app(spec_path=None, component_dir=None):
     spec_path = spec_path or os.environ.get("ENV_SPEC", _DEFAULT_SPEC)
     with open(spec_path) as f:
         spec = app.config["SPEC"] = json.load(f)
-    component_dir = component_dir or os.environ.get(
-        "ENV_COMPONENT_DIR", _DEFAULT_COMPONENT_DIR)
+    component_dir = str(Path(component_dir or os.environ.get(
+        "ENV_COMPONENT_DIR", _DEFAULT_COMPONENT_DIR)).resolve())
     app.config["COMPONENT_DIR"] = component_dir
 
     # Component slot: component/ is a second template-search path so the
@@ -87,7 +88,8 @@ def create_app(spec_path=None, component_dir=None):
                 try:
                     conn.execute(
                         "INSERT INTO request_log (ts, method, path) VALUES (?,?,?)",
-                        (time.time(), request.method, p))
+                        (time.time(), request.method,
+                         request.full_path.rstrip("?")))
                     conn.commit()
                 finally:
                     conn.close()
@@ -140,6 +142,10 @@ def create_app(spec_path=None, component_dir=None):
         return jsonify(verifiers.verify(body.get("task_id", ""),
                                         body.get("session_id", ""), spec))
 
+    @app.get("/tasks")
+    def tasks():
+        return jsonify({"tasks": list(verifiers.load_tasks(spec).values())})
+
     # ---- spec-driven env routes ----
 
     @app.get(f"/s/<sid>{routes['entry']}")
@@ -180,6 +186,8 @@ def create_app(spec_path=None, component_dir=None):
                     "detail.html", row=dict(row), entity=entity,
                     title_field=routes["detail"].get("title_field"),
                     form_fields=form_fields, action=action,
+                    action_test=routes["mutation"].get("data_test", ""),
+                    entry_url=f"/s/{sid}{routes['entry']}",
                     labels=meta["labels"], **_page_ctx(conn, sid))
             finally:
                 conn.close()
@@ -196,10 +204,23 @@ def create_app(spec_path=None, component_dir=None):
                         f"SELECT 1 FROM {entity} WHERE id = ?", (eid,)).fetchone() is None:
                     abort(404)
                 table = mut["table"]
-                fields = [f["name"] for f in
-                          spec["mutations"][table].get("form_fields", [])]
+                definitions = spec["mutations"][table].get("form_fields", [])
+                fields = [f["name"] for f in definitions]
+                values = []
+                for field in definitions:
+                    value = request.form.get(field["name"], "")
+                    if field.get("required") and not value:
+                        abort(400, description=f"{field['name']} is required")
+                    if field.get("type") == "number":
+                        try:
+                            value = int(value)
+                        except (TypeError, ValueError):
+                            abort(400, description=f"{field['name']} must be an integer")
+                        if value < field.get("min", 1):
+                            abort(400, description=f"{field['name']} is below its minimum")
+                    values.append(value)
                 cols = [mut["fk_column"], *fields, "created_at"]
-                vals = [eid, *[request.form.get(f, "") for f in fields], time.time()]
+                vals = [eid, *values, time.time()]
                 cur = conn.execute(
                     f"INSERT INTO {table} ({', '.join(cols)}) "
                     f"VALUES ({', '.join('?' for _ in cols)})", vals)

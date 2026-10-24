@@ -66,10 +66,13 @@ class SimAgent(Agent):
 
         mut = routes["mutation"]
         table = mut["table"]
-        form = {f["name"]: "sim@agent.dev" for f in
+        form = {f["name"]: (f.get("default", 1) if f.get("type") == "number"
+                            else "sim@agent.dev") for f in
                 self.spec["mutations"][table].get("form_fields", [])}
         path = _ID_RE.sub(str(pick["id"]), mut["path"])
-        env.post_form(f"/s/{sid}{path}", form)
+        status = env.post_form(f"/s/{sid}{path}", form)
+        if status not in (200, 201, 302, 303):
+            return EpisodeResult(actions, ok=False, error=f"mutation -> {status}")
         actions.append(f"POST {path}")
         return EpisodeResult(actions)
 
@@ -78,6 +81,8 @@ class SimAgent(Agent):
         """Best item by task constraints over what the agent has SEEN —
         a naive agent only sees page 1 (that's the failure)."""
         pool = items
+        if params.get("category"):
+            pool = [f for f in pool if f["category"] == params["category"]]
         if params.get("direct_only"):
             pool = [f for f in pool if f["direct"] == 1]
         if params.get("departs_after"):

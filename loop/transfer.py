@@ -32,7 +32,7 @@ async def transfer(agent, task, target_url, notes="", timeout=180,
         res = await asyncio.wait_for(
             agent.run(env, task, session, skill_notes=notes), timeout)
         outcome = {"actions": res.actions, "steps": res.steps,
-                   "error": res.error}
+                   "error": res.error, "verification": res.verification}
     except asyncio.TimeoutError:
         outcome = {"actions": [], "steps": 0,
                    "error": f"timeout after {timeout}s"}
@@ -40,6 +40,9 @@ async def transfer(agent, task, target_url, notes="", timeout=180,
         outcome = {"actions": [], "steps": 0, "error": str(e)}
     verdict = (checker or real_site_checker.check_transfer)(
         task, target_url, outcome)
+    if outcome.get("error"):
+        verdict = {"passed": False, "reason": (
+            verdict.get("reason", "") + f"; agent error: {outcome['error']}")}
     record = {"task_id": task["id"], "seed": None, "phase": "transfer",
               "agent": agent.agent_id, "passed": bool(verdict.get("passed")),
               "reason": verdict.get("reason", outcome.get("error") or ""),
@@ -82,7 +85,7 @@ def main(argv=None):
         cfg = json.load(open(cfg_path))
 
     spec = config.load_spec(args.spec)
-    tasks = config.load_tasks(args.tasks)
+    tasks = config.load_tasks(args.tasks, spec)
     task = tasks[args.task or cfg.get("task_id") or "t2"]
     agent = make_agent(args.agent or cfg.get("agent") or "sim:smart", spec)
 

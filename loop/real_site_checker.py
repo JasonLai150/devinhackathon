@@ -26,6 +26,8 @@ def check_transfer(task, target_url, outcome):
             return {"passed": False,
                     "reason": f"LOOP_REAL_CHECKER={ref!r} failed to load: {e}"}
         return fn(task, target_url, outcome)
+    if outcome.get("verification") is not None:
+        return outcome["verification"]
     return {"passed": False,
             "reason": "real-site checker not integrated "
                       "(set LOOP_REAL_CHECKER=module:callable)"}

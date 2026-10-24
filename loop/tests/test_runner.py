@@ -75,6 +75,23 @@ def test_memory_hash_changes_cache_key():
     assert a != b
 
 
+def test_cache_respects_overrides_and_session_lifetime(env, task):
+    from env import sessions
+    client, factory = env
+    agent = SimAgent(config.load_spec(), "smart")
+    cache = {}
+    def run(popup):
+        return asyncio.run(runner.run_round(
+            factory, agent, task, [42], 0, overrides={"popup": popup}, cache=cache))[0]
+    first = run(0)
+    second = run(1)
+    assert first["session_id"] != second["session_id"]
+    assert client.get_state(second["session_id"])["meta"]["popup"] is True
+    sessions.destroy(second["session_id"])
+    third = run(1)
+    assert third["session_id"] != second["session_id"]
+
+
 def test_agent_crash_is_a_failed_record(env, task):
     _, factory = env
     recs = asyncio.run(runner.run_round(factory, CrashingAgent(), task,

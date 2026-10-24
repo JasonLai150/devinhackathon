@@ -34,10 +34,11 @@ def _rel(p: Path) -> str:
 
 
 def run(task, strategy, out_path, run_name, headless=True, video=False,
-        memory_path=None, max_steps=30):
-    shots_dir = REPO_ROOT / "fixtures" / "shots" / run_name
-    dom_dir = REPO_ROOT / "fixtures" / "dom" / run_name
-    video_dir = REPO_ROOT / "fixtures" / "video" / run_name
+        memory_path=None, max_steps=30, media_dir=None):
+    media_root = Path(media_dir) if media_dir else REPO_ROOT / "fixtures"
+    shots_dir = media_root / "shots" / run_name
+    dom_dir = media_root / "dom" / run_name
+    video_dir = media_root / "video" / run_name
     for d in (shots_dir, dom_dir):
         d.mkdir(parents=True, exist_ok=True)
     if video:
@@ -89,6 +90,8 @@ def run(task, strategy, out_path, run_name, headless=True, video=False,
         fn = agents.STRATEGIES.get(strategy)
         if fn:
             fn(page, rec, task)
+        elif strategy == "auto":
+            agents.run_auto(page, rec, task, memory or "")
         elif strategy == "llm":
             agents.run_llm(page, rec, task, llm_fn, memory or "", max_steps)
         else:
@@ -129,7 +132,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--task", default=TASK)
     ap.add_argument("--strategy", default="naive",
-                    choices=["naive", "smart", "llm"])
+                    choices=["naive", "smart", "auto", "llm"])
     ap.add_argument("--out", default=str(REPO_ROOT / "fixtures/trajectory.json"))
     ap.add_argument("--run-name", default="naive")
     ap.add_argument("--headed", action="store_true")
@@ -138,10 +141,11 @@ def main(argv=None):
     ap.add_argument("--memory", default=None, help="skill-notes file injected "
                     "into the LLM agent's prompt (transfer run)")
     ap.add_argument("--max-steps", type=int, default=30)
+    ap.add_argument("--media-dir", default=None)
     a = ap.parse_args(argv)
     t = run(a.task, a.strategy, Path(a.out), a.run_name,
             headless=not a.headed, video=a.video,
-            memory_path=a.memory, max_steps=a.max_steps)
+            memory_path=a.memory, max_steps=a.max_steps, media_dir=a.media_dir)
     sys.exit(0 if t["outcome"] == "passed" else 1)
 
 

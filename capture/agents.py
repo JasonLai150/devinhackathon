@@ -10,6 +10,7 @@ in trajectory.json when the run fails).
 
 import json
 import time
+import re
 
 from .site_config import SEL, SITE_URL
 
@@ -20,6 +21,7 @@ def _dismiss_overlays(page):
     for sel in (
         "button:has-text('Accept')",
         "button:has-text('No thanks')",
+        "a:has-text('No thanks')",
         "#onetrust-accept-btn-handler",
         ".cookie-consent button",
     ):
@@ -57,7 +59,7 @@ def _wait_cards(page, prev_first_id=None):
             page.wait_for_function(
                 "pid => document.querySelector(\"a.card[data-test^='product-']\")"
                 "    .getAttribute('data-test') !== 'product-' + pid",
-                prev_first_id,
+                arg=prev_first_id,
                 timeout=8000,
             )
         except Exception:
@@ -65,14 +67,16 @@ def _wait_cards(page, prev_first_id=None):
     page.wait_for_timeout(_SETTLE_MS)
 
 
-def _goto_listing(page):
-    page.goto(SITE_URL, wait_until="domcontentloaded")
-    _wait_cards(page)
+def _goto_listing(page, entry_url=SITE_URL):
+    page.goto(entry_url, wait_until="domcontentloaded")
     _dismiss_overlays(page)
+    _wait_cards(page)
 
 
 def _open_product(page, card):
-    page.goto(SITE_URL + card["href"], wait_until="domcontentloaded")
+    target = page.evaluate("(href) => new URL(href, document.baseURI).href", card["href"])
+    page.goto(target, wait_until="domcontentloaded")
+    _dismiss_overlays(page)
     page.wait_for_selector(SEL["add_to_cart"], timeout=15000)
     page.wait_for_timeout(_SETTLE_MS)
 
@@ -99,9 +103,9 @@ def _current_page(page):
 
 # ---------------------------------------------------------------- naive
 
-def run_naive(page, rec, task):
+def run_naive(page, rec, task, entry_url=SITE_URL):
     """Baseline failure: reads only page 1, books cheapest *visible* item."""
-    _goto_listing(page)
+    _goto_listing(page, entry_url)
     rec("navigate to product listing (page 1)")
     cards = [c for c in _cards(page) if c["price"] is not None]
     target = min(cards, key=lambda c: c["price"])
@@ -117,9 +121,9 @@ def run_naive(page, rec, task):
 
 # ---------------------------------------------------------------- smart
 
-def run_smart(page, rec, task):
+def run_smart(page, rec, task, entry_url=SITE_URL):
     """Fixed behaviour: paginate through every page before comparing."""
-    _goto_listing(page)
+    _goto_listing(page, entry_url)
     rec("navigate to product listing (page 1)")
     all_cards, seen_ids = [], set()
     for _ in range(20):  # safety bound on pagination depth
@@ -156,7 +160,7 @@ _OBSERVE_JS = """() => {
   const pages = [...document.querySelectorAll("ul.pagination .page-link")]
     .map(x => (x.getAttribute("aria-label") || x.textContent).trim());
   const detailName = document.querySelector("[data-test='product-name']")?.textContent.trim();
-  const addBtn = !!document.querySelector("button[data-test='add-to-cart'], #btn-add-to-cart, button:has-text('Add to cart')");
+  const addBtn = !!document.querySelector("button[data-test='add-to-cart'], #btn-add-to-cart");
   const cartBadge = document.querySelector("[data-test='cart-quantity'], a[href='/checkout']")?.textContent.trim();
   return {url: location.href, title: document.title, cards, pages,
           detail: addBtn ? detailName : null, cartBadge};
@@ -172,18 +176,20 @@ Pick ONE next action, reply with JSON only:
   {{"action":"open_product","id":"<product id from cards>"}}
   {{"action":"add_to_cart"}}                    (on a product detail page)
   {{"action":"done"}}                           (task complete)
-Choose based on the task. If the task involves comparing products, make sure you
-have seen every page before deciding — products are paginated."""
+Choose based on the task and the observations gathered so far."""
 
 
-def run_llm(page, rec, task, llm, memory="", max_steps=30):
-    _goto_listing(page)
+def run_llm(page, rec, task, llm, memory="", max_steps=30, entry_url=SITE_URL):
+    _goto_listing(page, entry_url)
     rec("navigate to product listing (page 1)")
+    history = []
     for _ in range(max_steps):
         state = page.evaluate(_OBSERVE_JS)
+        history.append(state)
         raw = llm(
             _PROMPT.format(
-                site=SITE_URL, task=task, memory=memory, state=json.dumps(state)
+                site=entry_url, task=task, memory=memory,
+                state=json.dumps({"current": state, "history": history})
             )
         )
         act = json.loads(raw[raw.find("{"):raw.rfind("}") + 1])
@@ -192,14 +198,16 @@ def run_llm(page, rec, task, llm, memory="", max_steps=30):
             rec("agent decided task is done")
             return
         if a == "goto_page":
-            page.locator(f"ul.pagination .page-link[aria-label='Page-{act['n']}']"
-                         ).first.click()
+            page.locator("ul.pagination .page-link").filter(
+                has_text=re.compile(f"^{int(act['n'])}$")).first.click()
             _wait_cards(page)
             rec(f"LLM: go to page {act['n']}")
         elif a == "open_product":
-            page.goto(SITE_URL + f"/product/{act['id']}", wait_until="domcontentloaded")
-            page.wait_for_selector(SEL["add_to_cart"], timeout=15000)
-            page.wait_for_timeout(_SETTLE_MS)
+            card = next((c for s in reversed(history) for c in s["cards"]
+                         if str(c["id"]) == str(act["id"])), None)
+            if card is None:
+                raise ValueError("agent selected an unseen product")
+            _open_product(page, card)
             rec(f"LLM: open product {act['id']}")
         elif a == "add_to_cart":
             _add_to_cart(page)
@@ -208,6 +216,12 @@ def run_llm(page, rec, task, llm, memory="", max_steps=30):
             rec(f"LLM: unhandled action {act}")
             time.sleep(0.3)
     rec(f"hit step budget ({max_steps})")
+
+
+def run_auto(page, rec, task, memory="", entry_url=SITE_URL):
+    """Scripted memory-driven rehearsal, not LLM learning."""
+    strategy = run_smart if "paginate" in memory.lower() else run_naive
+    strategy(page, rec, task, entry_url=entry_url)
 
 
 STRATEGIES = {"naive": run_naive, "smart": run_smart}

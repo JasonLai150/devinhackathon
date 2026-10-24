@@ -7,15 +7,16 @@
     <tr><th>{{ k }}</th><td>{{ v }}</td></tr>
     {% endfor %}
   </table>
-  {% if form_fields %}
   <form method="post" action="{{ action }}" style="margin-top:16px">
     {% for f in form_fields %}
     <input type="{{ f.type | default('text') }}" name="{{ f.name }}"
-           placeholder="{{ f.label }}"{% if f.required %} required{% endif %}>
+           aria-label="{{ f.label }}" placeholder="{{ f.label }}"
+           {% if f.default is defined %}value="{{ f.default }}"{% endif %}
+           {% if f.min is defined %}min="{{ f.min }}"{% endif %}
+           {% if f.required %}required{% endif %}>
     {% endfor %}
-    <button type="submit">{{ labels.book_button }}</button>
+    <button type="submit"{% if action_test %} data-test="{{ action_test }}"{% endif %}>{{ labels.book_button }}</button>
   </form>
-  {% endif %}
 </div>
-<p><a href="">← Back to results</a></p>
+<p><a href="{{ entry_url }}">← Back to results</a></p>
 {% endblock %}

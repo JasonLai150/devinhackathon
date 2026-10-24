@@ -362,3 +362,37 @@ verify`) and as a deterministic demo fallback if the live agent misbehaves.
   a `/cart` route shape later if the demo wants a visible cart page).
 - Video capture uses `--video` (playwright `record_video_dir`) — webm files
   under `fixtures/video/` are committed for the fallback reel.
+
+## 2026-10-24 — Integration: A + B + C over HTTP and Chromium
+
+Pulled through `b741fe1`. The existing 51 tests passed, but the shop spec
+failed `/verify` with a flights-table error; fallback generation incorrectly
+treated captured file paths as source; C's browser adapter was a stub; and the
+dashboard consumed placeholder metrics. These integration seams are fixed.
+
+Full findings, changed contracts, repeatable commands and limitations:
+[`integration.md`](integration.md). Compact measured evidence:
+[`integration-results.json`](integration-results.json).
+
+Changes include spec-contained shop tasks, cart verification/quantity validation,
+source-path resolution, shared browser strategies with entry URLs, live-context
+transfer checks, query-preserving logs, stricter repro classification, cache
+input/lifetime checks, and a dashboard run manifest. Capture localization now
+leaves the flights fixture intact. The generator still defaults to LLM-first;
+the integration run explicitly selected the disclosed reference fallback.
+
+Measured: fresh real-site failure, 3/3 matching sandbox failures, 3/3 held-out
+browser successes with memory, then real-site cart success (Washers $3.55,
+checked against 50 products). **61 tests passed**, including a local HTTP +
+Chromium regression. Dashboard loaded all seven stages without JavaScript
+errors. Raw artifacts are retained locally under `.integration/` (gitignored).
+
+Flag: `browser:auto` + heuristic notes is a scripted rehearsal, not LLM
+learning. There were no LLM keys in the shell, so credentialed generation and
+autonomous learning remain unverified. The real site's UI exposed 45 products
+while the checker's API returned 50; the selected minimum matched both.
+
+Publication race: teammate commit `ba7a4a7` redesigned the dashboard while this
+integration was running. Rebased onto it and preserved the KPI/chart/matrix UI;
+the manifest-based data sources, transfer labels and screenshot binding remain.
+Rechecked the redesigned dashboard in Chromium, including episode selection.

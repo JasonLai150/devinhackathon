@@ -24,7 +24,7 @@ from .seeds import parse_seeds
 def _client_factory(args):
     if args.in_process:
         from env.app import create_app
-        app = create_app(args.spec)
+        app = create_app(args.spec or config.spec_path())
         return lambda: EnvClient.for_app(app)
     url = args.env_url or config.env_url()
     return lambda: EnvClient(url)
@@ -56,7 +56,7 @@ def main(argv=None):
     args = ap.parse_args(argv)
 
     spec = config.load_spec(args.spec)
-    tasks = config.load_tasks(args.tasks)
+    tasks = config.load_tasks(args.tasks, spec)
     if args.task not in tasks:
         sys.exit(f"unknown task {args.task!r} (have: {sorted(tasks)})")
     task = tasks[args.task]

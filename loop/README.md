@@ -48,7 +48,9 @@ All commands take `--env-url` (default `$LOOP_ENV_URL` or
 | `sim:naive` | scripted, page-1-only — reproduces the pagination failure |
 | `sim:smart` | scripted, paginates fully — the fixed behavior |
 | `sim:auto`  | naive until `skill_notes` contain the pagination cue — models memory injection deterministically |
-| `browser`   | A's real harness (browser-use / Playwright+LLM, locked at kickoff) — `agent_browser.py` is the adapter seam |
+| `browser` / `browser:llm` | A's shared Playwright + LLM strategy, with skill notes and the same model provider as capture |
+| `browser:auto` | A's shared scripted browser strategy; switches to pagination on the memory cue, explicitly a rehearsal |
+| `browser:naive` / `browser:smart` | Shared scripted browser reference strategies |
 
 ## Contracts
 
@@ -70,13 +72,19 @@ Improvement rounds may only see `seeds.TRAIN_SEEDS`. Metrics come from
 not have seen). Agent episodes never touch `/state` — it's unguarded and
 would trivialize the tasks; runner tooling uses it only after the episode.
 
-## What flips when A lands
+## Integrated toolshop run
 
-- `agent_browser.py` — wrap A's run-agent callable; `skill_notes` go in
-  the system prompt. Everything downstream is unchanged.
-- `LOOP_REAL_CHECKER=capture.checker:check` — real transfer verdicts.
-- `fixtures/trajectory.json` — repro gains the real `failure_step`
-  reference (currently compares against `env_spec.failure_note`).
+See [`../docs/integration.md`](../docs/integration.md) for the validated commands.
+Use `--spec fixtures/env_spec.json --task shop-cheapest` for A's domain.
+The toolshop spec embeds its task set so the env and runner agree.
+`browser:*` agents require a real HTTP env (not `--in-process`) and Chromium.
+`loop.demo --agent browser:auto --real-transfer` uses the same memory-driven
+strategy in the sandbox and on the public site, and A's checker reads the
+real cart before the browser context closes. `/state` is blocked from the
+agent's browser; it remains available to runner tooling.
+
+Each demo writes `run_manifest.json`; the dashboard's `?artifacts=<directory>`
+selects that run's metrics, reproduction evidence and real/rehearsal verdict.
 
 ## Stretch
 

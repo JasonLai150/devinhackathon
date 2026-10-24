@@ -162,11 +162,12 @@ def seed_db(conn, seed, spec, overrides):
     conn.execute(
         "CREATE TABLE request_log (id INTEGER PRIMARY KEY, ts REAL, method TEXT, path TEXT)")
 
-    labels_idx = int(overrides.get("labels", rng.randrange(len(LABEL_SETS)))) % len(LABEL_SETS)
+    label_sets = spec.get("label_sets", LABEL_SETS)
+    labels_idx = int(overrides.get("labels", rng.randrange(len(label_sets)))) % len(label_sets)
     popup = overrides.get("popup", rng.random() < 0.5)
     meta = {
         "seed": seed,
-        "labels": LABEL_SETS[labels_idx],
+        "labels": label_sets[labels_idx],
         "labels_index": labels_idx,
         "popup": bool(int(popup)) if isinstance(popup, str) else bool(popup),
         "created_at": time.time(),

@@ -7,9 +7,9 @@ for the running log.
 ## Run
 
 ```bash
-pip install -r requirements.txt
+pip install -r env/requirements.txt
 python -m env.app            # :5001 (PORT to override)
-python -m pytest env/tests   # 15 tests
+python -m pytest env/tests
 ```
 
 ## Contract (for C)
@@ -29,13 +29,18 @@ state, so any seed works.
 ## Generate an env component
 
 ```bash
-ANTHROPIC_API_KEY=... python -m env.generate spec/env_spec.json
-python -m env.generate spec/env_spec.json --verbatim   # force paste fallback
+python -m env.generate env/spec/env_spec.json
+python -m env.generate fixtures/env_spec.json --component-dir .integration/component --verbatim
 ```
 
 Writes `component/component.html` + `component.js` + `generate_report.json`.
 Provider picked from `ANTHROPIC_API_KEY` / `OPENAI_API_KEY`; model via
 `ENV_LLM_MODEL`.
+
+Commands assume the repository root. See `../docs/integration.md` for the
+connected toolshop run. Its spec embeds four tasks; `/tasks` returns the
+active task set and `/verify` uses that same set. The default `env/spec` and
+`env/tasks.json` remain the flights development fixture.
 
 ## Simulate a rollout (integration reference for C)
 

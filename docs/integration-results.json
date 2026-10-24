@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-24",
+  "pulled_base_commit": "b741fe1",
+  "integrated_dashboard_commit": "ba7a4a7",
+  "mode": "scripted browser integration; no LLM credentials available",
+  "spec": "toolshop-cheapest-product",
+  "agent": "browser:auto",
+  "generation": {
+    "path": "verbatim",
+    "attempts": 0,
+    "reference": "A's hand-recreated product component"
+  },
+  "real_baseline": {
+    "passed": false,
+    "selected": "Slip Joint Pliers",
+    "selected_price": 9.17,
+    "expected": "Washers",
+    "expected_price": 3.55
+  },
+  "repro": {
+    "seeds": [0, 1, 2],
+    "passes": 0,
+    "signature_failures": 3,
+    "reproduced": true
+  },
+  "evaluation": {
+    "seeds": [100, 101, 102],
+    "passes": 3,
+    "n": 3,
+    "popup": 1,
+    "labels": 3,
+    "memory": "heuristic pagination note"
+  },
+  "transfer": {
+    "target_url": "https://practicesoftwaretesting.com",
+    "mode": "real",
+    "passed": true,
+    "reason": "cart contains Washers ($3.55) — the cheapest of 50 products",
+    "checker": "capture.checker.verify",
+    "steps": 14
+  },
+  "validation": {
+    "original_tests_passed": 51,
+    "tests_after_integration_passed": 61,
+    "browser_regression_included": true,
+    "dashboard_stages": 7,
+    "dashboard_javascript_errors": []
+  },
+  "unverified": [
+    "live LLM component generation",
+    "LLM agent reproduction and improvement",
+    "statistical reliability beyond the small integration sample"
+  ]
+}

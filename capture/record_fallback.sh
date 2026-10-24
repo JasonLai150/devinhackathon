@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Fallback recording: regenerate every artifact the dashboard reads,
-# deterministically (scripted strategies — no LLM key needed).
+# Capture-only reference recording (scripted strategies — no LLM key needed).
+# For the connected capture -> env -> loop -> transfer run, see docs/integration.md.
 #
 #   bash capture/record_fallback.sh
 #
@@ -27,7 +27,7 @@ $PY -m capture.localize
 echo "=== 3/5  env screenshot (env on the real spec)"
 $PY -m capture.shoot_env --seed 42
 
-echo "=== 4/5  transfer run on the real site (smart = improved agent)"
+echo "=== 4/5  reference smart run (scripted; not learned)"
 $PY -m capture.run_agent --strategy smart --run-name smart \
     --out fixtures/trajectory_transfer.json --video
 

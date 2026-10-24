@@ -82,7 +82,7 @@ def verify(page, expected=None):
         if r["name"].lower() == expected["name"].lower()
         and (r["price"] is None or abs(r["price"] - expected["price"]) < 0.01)
     ]
-    if hit:
+    if len(hit) == 1 and len(rows) == 1:
         return {
             "passed": True,
             "reason": f"cart contains {expected['name']} "

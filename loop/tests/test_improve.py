@@ -60,6 +60,11 @@ def test_distill_learns_from_failure_feedback():
     assert notes.lower().count("paginate through all") == 1
 
 
+def test_infrastructure_failures_do_not_teach_pagination():
+    notes = distill("", [], failures=[{"reason": "error: expected HTTP 200", "actions": []}])
+    assert "paginate" not in notes.lower()
+
+
 def test_distill_llm_path(task):
     called = {}
 

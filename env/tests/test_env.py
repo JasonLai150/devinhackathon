@@ -127,3 +127,34 @@ def test_popup_perturbation(client):
     assert b"No thanks" in client.get(f"/s/{sid}/").data
     sid2 = reset(client, seed=11, popup=0)["session_id"]
     assert b"No thanks" not in client.get(f"/s/{sid2}/").data
+
+
+def test_toolshop_cart_verification_and_quantity(tmp_path, monkeypatch):
+    monkeypatch.setenv("ENV_SESSIONS_DIR", str(tmp_path / "shop"))
+    app = create_app("fixtures/env_spec.json", component_dir="fixtures/captured")
+    with app.test_client() as c:
+        sid = reset(c, seed=42, popup=0)["session_id"]
+        assert c.get("/tasks").json["tasks"][0]["id"] == "shop-cheapest"
+        products = state(c, sid)["tables"]["products"]
+        target = min(products, key=lambda p: p["price"])["id"]
+        url = f"/s/{sid}/products/{target}"
+        assert verify(c, "shop-cheapest", sid)["passed"] is False
+        assert c.post(url + "/cart", data={"quantity": "bad"}).status_code == 400
+        assert c.post(url + "/cart", data={"quantity": 0}).status_code == 400
+        c.post(url + "/cart", data={"quantity": 1})
+        c.get(url)  # a visit AFTER the POST must not satisfy navigation provenance
+        assert "shortcut" in verify(c, "shop-cheapest", sid)["reason"]
+        sid = reset(c, seed=42, popup=1)["session_id"]
+        url = f"/s/{sid}/products/{target}"
+        c.get(url)
+        c.post(url + "/cart", data={"quantity": 1})
+        assert verify(c, "shop-cheapest", sid)["passed"]
+        c.post(url + "/cart", data={"quantity": 1})
+        assert not verify(c, "shop-cheapest", sid)["passed"]
+
+
+def test_request_log_preserves_pagination(client):
+    sid = reset(client, seed=42)["session_id"]
+    client.get(f"/s/{sid}/api/flights?page=3")
+    log = state(client, sid)["tables"]["request_log"]
+    assert log[-1]["path"].endswith("?page=3")

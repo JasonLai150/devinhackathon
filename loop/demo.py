@@ -24,7 +24,8 @@ from .seeds import (EVAL_OVERRIDES, EVAL_SEEDS, TRAIN_OVERRIDES, TRAIN_SEEDS,
 
 async def run(client_factory, spec, task, rounds=2,
               train_seeds=TRAIN_SEEDS, eval_seeds=EVAL_SEEDS,
-              repro_seeds=None, timeout=120):
+              repro_seeds=None, timeout=120, agent_name="sim:auto",
+              real_transfer=False, trajectory=None):
     rollouts_path = config.artifact_path("rollouts.jsonl")
     metrics_path = config.artifact_path("metrics.json")
     memory = MemoryStore(config.artifact_path("skill_notes.md"))
@@ -33,12 +34,12 @@ async def run(client_factory, spec, task, rounds=2,
     summary = {}
 
     # 1. repro — baseline agent, round 0.
-    naive = make_agent("sim:naive", spec)
+    naive = make_agent("sim:naive" if agent_name == "sim:auto" else agent_name, spec)
     episodes = await repro_check.repro(
         client_factory, naive, task, repro_seeds or train_seeds[:10], spec,
         cache=cache, cache_path=cache_path, timeout=timeout)
     report = repro_check.build_report(naive.agent_id, task, spec, episodes,
-                                      None)
+                                      trajectory)
     with open(config.artifact_path("repro_report.json"), "w") as f:
         json.dump(report, f, indent=2)
     runner.append_rollouts(rollouts_path, episodes)
@@ -49,7 +50,7 @@ async def run(client_factory, spec, task, rounds=2,
         "baseline_success_rate": success_rate(episodes)}
 
     # 2. improve — rounds 1..R on held-out eval seeds.
-    agent = make_agent("sim:auto", spec)
+    agent = make_agent(agent_name, spec)
     history = await improve.improve(
         client_factory, agent, task, rounds, memory=memory,
         train_seeds=train_seeds, eval_seeds=eval_seeds,
@@ -62,16 +63,20 @@ async def run(client_factory, spec, task, rounds=2,
     summary["improve"] = history
 
     # 3. transfer rehearse — improved agent + notes on a fresh session.
-    env = client_factory()
-    session = env.reset()
-    sid = session["session_id"]
-
-    def checker(task_, url, outcome):
-        return env.verify(task_["id"], sid)
+    if real_transfer:
+        if not agent_name.startswith("browser"):
+            raise ValueError("real transfer requires a browser agent")
+        env, checker = None, None
+        session = {"session_id": "transfer", "entry_url": spec["site_url"]}
+    else:
+        env = client_factory()
+        session = env.reset()
+        def checker(task_, url, outcome):
+            return env.verify(task_["id"], session["session_id"])
 
     rec = await transfer.transfer(
         agent, task, session["entry_url"], notes=memory.load(),
-        checker=checker, env=env, session_id=sid, timeout=timeout)
+        checker=checker, env=env, session_id=session["session_id"], timeout=timeout)
     from .transfer import _next_round
     rec["round"] = _next_round(metrics_path)
     runner.append_rollouts(rollouts_path, [rec])
@@ -80,7 +85,9 @@ async def run(client_factory, spec, task, rounds=2,
                   phase="transfer", agent=agent.agent_id)
     with open(config.artifact_path("transfer_result.json"), "w") as f:
         json.dump({**rec, "target_url": session["entry_url"],
-                   "mode": "rehearse", "checker": "env:/verify"}, f, indent=2)
+                   "mode": "real" if real_transfer else "rehearse",
+                   "checker": "capture.checker.verify" if real_transfer else "env:/verify"},
+                  f, indent=2)
     summary["transfer"] = {"passed": rec["passed"], "reason": rec["reason"]}
     return summary
 
@@ -88,6 +95,11 @@ async def run(client_factory, spec, task, rounds=2,
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="loop.demo")
     ap.add_argument("--task", default="t2")
+    ap.add_argument("--agent", default="sim:auto")
+    ap.add_argument("--real-transfer", action="store_true")
+    ap.add_argument("--trajectory", default=None)
+    ap.add_argument("--generate-report", default=None)
+    ap.add_argument("--env-screenshot", default=None)
     ap.add_argument("--rounds", type=int, default=2)
     ap.add_argument("--repro-seeds", default="0-9")
     ap.add_argument("--train-seeds", default=None)
@@ -101,23 +113,39 @@ def main(argv=None):
     args = ap.parse_args(argv)
 
     spec = config.load_spec(args.spec)
-    task = config.load_tasks(args.tasks)[args.task]
+    task = config.load_tasks(args.tasks, spec)[args.task]
 
+    if args.real_transfer and (args.in_process or not args.agent.startswith("browser")):
+        ap.error("--real-transfer requires a browser agent and an HTTP env")
     if args.clean:
         for name in ("rollouts.jsonl", "metrics.json", "repro_report.json",
                      "skill_notes.md", "agent_config.json",
-                     "transfer_result.json", "baseline_cache.json"):
+                     "transfer_result.json", "baseline_cache.json", "run_manifest.json"):
             p = config.artifact_path(name)
             if os.path.exists(p):
                 os.remove(p)
 
+    trajectory_path = args.trajectory or config.trajectory_path()
+    trajectory = config.load_json(trajectory_path) if os.path.isfile(trajectory_path) else None
     summary = asyncio.run(run(
         _client_factory(args), spec, task, rounds=args.rounds,
         train_seeds=parse_seeds(args.train_seeds) if args.train_seeds
         else TRAIN_SEEDS,
         eval_seeds=parse_seeds(args.eval_seeds) if args.eval_seeds
         else EVAL_SEEDS,
-        repro_seeds=parse_seeds(args.repro_seeds)))
+        repro_seeds=parse_seeds(args.repro_seeds), agent_name=args.agent,
+        real_transfer=args.real_transfer, trajectory=trajectory))
+    with open(config.artifact_path("run_manifest.json"), "w") as f:
+        json.dump({"spec_path": os.path.relpath(args.spec or config.spec_path(), config._REPO),
+                   "spec": spec,
+                   "trajectory_path": os.path.relpath(trajectory_path, config._REPO),
+                   "tasks": list(config.load_tasks(args.tasks, spec).values()),
+                   "agent": args.agent, "env_url": args.env_url or config.env_url(),
+                   "generation_report": (config.load_json(args.generate_report)
+                                         if args.generate_report else None),
+                   "env_screenshot": args.env_screenshot,
+                   "mode": "LLM" if args.agent in ("browser", "browser:llm") else "scripted",
+                   "summary": summary}, f, indent=2)
 
     rep = summary["repro"]
     print(f"repro: {'REPRODUCED' if rep['reproduced'] else 'not reproduced'} "
@@ -126,6 +154,9 @@ def main(argv=None):
         print(f"round {h['round']}: eval {h['eval_success_rate']:.0%}")
     t = summary["transfer"]
     print(f"transfer: {'PASS' if t['passed'] else 'FAIL'}  {t['reason']}")
+    if not rep["reproduced"] or not t["passed"] or not summary["improve"] or \
+            summary["improve"][-1]["eval_success_rate"] < 1:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

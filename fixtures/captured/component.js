@@ -13,6 +13,7 @@
     for (const p of items) {
       const a = document.createElement("a");
       a.className = "card product-card";
+      a.setAttribute("data-test", "product-" + p.id);
       a.setAttribute("href", "products/" + p.id);
       a.innerHTML =
         '<div class="card-body">' +
@@ -21,6 +22,8 @@
         '<p class="product-category text-muted"></p>' +
         "</div>";
       a.querySelector(".product-name").textContent = p.name;
+      a.querySelector(".product-name").setAttribute("data-test", "product-name");
+      a.querySelector(".product-price").setAttribute("data-test", "product-price");
       a.querySelector(".product-price").textContent =
         "$" + Number(p.price).toFixed(2);
       a.querySelector(".product-category").textContent = p.category || "";

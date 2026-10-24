@@ -15,6 +15,7 @@ class EpisodeResult:
     actions: list = field(default_factory=list)  # trace of urls/actions
     ok: bool = True
     error: str = None
+    verification: dict = None  # A's checker, run while the browser context is alive
 
     @property
     def steps(self):
@@ -38,8 +39,9 @@ def make_agent(name, spec=None):
             raise ValueError("sim agents need the env spec (--spec)")
         from .sim_agent import SimAgent
         return SimAgent(spec, strategy=name.split(":", 1)[1])
-    if name == "browser":
+    if name == "browser" or name.startswith("browser:"):
         from .agent_browser import BrowserAgent
-        return BrowserAgent()
+        return BrowserAgent(strategy=name.split(":", 1)[1] if ":" in name else "llm",
+                            spec=spec)
     raise ValueError(
         f"unknown agent {name!r} (expected sim:naive|sim:smart|sim:auto|browser)")

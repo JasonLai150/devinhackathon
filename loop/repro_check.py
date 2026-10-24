@@ -53,7 +53,8 @@ def classify(state, spec, record):
     }
     signature_failure = (
         not record["passed"]
-        and (signals["never_paginated"] or signals["booked_from_page1"]))
+        and not record.get("reason", "").startswith("error:")
+        and max_page == 1 and booked_id in page1_ids)
     return {**signals, "signature_failure": signature_failure}
 
 
@@ -114,7 +115,7 @@ def main(argv=None):
     args = ap.parse_args(argv)
 
     spec = config.load_spec(args.spec)
-    task = config.load_tasks(args.tasks)[args.task]
+    task = config.load_tasks(args.tasks, spec)[args.task]
     agent = make_agent(args.agent, spec)
     traj_path = args.trajectory or config.trajectory_path()
     trajectory = config.load_json(traj_path) if os.path.exists(traj_path) \

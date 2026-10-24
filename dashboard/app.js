@@ -1,9 +1,9 @@
 /* Failure-to-Env dashboard — static, artifact-driven, data-viz first.
    Serve repo root (dashboard/serve.py) and open /dashboard/.
-   Sources: loop/artifacts/* (C's real data) preferred, fixtures/* fallback. */
+   Sources: a run manifest and its matched artifacts; ?artifacts= selects a run. */
 
 const A = "../";
-const ENV_URL = "http://localhost:5001";
+const ARTIFACTS = new URLSearchParams(location.search).get("artifacts") || "loop/artifacts";
 
 async function fetchJson(path) {
   try { const r = await fetch(A + path, {cache: "no-store"});
@@ -29,8 +29,6 @@ const el = (tag, cls, text) => {
   if (text != null) e.textContent = text;
   return e;
 };
-const isStub = o => !o || JSON.stringify(o).includes("<verifier reason>")
-                 || JSON.stringify(o).includes("<original task>");
 const pct = r => `${(r * 100).toFixed(0)}%`;
 
 /* ============================ charts ============================ */
@@ -129,23 +127,17 @@ function filmstrip(host, steps, failureStep) {
 }
 
 async function main() {
-  const [traj, transfer, spec, repro, mLoop, mFix, notes, transferR,
-         tasks, report, agentCfg] = await Promise.all([
-    fetchJson("fixtures/trajectory.json"),
-    fetchJson("fixtures/trajectory_transfer.json"),
-    fetchJson("fixtures/env_spec.json"),
-    fetchJson("loop/artifacts/repro_report.json"),
-    fetchJson("loop/artifacts/metrics.json"),
-    fetchJson("fixtures/metrics.json"),
-    fetchText("loop/artifacts/skill_notes.md"),
-    fetchJson("loop/artifacts/transfer_result.json"),
-    fetchJson("env/tasks.json"),
-    fetchJson("env/component/generate_report.json"),
-    fetchJson("loop/artifacts/agent_config.json"),
+  const manifest = await fetchJson(`${ARTIFACTS}/run_manifest.json`);
+  const [traj, spec, repro, metrics, notes, transferR, rollouts] = await Promise.all([
+    fetchJson(manifest?.trajectory_path || "fixtures/trajectory.json"),
+    manifest ? Promise.resolve(manifest.spec) : fetchJson("fixtures/env_spec.json"),
+    manifest ? fetchJson(`${ARTIFACTS}/repro_report.json`) : Promise.resolve(null),
+    manifest ? fetchJson(`${ARTIFACTS}/metrics.json`) : Promise.resolve(null),
+    manifest ? fetchText(`${ARTIFACTS}/skill_notes.md`) : Promise.resolve(null),
+    manifest ? fetchJson(`${ARTIFACTS}/transfer_result.json`) : Promise.resolve(null),
+    manifest ? fetchJsonl(`${ARTIFACTS}/rollouts.jsonl`) : Promise.resolve(null),
   ]);
-  const rollouts = await fetchJsonl("loop/artifacts/rollouts.jsonl",
-                                    "fixtures/rollouts.jsonl");
-  const metrics = (!isStub(mLoop) && mLoop) || mFix;
+  const report = manifest?.generation_report;
   const r0 = (rollouts || []).filter(r => r.round === 0);
   const fails = r0.filter(r => !r.passed);
   const sigFails = fails.filter(r => r.signature_failure);
@@ -161,16 +153,13 @@ async function main() {
     kpi("env repro (r0)", r0.length
         ? `${sigFails.length}/${fails.length} signature` : "—",
         `${fails.length}/${r0.length} episodes failed`,
-        r0.length && sigFails.length ? "warn" : ""),
+        repro?.reproduced ? "ok" : ""),
     kpi("eval success", lastEval ? pct(lastEval.success_rate) : "—",
         lastEval ? `round ${lastEval.round} · n=${lastEval.n}` : "no metrics",
         lastEval && lastEval.success_rate > .5 ? "ok" : ""),
-    kpi("transfer", [
-      transferR ? `env ${transferR.passed ? "PASS" : "FAIL"}` : null,
-      transfer ? `site ${transfer.outcome === "passed" ? "PASS" : "FAIL"}` : null,
-    ].filter(Boolean).join(" · ") || "—",
-        transferR?.mode ? `mode: ${transferR.mode}` : "",
-        (transferR?.passed || transfer?.outcome === "passed") ? "ok" : ""),
+    kpi("transfer", transferR ? `${transferR.passed ? "PASS" : "FAIL"}` : "—",
+        transferR?.mode === "real" ? "real-site transfer" : "sandbox rehearsal",
+        transferR?.passed ? "ok" : ""),
     kpi("episodes", rollouts ? String(rollouts.length) : "—",
         rollouts ? `${new Set(rollouts.map(r => r.session_id)).size} sessions` : "",
         ""),
@@ -183,14 +172,13 @@ async function main() {
     ["2", "localize", spec ? "ok" : "dim", spec ? spec.name : "no spec"],
     ["3", "generate env", report ? (report.path === "failed" ? "bad" : "ok") : "warn",
      report ? `${report.path} ×${report.attempts}` : "spec ready"],
-    ["4", "reproduce", r0.length ? (sigFails.length ? "ok" : "warn") : "dim",
+    ["4", "reproduce", r0.length ? (repro?.reproduced ? "ok" : "warn") : "dim",
      r0.length ? `${sigFails.length} sig-failures` : "no rollouts"],
     ["5", "improve", lastEval ? "ok" : "dim",
      lastEval ? pct(lastEval.success_rate) : "no metrics"],
-    ["6", "transfer", (transferR?.passed || transfer?.outcome === "passed")
-      ? "ok" : "dim",
-     transferR ? `${transferR.mode}` : transfer ? transfer.outcome : "pending"],
-    ["7", "demo", "dim", "rehearsal"],
+    ["6", "transfer", transferR?.passed ? "ok" : "dim",
+     transferR ? `${transferR.mode}` : "pending"],
+    ["7", "demo", "dim", manifest?.mode || "no run manifest"],
   ];
   const pipe = document.getElementById("pipeline");
   for (const [n, name, cls, note] of stages) {
@@ -301,9 +289,14 @@ async function main() {
     }
     f1.appendChild(el("figcaption", null, "real site"));
     const f2 = el("figure");
-    const i2 = el("img"); i2.src = A + "fixtures/shots/env/index.png";
-    i2.onerror = () => i2.replaceWith(el("p", "missing", "no env screenshot"));
-    f2.append(i2, el("figcaption", null, "mini-env"));
+    const envShot = el("img");
+    if (manifest?.env_screenshot) envShot.src = A + manifest.env_screenshot;
+    else if (!manifest) envShot.src = A + "fixtures/shots/env/index.png";
+    envShot.onerror = () => envShot.replaceWith(el("p", "missing",
+      "env screenshot not captured yet"));
+    f2.appendChild(manifest && !manifest.env_screenshot ?
+      el("p", "missing", "No env screenshot attached to this run") : envShot);
+    f2.appendChild(el("figcaption", null, "generated mini-env"));
     sbs.append(f1, f2);
   } else si.appendChild(el("p", "missing", "no env_spec.json"));
 
@@ -313,7 +306,8 @@ async function main() {
 
   /* ---- sessions ---- */
   const sess = document.getElementById("sessions");
-  fetch(ENV_URL + "/sessions").then(r => r.json()).then(d => {
+  const envUrl = manifest?.env_url || "http://localhost:5001";
+  fetch(envUrl + "/sessions").then(r => r.json()).then(d => {
     const list = d.sessions || d || [];
     const t = el("table", "data");
     t.innerHTML = "<tr><th>session</th><th>seed</th></tr>";
@@ -328,6 +322,8 @@ async function main() {
 
   /* ---- status line ---- */
   document.getElementById("artifact-status").textContent =
+    `${manifest ? `${manifest.mode} run (${manifest.agent}) · ${ARTIFACTS}` :
+       "No run manifest: run loop.demo for matched metrics"} · ` +
     `${rollouts?.length || 0} episodes · ` +
     `${metrics?.metrics?.length || 0} rounds · ` +
     `env ${spec ? "spec: " + spec.name : "no spec"}`;

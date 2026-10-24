@@ -23,7 +23,9 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import urllib.request
+from pathlib import Path
 
 _BASE = os.path.dirname(__file__)
 _DEFAULT_SPEC = os.path.join(_BASE, "spec", "env_spec.json")
@@ -75,13 +77,17 @@ def build_prompt(spec):
         {k: {"columns": v["columns"]} for k, v in spec.get("entities", {}).items()},
         indent=2)
     from .seeds import LABEL_SETS
-    return SLOT_CONTRACT.format(
+    prompt = SLOT_CONTRACT.format(
         stubs=stubs or "  (none)",
         interaction=spec.get("interaction", "(not described)"),
         entities=entities,
         label_keys=list(LABEL_SETS[0].keys()),
         captured_html=str(spec.get("component", {}).get("html", ""))[:8000],
         captured_js=str(spec.get("component", {}).get("js", ""))[:8000])
+    return prompt + "\nRoute templates (replace <int:eid> with item id):\n" + \
+        json.dumps(spec.get("routes", {})) + \
+        "\nPaginated GET response: {items: [...], page, per_page, total, total_pages}." + \
+        "\nPreserve the reference's data-test hooks, pagination controls and detail links."
 
 
 # ------------------------------------------------------------------- LLM ---
@@ -185,7 +191,7 @@ def static_validate(html, js, spec):
     allowed = _allowed_prefixes(spec)
     for url in _FETCH_RE.findall(js or ""):
         n = _normalize_fetch_url(url)
-        if not any(n.startswith(p) for p in allowed):
+        if url.startswith(("/", ".")) or not any(n == p or n.startswith(p + "/") for p in allowed):
             errors.append(f"component.js: fetch('{url}') not under a declared path "
                           f"(allowed: {allowed})")
 
@@ -201,11 +207,11 @@ def static_validate(html, js, spec):
 def smoke_test(spec_path, component_dir):
     """Boot the app against the candidate component dir and exercise it."""
     from .app import create_app
-    import tempfile
 
     errors = []
     old = os.environ.get("ENV_SESSIONS_DIR")
-    os.environ["ENV_SESSIONS_DIR"] = tempfile.mkdtemp(prefix="envsmoke_")
+    scratch = tempfile.TemporaryDirectory(prefix="envsmoke_")
+    os.environ["ENV_SESSIONS_DIR"] = scratch.name
     try:
         client = create_app(spec_path, component_dir=component_dir).test_client()
         r = client.post("/reset?seed=1&popup=0")
@@ -235,6 +241,7 @@ def smoke_test(spec_path, component_dir):
             os.environ.pop("ENV_SESSIONS_DIR", None)
         else:
             os.environ["ENV_SESSIONS_DIR"] = old
+        scratch.cleanup()
     return errors
 
 
@@ -283,7 +290,7 @@ FETCH_SHIM = """\
   var _open = XMLHttpRequest.prototype.open;
   XMLHttpRequest.prototype.open = function (m, u) {
     var rest = Array.prototype.slice.call(arguments, 2);
-    return _open.call(this, m, rewrite(u), rest);
+    return _open.apply(this, [m, rewrite(u)].concat(rest));
   };
 })();
 """
@@ -293,11 +300,13 @@ def _captured(field, spec, spec_path):
     """spec.component.html may be literal content or a path (relative to the
     spec file or to the env package)."""
     v = spec.get("component", {}).get(field, "")
-    if v:
-        for base in (os.path.dirname(spec_path), _BASE):
+    if v and "\n" not in v and "<" not in v and v.endswith((".html", ".js")):
+        for base in (os.path.dirname(os.path.abspath(spec_path)),
+                     os.path.dirname(_BASE), _BASE):
             candidate = os.path.join(base, v)
-            if os.path.exists(candidate):
-                return open(candidate).read()
+            if os.path.isfile(candidate):
+                return Path(candidate).read_text()
+        raise FileNotFoundError(f"captured {field} file does not exist: {v}")
     return v
 
 
@@ -316,7 +325,13 @@ def write_verbatim(spec, out_dir, spec_path):
 
 def generate(spec_path=_DEFAULT_SPEC, component_dir=_DEFAULT_OUT,
              llm="__default__", max_attempts=MAX_ATTEMPTS, verbatim=False):
+    spec_path = os.path.abspath(spec_path)
+    component_dir = os.path.abspath(component_dir)
+    os.makedirs(component_dir, exist_ok=True)
     spec = json.load(open(spec_path))
+    # Resolve inputs before writing output; the dev fixture can refer to the slot itself.
+    spec["component"] = {**spec.get("component", {}),
+                         **{k: _captured(k, spec, spec_path) for k in ("html", "js")}}
     if llm == "__default__":
         llm = default_llm()
     report = {"spec": spec.get("name"), "attempts": 0, "path": None,
@@ -356,7 +371,14 @@ def generate(spec_path=_DEFAULT_SPEC, component_dir=_DEFAULT_OUT,
     if report["path"] is None:
         if spec.get("component", {}).get("html"):
             write_verbatim(spec, component_dir, spec_path)
+            # Do not call a path string or syntactically broken JS a working env.
             report["smoke_errors"] = smoke_test(spec_path, component_dir)
+            js = Path(component_dir, "component.js").read_text()
+            if shutil.which("node"):
+                check = subprocess.run(["node", "--check", "/dev/stdin"],
+                                       input=js, text=True, capture_output=True)
+                if check.returncode:
+                    report["smoke_errors"].append("fallback JavaScript has syntax errors")
             report["path"] = "verbatim" if not report["smoke_errors"] else "failed"
         else:
             report["path"] = "failed"
@@ -367,12 +389,12 @@ def generate(spec_path=_DEFAULT_SPEC, component_dir=_DEFAULT_OUT,
 
 
 if __name__ == "__main__":
-    args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    spec_path = args[0] if args else _DEFAULT_SPEC
-    out = _DEFAULT_OUT
-    if "--component-dir" in sys.argv:
-        i = sys.argv.index("--component-dir")
-        out = sys.argv[i + 1]
-    rep = generate(spec_path, out, verbatim="--verbatim" in sys.argv)
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("spec", nargs="?", default=_DEFAULT_SPEC)
+    parser.add_argument("--component-dir", default=_DEFAULT_OUT)
+    parser.add_argument("--verbatim", action="store_true")
+    args = parser.parse_args()
+    rep = generate(args.spec, args.component_dir, verbatim=args.verbatim)
     print(json.dumps(rep, indent=2))
     sys.exit(0 if rep["path"] != "failed" else 1)
