@@ -622,3 +622,5 @@ Portable evidence is in `fixtures/washers-pass/`: the original WebM, all 14
 trajectory steps with screenshots/DOM, and a 2× MP4 for presentation. Open
 `/fixtures/washers-pass/` for the labeled video player. This is a scripted
 success recording; the failed Gemini transfer remains unchanged.
+The player includes a WebM fallback at 2× playback for Chromium builds without
+H.264 support; the downloadable MP4 is encoded at 2× speed.

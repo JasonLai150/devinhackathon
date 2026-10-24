@@ -17,7 +17,11 @@
   <h1 class="pass">PASS — Washers added to cart</h1>
   <p>The live checker confirmed Washers ($3.55) was the cheapest of 50 products,
     with exactly one in the cart.</p>
-  <video controls playsinline preload="metadata" src="passing-run.mp4"></video>
+  <video controls playsinline preload="metadata"
+    onloadedmetadata="this.playbackRate = this.currentSrc.endsWith('.webm') ? 2 : 1">
+    <source src="passing-run.mp4" type="video/mp4">
+    <source src="video/washers-pass/daafede8b236897558744975ac05aa02.webm" type="video/webm">
+  </video>
   <p class="muted">Actual browser recording at 2× speed. The fixed browser strategy
     browsed the listing, compared prices, opened Washers and added it to the cart.</p>
   <p>
