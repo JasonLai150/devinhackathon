@@ -1,0 +1,28 @@
+{
+  "tasks": [
+    {
+      "id": "t1",
+      "instruction": "Search for flights from SFO to JFK and book the cheapest available flight.",
+      "verifier": "booked_matching_flight",
+      "params": {}
+    },
+    {
+      "id": "t2",
+      "instruction": "Search for flights from SFO to JFK and book the cheapest nonstop (direct) flight.",
+      "verifier": "booked_matching_flight",
+      "params": {"direct_only": true}
+    },
+    {
+      "id": "t3",
+      "instruction": "Search for flights from SFO to JFK and book the cheapest flight departing at or after 17:00.",
+      "verifier": "booked_matching_flight",
+      "params": {"departs_after": "17:00"}
+    },
+    {
+      "id": "t4",
+      "instruction": "Search for flights from SFO to JFK and book the earliest-departing flight.",
+      "verifier": "booked_matching_flight",
+      "params": {"sort_by": "departs_at"}
+    }
+  ]
+}

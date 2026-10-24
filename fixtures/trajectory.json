@@ -1,0 +1,10 @@
+{
+  "task": "<natural-language instruction given to the agent>",
+  "site_url": "<real site URL>",
+  "steps": [
+    {"i": 0, "action": "<click|type|navigate|scroll ...>", "url": "<page url>",
+     "screenshot_path": "fixtures/shots/000.png", "dom_path": "fixtures/dom/000.html"}
+  ],
+  "outcome": "failed",
+  "failure_step": 7
+}

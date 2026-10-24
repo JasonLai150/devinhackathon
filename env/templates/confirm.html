@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Booking confirmed</h2>
+  <p>Reference <strong>BK-{{ booking.id }}</strong> — flight
+     {{ booking.flight_no }} for ${{ booking.price }}.</p>
+  <p class="muted">Confirmation sent to {{ booking.email }}.</p>
+</div>
+{% endblock %}

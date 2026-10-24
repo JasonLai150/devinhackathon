@@ -1,0 +1,8 @@
+{# DEV FIXTURE component — hand-written flight search occupying the component
+   slot. In a generated env this file comes from generate.py (LLM codegen or
+   verbatim paste of the captured component). Fetches the /api/flights stub
+   paginated — "cheapest across all pages" is the intended failure mode. #}
+<h2>{{ labels.results_heading }} — SFO → JFK</h2>
+<p class="muted">Friday, Nov 14 · 1 adult · economy</p>
+<button id="search-btn">{{ labels.search_button }}</button>
+<div id="results" style="margin-top:16px"></div>

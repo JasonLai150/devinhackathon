@@ -1,0 +1,6 @@
+{
+  "tasks": [
+    {"id": "t1", "instruction": "<original task>", "verifier": "<verifier name in env/verifiers.py>",
+     "params": {}, "seed": null}
+  ]
+}

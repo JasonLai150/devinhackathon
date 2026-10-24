@@ -1,0 +1,27 @@
+{
+  "name": "<env name>",
+  "site_url": "<real site URL>",
+  "pages": [{"name": "results", "path": "/", "role": "list"}],
+  "component": {"name": "<failing component>", "html": "<captured html>", "js": "<captured js>"},
+  "backend_calls": [
+    {"method": "GET", "path": "/api/items", "table": "items", "paginated": true, "per_page": 10}
+  ],
+  "interaction": "<natural-language description of the breaking interaction>",
+  "entities": {
+    "items": {
+      "generator": "<generator name registered in env/seeds.py>",
+      "count_range": [20, 50],
+      "columns": {"id": "INTEGER PRIMARY KEY", "name": "TEXT"}
+    }
+  },
+  "mutations": {
+    "bookings": {
+      "columns": {"id": "INTEGER PRIMARY KEY", "item_id": "INTEGER", "created_at": "REAL"}
+    }
+  },
+  "data_schema": {},
+  "seed_data": {},
+  "expected_mutation": "<what a correct run writes to DB>",
+  "failure_step": 0,
+  "failure_note": "<from trajectory.json>"
+}

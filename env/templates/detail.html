@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <h2>Flight {{ flight.flight_no }}</h2>
+  <p class="muted">SFO → JFK · {{ flight.airline }}</p>
+  <table>
+    <tr><th>Departs</th><td>{{ flight.departs_at }}</td></tr>
+    <tr><th>Price</th><td>${{ flight.price }}</td></tr>
+    <tr><th>Type</th><td>{{ "Nonstop" if flight.direct else "1 stop" }}</td></tr>
+  </table>
+  <form method="post" action="flights/{{ flight.id }}/book" style="margin-top:16px">
+    <input type="text" name="name" placeholder="Full name" required>
+    <input type="email" name="email" placeholder="Email" required>
+    <button type="submit">{{ labels.book_button }}</button>
+  </form>
+</div>
+<p><a href="">← Back to results</a></p>
+{% endblock %}
