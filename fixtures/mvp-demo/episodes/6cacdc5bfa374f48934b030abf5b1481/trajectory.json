@@ -1,0 +1,182 @@
+{
+  "episode_id": "6cacdc5bfa374f48934b030abf5b1481",
+  "task": "Add exactly one of the cheapest product in the store to your cart.",
+  "site_url": "http://127.0.0.1:64200/s/P05XnO2uciA/",
+  "agent": {
+    "strategy": "auto",
+    "max_steps": 30,
+    "policy_version": "toolshop-observe-act-v2",
+    "provider": "scripted",
+    "model": null
+  },
+  "memory_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "steps": [
+    {
+      "i": 0,
+      "action": "navigate to product listing (page 1)",
+      "url": "http://127.0.0.1:64200/s/P05XnO2uciA/",
+      "screenshot_path": "fixtures/mvp-demo/episodes/6cacdc5bfa374f48934b030abf5b1481/000.png",
+      "dom_path": "fixtures/mvp-demo/episodes/6cacdc5bfa374f48934b030abf5b1481/000.html",
+      "listing": {
+        "page": 1,
+        "products": [
+          {
+            "id": "1",
+            "name": "Magnetic Tray (Set)",
+            "price": 58.39,
+            "href": "products/1"
+          },
+          {
+            "id": "2",
+            "name": "Tool Bag",
+            "price": 51.11,
+            "href": "products/2"
+          },
+          {
+            "id": "3",
+            "name": "Combination Pliers (Mini)",
+            "price": 19.65,
+            "href": "products/3"
+          },
+          {
+            "id": "4",
+            "name": "Claw Hammer",
+            "price": 74.08,
+            "href": "products/4"
+          },
+          {
+            "id": "5",
+            "name": "Anchor Bolts",
+            "price": 41.79,
+            "href": "products/5"
+          },
+          {
+            "id": "6",
+            "name": "Parts Organizer",
+            "price": 71.33,
+            "href": "products/6"
+          },
+          {
+            "id": "7",
+            "name": "Tool Box",
+            "price": 65.97,
+            "href": "products/7"
+          },
+          {
+            "id": "8",
+            "name": "Locking Pliers (Pro)",
+            "price": 41.31,
+            "href": "products/8"
+          },
+          {
+            "id": "9",
+            "name": "Spirit Level",
+            "price": 77.36,
+            "href": "products/9"
+          }
+        ]
+      }
+    },
+    {
+      "i": 1,
+      "action": "read page-1 products; picked cheapest visible: Combination Pliers (Mini) ($19.65)",
+      "url": "http://127.0.0.1:64200/s/P05XnO2uciA/",
+      "screenshot_path": "fixtures/mvp-demo/episodes/6cacdc5bfa374f48934b030abf5b1481/001.png",
+      "dom_path": "fixtures/mvp-demo/episodes/6cacdc5bfa374f48934b030abf5b1481/001.html",
+      "listing": {
+        "page": 1,
+        "products": [
+          {
+            "id": "1",
+            "name": "Magnetic Tray (Set)",
+            "price": 58.39,
+            "href": "products/1"
+          },
+          {
+            "id": "2",
+            "name": "Tool Bag",
+            "price": 51.11,
+            "href": "products/2"
+          },
+          {
+            "id": "3",
+            "name": "Combination Pliers (Mini)",
+            "price": 19.65,
+            "href": "products/3"
+          },
+          {
+            "id": "4",
+            "name": "Claw Hammer",
+            "price": 74.08,
+            "href": "products/4"
+          },
+          {
+            "id": "5",
+            "name": "Anchor Bolts",
+            "price": 41.79,
+            "href": "products/5"
+          },
+          {
+            "id": "6",
+            "name": "Parts Organizer",
+            "price": 71.33,
+            "href": "products/6"
+          },
+          {
+            "id": "7",
+            "name": "Tool Box",
+            "price": 65.97,
+            "href": "products/7"
+          },
+          {
+            "id": "8",
+            "name": "Locking Pliers (Pro)",
+            "price": 41.31,
+            "href": "products/8"
+          },
+          {
+            "id": "9",
+            "name": "Spirit Level",
+            "price": 77.36,
+            "href": "products/9"
+          }
+        ]
+      }
+    },
+    {
+      "i": 2,
+      "action": "open product detail: Combination Pliers (Mini)",
+      "url": "http://127.0.0.1:64200/s/P05XnO2uciA/products/3",
+      "screenshot_path": "fixtures/mvp-demo/episodes/6cacdc5bfa374f48934b030abf5b1481/002.png",
+      "dom_path": "fixtures/mvp-demo/episodes/6cacdc5bfa374f48934b030abf5b1481/002.html",
+      "listing": {
+        "page": -1,
+        "products": []
+      }
+    },
+    {
+      "i": 3,
+      "action": "click 'Add to cart'",
+      "url": "http://127.0.0.1:64200/s/P05XnO2uciA/cart-items/1",
+      "screenshot_path": "fixtures/mvp-demo/episodes/6cacdc5bfa374f48934b030abf5b1481/003.png",
+      "dom_path": "fixtures/mvp-demo/episodes/6cacdc5bfa374f48934b030abf5b1481/003.html",
+      "listing": {
+        "page": -1,
+        "products": []
+      }
+    }
+  ],
+  "video_path": "fixtures/mvp-demo/episodes/6cacdc5bfa374f48934b030abf5b1481/page@f6b073b82d045f34b01236ff62065c4d.webm",
+  "outcome": "failed",
+  "checker": {
+    "code": "wrong_choice",
+    "expected_ids": [
+      33
+    ],
+    "passed": false,
+    "reason": "wrong cart product; expected matching price $4.12"
+  },
+  "error": null,
+  "duration_s": 37.6,
+  "failure_step": null
+}

@@ -1,0 +1,13 @@
+{
+  "round": 1,
+  "mode": "rehearsal",
+  "source_episode_ids": [],
+  "training_seeds": [
+    0,
+    1,
+    2
+  ],
+  "attempts_per_seed": 1,
+  "successes": 0,
+  "notes_changed": true
+}

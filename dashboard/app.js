@@ -3,7 +3,7 @@
    Sources: a run manifest and its matched artifacts; ?artifacts= selects a run. */
 
 const A = "../";
-const ARTIFACTS = new URLSearchParams(location.search).get("artifacts") || "loop/artifacts";
+const ARTIFACTS = new URLSearchParams(location.search).get("artifacts") || "fixtures/mvp-demo";
 
 async function fetchJson(path) {
   try { const r = await fetch(A + path, {cache: "no-store"});
@@ -186,7 +186,7 @@ async function main() {
         traj && traj.outcome !== "passed" ? "bad" : "ok"),
     kpi("env repro (r0)", r0.length
         ? `${sigFails.length}/${fails.length} signature` : "—",
-        `${fails.length}/${r0.length} episodes failed`,
+        repro?.reproduced ? "real-site failure matched" : "sandbox only · real match unverified",
         repro?.reproduced ? "ok" : ""),
     kpi("eval success", lastEval ? pct(lastEval.success_rate) : "—",
         lastEval ? `round ${lastEval.round} · n=${lastEval.n}` : "no metrics",
@@ -207,7 +207,7 @@ async function main() {
     ["3", "generate env", report ? (report.path === "failed" ? "bad" : "ok") : "warn",
      report ? `${report.path} ×${report.attempts}` : "spec ready"],
     ["4", "reproduce", r0.length ? (repro?.reproduced ? "ok" : "warn") : "dim",
-     r0.length ? `${sigFails.length} sig-failures` : "no rollouts"],
+     r0.length ? (repro?.reproduced ? "real failure matched" : "sandbox diagnostic only") : "no rollouts"],
     ["5", "improve", lastEval ? "ok" : "dim",
      lastEval ? pct(lastEval.success_rate) : "no metrics"],
     ["6", "transfer", transferR?.passed ? "ok" : "dim",

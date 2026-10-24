@@ -4,6 +4,11 @@ The demonstration has three visual anchors: a browser failure, a measured
 evaluation curve, and a browser success with saved skill memory. The generated
 environment and matching sandbox failure connect those anchors to the vision.
 
+The dashboard defaults to the portable scripted bundle at `fixtures/mvp-demo`.
+Generate a fresh connected recording with
+`python -m loop.rehearse --out .integration/rehearsal --real-transfer`.
+All output folders must be under the repository to be served by the dashboard.
+
 There are two explicitly different modes:
 
 - `loop.experiment`: the genuine LLM protocol. It refuses missing credentials,
@@ -22,7 +27,27 @@ From the repository root:
 .venv/bin/python -m loop.experiment --preflight --out .integration/llm-demo
 ```
 
-Configure `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` in the local environment.
+Configure `GEMINI_API_KEY`, `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` in the local
+environment, or put one in the gitignored `.env.local` file:
+
+```dotenv
+GEMINI_API_KEY=your-key-here
+```
+
+Load that file explicitly; its values are never printed or put in artifacts:
+
+```bash
+.venv/bin/python -m loop.experiment --env-file .env.local --provider gemini \
+  --preflight --out .integration/gemini-run
+```
+
+Existing environment variables take precedence over the file. Gemini uses the
+Google AI Studio `generateContent` API with the key in a request header.
+The default is `gemini-3.5-flash-lite`; `--model` selects another model available
+to your project. Gemini 3.6+ uses provider-default sampling, recorded as
+`temperature: null`, because these models ignore custom sampling controls.
+Earlier Gemini models retain the configured temperature.
+
 Do not put keys in artifacts, docs, commands committed to Git, or chat.
 Preflight reports availability only and makes no model requests. A missing
 credential returns exit status 2 and writes `preflight.json`, not fake rollouts.
@@ -42,6 +67,12 @@ Use a fresh output directory for each experiment. The example uses the
 existing default OpenAI model; use `--provider anthropic --model <model>` if
 that is your configured provider. Model capability and baseline failure rate
 must be measured, not assumed.
+
+For Gemini, use `--env-file .env.local --provider gemini` instead of the
+OpenAI provider/model options. The same frozen configuration is used for
+capture, code generation, training, distillation, evaluation and transfer.
+API availability and quota are checked by actual requests during the experiment;
+preflight only checks local configuration.
 
 `--headed` shows baseline and real-site transfer in Chromium windows.
 Training/evaluation stay headless and are recorded. `--slow-mo 200` slows
@@ -79,6 +110,29 @@ The first full command can involve dozens of browser episodes and many model
 requests. Precompute it before the presentation. Default bounds are three
 baseline attempts, three repro episodes, two rounds of ten training attempts,
 and ten evaluation episodes at round 0 and each later round, plus transfer.
+
+Reproduction now requires structured evidence from both sides: a checker-
+confirmed wrong choice, only page one observed, the chosen item on that page
+and the correct item unseen. Wrong quantities, empty carts, execution errors
+and missing/older trajectories cannot establish matching failures. A sandbox
+diagnostic is reported separately from a confirmed real-site reproduction.
+
+## Restore an improved agent
+
+```bash
+.venv/bin/python -m loop.transfer \
+  --config .integration/gemini-run/agent_config.json --env-file .env.local \
+  --out .integration/gemini-transfer.json \
+  --rollouts .integration/gemini-transfer.jsonl \
+  --metrics .integration/gemini-transfer-metrics.json
+```
+
+The config carries the original task, provider/model/temperature, step budget
+and browser policy version. Memory and a spec snapshot use paths relative to
+the config and are protected by hashes. Keep those files together when copying
+a run. Missing files, changed memory/spec or a different browser policy cause
+an error before the browser starts. Config-driven transfer does not accept
+agent/task/spec/memory overrides. The old archived configs must be regenerated.
 
 ## Recorded presentation
 
@@ -121,7 +175,18 @@ remain usable.
 
 ## Scripted rehearsal without credentials
 
-Use the commands in [integration.md](integration.md), adding:
+The shortest complete path is:
+
+```bash
+.venv/bin/python -m loop.rehearse --out .integration/rehearsal --real-transfer
+```
+
+This manages capture, reference-component validation, an isolated HTTP server,
+rollouts and recordings. It requires a fresh output directory. Its manifest
+retains execution errors and clearly labels the scripted mode and reference
+fallback. The served default bundle is `fixtures/mvp-demo`.
+
+For separate stage commands, use [integration.md](integration.md), adding:
 
 ```text
 capture.run_agent: --video

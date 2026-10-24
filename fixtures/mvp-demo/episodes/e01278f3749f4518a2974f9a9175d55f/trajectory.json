@@ -1,0 +1,904 @@
+{
+  "episode_id": "e01278f3749f4518a2974f9a9175d55f",
+  "task": "Add exactly one of the cheapest product in the store to your cart.",
+  "site_url": "http://127.0.0.1:64200/s/SIzGxnNwV3U/",
+  "agent": {
+    "strategy": "auto",
+    "max_steps": 30,
+    "policy_version": "toolshop-observe-act-v2",
+    "provider": "scripted",
+    "model": null
+  },
+  "memory_hash": "b1deae0cff8e03456a62b2d7c3a591b2a12a38ea9bc93114891f1de7f46ac5a6",
+  "steps": [
+    {
+      "i": 0,
+      "action": "navigate to product listing (page 1)",
+      "url": "http://127.0.0.1:64200/s/SIzGxnNwV3U/",
+      "screenshot_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/000.png",
+      "dom_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/000.html",
+      "listing": {
+        "page": 1,
+        "products": [
+          {
+            "id": "1",
+            "name": "Anchor Bolts (Set)",
+            "price": 88.01,
+            "href": "products/1"
+          },
+          {
+            "id": "2",
+            "name": "Claw Hammer",
+            "price": 45.11,
+            "href": "products/2"
+          },
+          {
+            "id": "3",
+            "name": "Wood Screws",
+            "price": 73.85,
+            "href": "products/3"
+          },
+          {
+            "id": "4",
+            "name": "Magnetic Tray (XL)",
+            "price": 65.6,
+            "href": "products/4"
+          },
+          {
+            "id": "5",
+            "name": "Hand Saw",
+            "price": 25.13,
+            "href": "products/5"
+          },
+          {
+            "id": "6",
+            "name": "Claw Hammer (Pro)",
+            "price": 61.01,
+            "href": "products/6"
+          },
+          {
+            "id": "7",
+            "name": "Wire Cutters (Set)",
+            "price": 29.1,
+            "href": "products/7"
+          },
+          {
+            "id": "8",
+            "name": "Magnetic Tray (Set)",
+            "price": 77.25,
+            "href": "products/8"
+          },
+          {
+            "id": "9",
+            "name": "Jigsaw (Pro)",
+            "price": 22.6,
+            "href": "products/9"
+          }
+        ]
+      }
+    },
+    {
+      "i": 1,
+      "action": "read products on page 1 (9 products seen so far)",
+      "url": "http://127.0.0.1:64200/s/SIzGxnNwV3U/",
+      "screenshot_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/001.png",
+      "dom_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/001.html",
+      "listing": {
+        "page": 1,
+        "products": [
+          {
+            "id": "1",
+            "name": "Anchor Bolts (Set)",
+            "price": 88.01,
+            "href": "products/1"
+          },
+          {
+            "id": "2",
+            "name": "Claw Hammer",
+            "price": 45.11,
+            "href": "products/2"
+          },
+          {
+            "id": "3",
+            "name": "Wood Screws",
+            "price": 73.85,
+            "href": "products/3"
+          },
+          {
+            "id": "4",
+            "name": "Magnetic Tray (XL)",
+            "price": 65.6,
+            "href": "products/4"
+          },
+          {
+            "id": "5",
+            "name": "Hand Saw",
+            "price": 25.13,
+            "href": "products/5"
+          },
+          {
+            "id": "6",
+            "name": "Claw Hammer (Pro)",
+            "price": 61.01,
+            "href": "products/6"
+          },
+          {
+            "id": "7",
+            "name": "Wire Cutters (Set)",
+            "price": 29.1,
+            "href": "products/7"
+          },
+          {
+            "id": "8",
+            "name": "Magnetic Tray (Set)",
+            "price": 77.25,
+            "href": "products/8"
+          },
+          {
+            "id": "9",
+            "name": "Jigsaw (Pro)",
+            "price": 22.6,
+            "href": "products/9"
+          }
+        ]
+      }
+    },
+    {
+      "i": 2,
+      "action": "click next page (now on page 2)",
+      "url": "http://127.0.0.1:64200/s/SIzGxnNwV3U/",
+      "screenshot_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/002.png",
+      "dom_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/002.html",
+      "listing": {
+        "page": 2,
+        "products": [
+          {
+            "id": "10",
+            "name": "Tape Measure",
+            "price": 64.65,
+            "href": "products/10"
+          },
+          {
+            "id": "11",
+            "name": "Utility Knife (Pro)",
+            "price": 13.81,
+            "href": "products/11"
+          },
+          {
+            "id": "12",
+            "name": "Magnetic Tray (Mini)",
+            "price": 12.46,
+            "href": "products/12"
+          },
+          {
+            "id": "13",
+            "name": "Jigsaw",
+            "price": 71.83,
+            "href": "products/13"
+          },
+          {
+            "id": "14",
+            "name": "M4 Nuts (Mini)",
+            "price": 28.13,
+            "href": "products/14"
+          },
+          {
+            "id": "15",
+            "name": "Magnetic Tray",
+            "price": 63.52,
+            "href": "products/15"
+          },
+          {
+            "id": "16",
+            "name": "M4 Nuts",
+            "price": 38.06,
+            "href": "products/16"
+          },
+          {
+            "id": "17",
+            "name": "Needle-Nose Pliers (Mini)",
+            "price": 69.05,
+            "href": "products/17"
+          },
+          {
+            "id": "18",
+            "name": "Tape Measure (Mini)",
+            "price": 64.63,
+            "href": "products/18"
+          }
+        ]
+      }
+    },
+    {
+      "i": 3,
+      "action": "read products on page 2 (18 products seen so far)",
+      "url": "http://127.0.0.1:64200/s/SIzGxnNwV3U/",
+      "screenshot_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/003.png",
+      "dom_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/003.html",
+      "listing": {
+        "page": 2,
+        "products": [
+          {
+            "id": "10",
+            "name": "Tape Measure",
+            "price": 64.65,
+            "href": "products/10"
+          },
+          {
+            "id": "11",
+            "name": "Utility Knife (Pro)",
+            "price": 13.81,
+            "href": "products/11"
+          },
+          {
+            "id": "12",
+            "name": "Magnetic Tray (Mini)",
+            "price": 12.46,
+            "href": "products/12"
+          },
+          {
+            "id": "13",
+            "name": "Jigsaw",
+            "price": 71.83,
+            "href": "products/13"
+          },
+          {
+            "id": "14",
+            "name": "M4 Nuts (Mini)",
+            "price": 28.13,
+            "href": "products/14"
+          },
+          {
+            "id": "15",
+            "name": "Magnetic Tray",
+            "price": 63.52,
+            "href": "products/15"
+          },
+          {
+            "id": "16",
+            "name": "M4 Nuts",
+            "price": 38.06,
+            "href": "products/16"
+          },
+          {
+            "id": "17",
+            "name": "Needle-Nose Pliers (Mini)",
+            "price": 69.05,
+            "href": "products/17"
+          },
+          {
+            "id": "18",
+            "name": "Tape Measure (Mini)",
+            "price": 64.63,
+            "href": "products/18"
+          }
+        ]
+      }
+    },
+    {
+      "i": 4,
+      "action": "click next page (now on page 3)",
+      "url": "http://127.0.0.1:64200/s/SIzGxnNwV3U/",
+      "screenshot_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/004.png",
+      "dom_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/004.html",
+      "listing": {
+        "page": 3,
+        "products": [
+          {
+            "id": "19",
+            "name": "Washers",
+            "price": 16.21,
+            "href": "products/19"
+          },
+          {
+            "id": "20",
+            "name": "Utility Knife",
+            "price": 19.86,
+            "href": "products/20"
+          },
+          {
+            "id": "21",
+            "name": "Claw Hammer (XL)",
+            "price": 80.87,
+            "href": "products/21"
+          },
+          {
+            "id": "22",
+            "name": "Wire Cutters (Pro)",
+            "price": 15.71,
+            "href": "products/22"
+          },
+          {
+            "id": "23",
+            "name": "Slip Joint Pliers",
+            "price": 71.32,
+            "href": "products/23"
+          },
+          {
+            "id": "24",
+            "name": "Angle Grinder",
+            "price": 46.94,
+            "href": "products/24"
+          },
+          {
+            "id": "25",
+            "name": "Orbital Sander (Mini)",
+            "price": 27.73,
+            "href": "products/25"
+          },
+          {
+            "id": "26",
+            "name": "Spirit Level",
+            "price": 28.51,
+            "href": "products/26"
+          },
+          {
+            "id": "27",
+            "name": "Locking Pliers",
+            "price": 9.23,
+            "href": "products/27"
+          }
+        ]
+      }
+    },
+    {
+      "i": 5,
+      "action": "read products on page 3 (27 products seen so far)",
+      "url": "http://127.0.0.1:64200/s/SIzGxnNwV3U/",
+      "screenshot_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/005.png",
+      "dom_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/005.html",
+      "listing": {
+        "page": 3,
+        "products": [
+          {
+            "id": "19",
+            "name": "Washers",
+            "price": 16.21,
+            "href": "products/19"
+          },
+          {
+            "id": "20",
+            "name": "Utility Knife",
+            "price": 19.86,
+            "href": "products/20"
+          },
+          {
+            "id": "21",
+            "name": "Claw Hammer (XL)",
+            "price": 80.87,
+            "href": "products/21"
+          },
+          {
+            "id": "22",
+            "name": "Wire Cutters (Pro)",
+            "price": 15.71,
+            "href": "products/22"
+          },
+          {
+            "id": "23",
+            "name": "Slip Joint Pliers",
+            "price": 71.32,
+            "href": "products/23"
+          },
+          {
+            "id": "24",
+            "name": "Angle Grinder",
+            "price": 46.94,
+            "href": "products/24"
+          },
+          {
+            "id": "25",
+            "name": "Orbital Sander (Mini)",
+            "price": 27.73,
+            "href": "products/25"
+          },
+          {
+            "id": "26",
+            "name": "Spirit Level",
+            "price": 28.51,
+            "href": "products/26"
+          },
+          {
+            "id": "27",
+            "name": "Locking Pliers",
+            "price": 9.23,
+            "href": "products/27"
+          }
+        ]
+      }
+    },
+    {
+      "i": 6,
+      "action": "click next page (now on page 4)",
+      "url": "http://127.0.0.1:64200/s/SIzGxnNwV3U/",
+      "screenshot_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/006.png",
+      "dom_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/006.html",
+      "listing": {
+        "page": 4,
+        "products": [
+          {
+            "id": "28",
+            "name": "Tool Bag",
+            "price": 73.59,
+            "href": "products/28"
+          },
+          {
+            "id": "29",
+            "name": "Wire Cutters",
+            "price": 65.7,
+            "href": "products/29"
+          },
+          {
+            "id": "30",
+            "name": "Hand Saw (Set)",
+            "price": 88.03,
+            "href": "products/30"
+          },
+          {
+            "id": "31",
+            "name": "Rubber Mallet",
+            "price": 68.67,
+            "href": "products/31"
+          },
+          {
+            "id": "32",
+            "name": "Locking Pliers (Set)",
+            "price": 24.14,
+            "href": "products/32"
+          },
+          {
+            "id": "33",
+            "name": "Cordless Drill (Mini)",
+            "price": 26.27,
+            "href": "products/33"
+          },
+          {
+            "id": "34",
+            "name": "Slip Joint Pliers (Mini)",
+            "price": 85.04,
+            "href": "products/34"
+          },
+          {
+            "id": "35",
+            "name": "Parts Organizer",
+            "price": 46.45,
+            "href": "products/35"
+          },
+          {
+            "id": "36",
+            "name": "Slip Joint Pliers (Set)",
+            "price": 78.95,
+            "href": "products/36"
+          }
+        ]
+      }
+    },
+    {
+      "i": 7,
+      "action": "read products on page 4 (36 products seen so far)",
+      "url": "http://127.0.0.1:64200/s/SIzGxnNwV3U/",
+      "screenshot_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/007.png",
+      "dom_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/007.html",
+      "listing": {
+        "page": 4,
+        "products": [
+          {
+            "id": "28",
+            "name": "Tool Bag",
+            "price": 73.59,
+            "href": "products/28"
+          },
+          {
+            "id": "29",
+            "name": "Wire Cutters",
+            "price": 65.7,
+            "href": "products/29"
+          },
+          {
+            "id": "30",
+            "name": "Hand Saw (Set)",
+            "price": 88.03,
+            "href": "products/30"
+          },
+          {
+            "id": "31",
+            "name": "Rubber Mallet",
+            "price": 68.67,
+            "href": "products/31"
+          },
+          {
+            "id": "32",
+            "name": "Locking Pliers (Set)",
+            "price": 24.14,
+            "href": "products/32"
+          },
+          {
+            "id": "33",
+            "name": "Cordless Drill (Mini)",
+            "price": 26.27,
+            "href": "products/33"
+          },
+          {
+            "id": "34",
+            "name": "Slip Joint Pliers (Mini)",
+            "price": 85.04,
+            "href": "products/34"
+          },
+          {
+            "id": "35",
+            "name": "Parts Organizer",
+            "price": 46.45,
+            "href": "products/35"
+          },
+          {
+            "id": "36",
+            "name": "Slip Joint Pliers (Set)",
+            "price": 78.95,
+            "href": "products/36"
+          }
+        ]
+      }
+    },
+    {
+      "i": 8,
+      "action": "click next page (now on page 5)",
+      "url": "http://127.0.0.1:64200/s/SIzGxnNwV3U/",
+      "screenshot_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/008.png",
+      "dom_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/008.html",
+      "listing": {
+        "page": 5,
+        "products": [
+          {
+            "id": "37",
+            "name": "Combination Pliers",
+            "price": 48.26,
+            "href": "products/37"
+          },
+          {
+            "id": "38",
+            "name": "Locking Pliers (XL)",
+            "price": 21.07,
+            "href": "products/38"
+          },
+          {
+            "id": "39",
+            "name": "Combination Pliers (Pro)",
+            "price": 33.17,
+            "href": "products/39"
+          },
+          {
+            "id": "40",
+            "name": "Orbital Sander (Pro)",
+            "price": 69.86,
+            "href": "products/40"
+          },
+          {
+            "id": "41",
+            "name": "Anchor Bolts",
+            "price": 2.49,
+            "href": "products/41"
+          },
+          {
+            "id": "42",
+            "name": "Locking Pliers (Pro)",
+            "price": 65.61,
+            "href": "products/42"
+          },
+          {
+            "id": "43",
+            "name": "Flat Nails",
+            "price": 66.75,
+            "href": "products/43"
+          },
+          {
+            "id": "44",
+            "name": "Orbital Sander",
+            "price": 27.45,
+            "href": "products/44"
+          },
+          {
+            "id": "45",
+            "name": "Tool Box (XL)",
+            "price": 68.95,
+            "href": "products/45"
+          }
+        ]
+      }
+    },
+    {
+      "i": 9,
+      "action": "read products on page 5 (45 products seen so far)",
+      "url": "http://127.0.0.1:64200/s/SIzGxnNwV3U/",
+      "screenshot_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/009.png",
+      "dom_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/009.html",
+      "listing": {
+        "page": 5,
+        "products": [
+          {
+            "id": "37",
+            "name": "Combination Pliers",
+            "price": 48.26,
+            "href": "products/37"
+          },
+          {
+            "id": "38",
+            "name": "Locking Pliers (XL)",
+            "price": 21.07,
+            "href": "products/38"
+          },
+          {
+            "id": "39",
+            "name": "Combination Pliers (Pro)",
+            "price": 33.17,
+            "href": "products/39"
+          },
+          {
+            "id": "40",
+            "name": "Orbital Sander (Pro)",
+            "price": 69.86,
+            "href": "products/40"
+          },
+          {
+            "id": "41",
+            "name": "Anchor Bolts",
+            "price": 2.49,
+            "href": "products/41"
+          },
+          {
+            "id": "42",
+            "name": "Locking Pliers (Pro)",
+            "price": 65.61,
+            "href": "products/42"
+          },
+          {
+            "id": "43",
+            "name": "Flat Nails",
+            "price": 66.75,
+            "href": "products/43"
+          },
+          {
+            "id": "44",
+            "name": "Orbital Sander",
+            "price": 27.45,
+            "href": "products/44"
+          },
+          {
+            "id": "45",
+            "name": "Tool Box (XL)",
+            "price": 68.95,
+            "href": "products/45"
+          }
+        ]
+      }
+    },
+    {
+      "i": 10,
+      "action": "click next page (now on page 6)",
+      "url": "http://127.0.0.1:64200/s/SIzGxnNwV3U/",
+      "screenshot_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/010.png",
+      "dom_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/010.html",
+      "listing": {
+        "page": 6,
+        "products": [
+          {
+            "id": "46",
+            "name": "Tool Box",
+            "price": 28.08,
+            "href": "products/46"
+          },
+          {
+            "id": "47",
+            "name": "Hex Bolts",
+            "price": 71.82,
+            "href": "products/47"
+          },
+          {
+            "id": "48",
+            "name": "Needle-Nose Pliers",
+            "price": 12.27,
+            "href": "products/48"
+          },
+          {
+            "id": "49",
+            "name": "Tool Bag (Pro)",
+            "price": 74.54,
+            "href": "products/49"
+          },
+          {
+            "id": "50",
+            "name": "Slip Joint Pliers (XL)",
+            "price": 14.92,
+            "href": "products/50"
+          },
+          {
+            "id": "51",
+            "name": "Tool Box (Pro)",
+            "price": 43.53,
+            "href": "products/51"
+          },
+          {
+            "id": "52",
+            "name": "Tape Measure (Set)",
+            "price": 63.17,
+            "href": "products/52"
+          },
+          {
+            "id": "53",
+            "name": "Cordless Drill (Set)",
+            "price": 28.12,
+            "href": "products/53"
+          },
+          {
+            "id": "54",
+            "name": "Cordless Drill",
+            "price": 63.41,
+            "href": "products/54"
+          }
+        ]
+      }
+    },
+    {
+      "i": 11,
+      "action": "read products on page 6 (54 products seen so far)",
+      "url": "http://127.0.0.1:64200/s/SIzGxnNwV3U/",
+      "screenshot_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/011.png",
+      "dom_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/011.html",
+      "listing": {
+        "page": 6,
+        "products": [
+          {
+            "id": "46",
+            "name": "Tool Box",
+            "price": 28.08,
+            "href": "products/46"
+          },
+          {
+            "id": "47",
+            "name": "Hex Bolts",
+            "price": 71.82,
+            "href": "products/47"
+          },
+          {
+            "id": "48",
+            "name": "Needle-Nose Pliers",
+            "price": 12.27,
+            "href": "products/48"
+          },
+          {
+            "id": "49",
+            "name": "Tool Bag (Pro)",
+            "price": 74.54,
+            "href": "products/49"
+          },
+          {
+            "id": "50",
+            "name": "Slip Joint Pliers (XL)",
+            "price": 14.92,
+            "href": "products/50"
+          },
+          {
+            "id": "51",
+            "name": "Tool Box (Pro)",
+            "price": 43.53,
+            "href": "products/51"
+          },
+          {
+            "id": "52",
+            "name": "Tape Measure (Set)",
+            "price": 63.17,
+            "href": "products/52"
+          },
+          {
+            "id": "53",
+            "name": "Cordless Drill (Set)",
+            "price": 28.12,
+            "href": "products/53"
+          },
+          {
+            "id": "54",
+            "name": "Cordless Drill",
+            "price": 63.41,
+            "href": "products/54"
+          }
+        ]
+      }
+    },
+    {
+      "i": 12,
+      "action": "compared 54 products; global cheapest: Anchor Bolts ($2.49)",
+      "url": "http://127.0.0.1:64200/s/SIzGxnNwV3U/",
+      "screenshot_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/012.png",
+      "dom_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/012.html",
+      "listing": {
+        "page": 6,
+        "products": [
+          {
+            "id": "46",
+            "name": "Tool Box",
+            "price": 28.08,
+            "href": "products/46"
+          },
+          {
+            "id": "47",
+            "name": "Hex Bolts",
+            "price": 71.82,
+            "href": "products/47"
+          },
+          {
+            "id": "48",
+            "name": "Needle-Nose Pliers",
+            "price": 12.27,
+            "href": "products/48"
+          },
+          {
+            "id": "49",
+            "name": "Tool Bag (Pro)",
+            "price": 74.54,
+            "href": "products/49"
+          },
+          {
+            "id": "50",
+            "name": "Slip Joint Pliers (XL)",
+            "price": 14.92,
+            "href": "products/50"
+          },
+          {
+            "id": "51",
+            "name": "Tool Box (Pro)",
+            "price": 43.53,
+            "href": "products/51"
+          },
+          {
+            "id": "52",
+            "name": "Tape Measure (Set)",
+            "price": 63.17,
+            "href": "products/52"
+          },
+          {
+            "id": "53",
+            "name": "Cordless Drill (Set)",
+            "price": 28.12,
+            "href": "products/53"
+          },
+          {
+            "id": "54",
+            "name": "Cordless Drill",
+            "price": 63.41,
+            "href": "products/54"
+          }
+        ]
+      }
+    },
+    {
+      "i": 13,
+      "action": "open product detail: Anchor Bolts",
+      "url": "http://127.0.0.1:64200/s/SIzGxnNwV3U/products/41",
+      "screenshot_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/013.png",
+      "dom_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/013.html",
+      "listing": {
+        "page": -1,
+        "products": []
+      }
+    },
+    {
+      "i": 14,
+      "action": "click 'Add to cart'",
+      "url": "http://127.0.0.1:64200/s/SIzGxnNwV3U/cart-items/1",
+      "screenshot_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/014.png",
+      "dom_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/014.html",
+      "listing": {
+        "page": -1,
+        "products": []
+      }
+    }
+  ],
+  "video_path": "fixtures/mvp-demo/episodes/e01278f3749f4518a2974f9a9175d55f/page@e70e2c1a001e74f70acb69bf206ed92b.webm",
+  "outcome": "passed",
+  "checker": {
+    "passed": true,
+    "reason": "cart contains the matching product at $2.49"
+  },
+  "error": null,
+  "duration_s": 47.38,
+  "failure_step": null
+}

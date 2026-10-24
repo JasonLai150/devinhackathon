@@ -1,0 +1,64 @@
+{
+  "metrics": [
+    {
+      "round": 0,
+      "success_rate": 0.0,
+      "n": 3,
+      "phase": "repro",
+      "agent": "browser:auto"
+    },
+    {
+      "round": 0,
+      "success_rate": 0.0,
+      "n": 3,
+      "phase": "eval",
+      "agent": "browser:auto",
+      "passed": 0,
+      "ci95": [
+        0,
+        0.5615
+      ],
+      "evaluation_id": "02a535e0fe771957549292cae4029381b9cd5dc349b0323220c3a9a533fb84fd",
+      "seeds": [
+        100,
+        101,
+        102
+      ],
+      "overrides": {
+        "popup": "1",
+        "labels": "3"
+      },
+      "memory_hash": "da39a3ee"
+    },
+    {
+      "round": 1,
+      "success_rate": 1.0,
+      "n": 3,
+      "phase": "eval",
+      "agent": "browser:auto",
+      "passed": 3,
+      "ci95": [
+        0.4385,
+        1
+      ],
+      "evaluation_id": "02a535e0fe771957549292cae4029381b9cd5dc349b0323220c3a9a533fb84fd",
+      "seeds": [
+        100,
+        101,
+        102
+      ],
+      "overrides": {
+        "popup": "1",
+        "labels": "3"
+      },
+      "memory_hash": "a66b2231"
+    },
+    {
+      "round": 2,
+      "success_rate": 1.0,
+      "n": 1,
+      "phase": "transfer",
+      "agent": "browser:auto"
+    }
+  ]
+}

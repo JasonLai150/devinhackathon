@@ -1,0 +1,182 @@
+{
+  "episode_id": "555c997e270d4e32aa810cda759f8390",
+  "task": "Add exactly one of the cheapest product in the store to your cart.",
+  "site_url": "http://127.0.0.1:64200/s/43NGL7mQvTw/",
+  "agent": {
+    "strategy": "auto",
+    "max_steps": 30,
+    "policy_version": "toolshop-observe-act-v2",
+    "provider": "scripted",
+    "model": null
+  },
+  "memory_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "steps": [
+    {
+      "i": 0,
+      "action": "navigate to product listing (page 1)",
+      "url": "http://127.0.0.1:64200/s/43NGL7mQvTw/",
+      "screenshot_path": "fixtures/mvp-demo/episodes/555c997e270d4e32aa810cda759f8390/000.png",
+      "dom_path": "fixtures/mvp-demo/episodes/555c997e270d4e32aa810cda759f8390/000.html",
+      "listing": {
+        "page": 1,
+        "products": [
+          {
+            "id": "1",
+            "name": "Jigsaw (Set)",
+            "price": 50.57,
+            "href": "products/1"
+          },
+          {
+            "id": "2",
+            "name": "Tool Bag (Set)",
+            "price": 63.05,
+            "href": "products/2"
+          },
+          {
+            "id": "3",
+            "name": "Anchor Bolts",
+            "price": 13.17,
+            "href": "products/3"
+          },
+          {
+            "id": "4",
+            "name": "Rubber Mallet",
+            "price": 12.88,
+            "href": "products/4"
+          },
+          {
+            "id": "5",
+            "name": "Magnetic Tray",
+            "price": 73.39,
+            "href": "products/5"
+          },
+          {
+            "id": "6",
+            "name": "Wire Cutters",
+            "price": 82.08,
+            "href": "products/6"
+          },
+          {
+            "id": "7",
+            "name": "Hand Saw",
+            "price": 80.16,
+            "href": "products/7"
+          },
+          {
+            "id": "8",
+            "name": "Parts Organizer (Set)",
+            "price": 73.94,
+            "href": "products/8"
+          },
+          {
+            "id": "9",
+            "name": "Slip Joint Pliers",
+            "price": 82.7,
+            "href": "products/9"
+          }
+        ]
+      }
+    },
+    {
+      "i": 1,
+      "action": "read page-1 products; picked cheapest visible: Rubber Mallet ($12.88)",
+      "url": "http://127.0.0.1:64200/s/43NGL7mQvTw/",
+      "screenshot_path": "fixtures/mvp-demo/episodes/555c997e270d4e32aa810cda759f8390/001.png",
+      "dom_path": "fixtures/mvp-demo/episodes/555c997e270d4e32aa810cda759f8390/001.html",
+      "listing": {
+        "page": 1,
+        "products": [
+          {
+            "id": "1",
+            "name": "Jigsaw (Set)",
+            "price": 50.57,
+            "href": "products/1"
+          },
+          {
+            "id": "2",
+            "name": "Tool Bag (Set)",
+            "price": 63.05,
+            "href": "products/2"
+          },
+          {
+            "id": "3",
+            "name": "Anchor Bolts",
+            "price": 13.17,
+            "href": "products/3"
+          },
+          {
+            "id": "4",
+            "name": "Rubber Mallet",
+            "price": 12.88,
+            "href": "products/4"
+          },
+          {
+            "id": "5",
+            "name": "Magnetic Tray",
+            "price": 73.39,
+            "href": "products/5"
+          },
+          {
+            "id": "6",
+            "name": "Wire Cutters",
+            "price": 82.08,
+            "href": "products/6"
+          },
+          {
+            "id": "7",
+            "name": "Hand Saw",
+            "price": 80.16,
+            "href": "products/7"
+          },
+          {
+            "id": "8",
+            "name": "Parts Organizer (Set)",
+            "price": 73.94,
+            "href": "products/8"
+          },
+          {
+            "id": "9",
+            "name": "Slip Joint Pliers",
+            "price": 82.7,
+            "href": "products/9"
+          }
+        ]
+      }
+    },
+    {
+      "i": 2,
+      "action": "open product detail: Rubber Mallet",
+      "url": "http://127.0.0.1:64200/s/43NGL7mQvTw/products/4",
+      "screenshot_path": "fixtures/mvp-demo/episodes/555c997e270d4e32aa810cda759f8390/002.png",
+      "dom_path": "fixtures/mvp-demo/episodes/555c997e270d4e32aa810cda759f8390/002.html",
+      "listing": {
+        "page": -1,
+        "products": []
+      }
+    },
+    {
+      "i": 3,
+      "action": "click 'Add to cart'",
+      "url": "http://127.0.0.1:64200/s/43NGL7mQvTw/cart-items/1",
+      "screenshot_path": "fixtures/mvp-demo/episodes/555c997e270d4e32aa810cda759f8390/003.png",
+      "dom_path": "fixtures/mvp-demo/episodes/555c997e270d4e32aa810cda759f8390/003.html",
+      "listing": {
+        "page": -1,
+        "products": []
+      }
+    }
+  ],
+  "video_path": "fixtures/mvp-demo/episodes/555c997e270d4e32aa810cda759f8390/page@eaebfae297118fc94a8163819188e5d1.webm",
+  "outcome": "failed",
+  "checker": {
+    "code": "wrong_choice",
+    "expected_ids": [
+      37
+    ],
+    "passed": false,
+    "reason": "wrong cart product; expected matching price $2.21"
+  },
+  "error": null,
+  "duration_s": 37.68,
+  "failure_step": null
+}

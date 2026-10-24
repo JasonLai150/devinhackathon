@@ -1,0 +1,182 @@
+{
+  "episode_id": "39b562e5e2324ca69757499afe803b39",
+  "task": "Add exactly one of the cheapest product in the store to your cart.",
+  "site_url": "http://127.0.0.1:64200/s/U0fvgJRY_iw/",
+  "agent": {
+    "strategy": "auto",
+    "max_steps": 30,
+    "policy_version": "toolshop-observe-act-v2",
+    "provider": "scripted",
+    "model": null
+  },
+  "memory_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "steps": [
+    {
+      "i": 0,
+      "action": "navigate to product listing (page 1)",
+      "url": "http://127.0.0.1:64200/s/U0fvgJRY_iw/",
+      "screenshot_path": "fixtures/mvp-demo/episodes/39b562e5e2324ca69757499afe803b39/000.png",
+      "dom_path": "fixtures/mvp-demo/episodes/39b562e5e2324ca69757499afe803b39/000.html",
+      "listing": {
+        "page": 1,
+        "products": [
+          {
+            "id": "1",
+            "name": "Wire Cutters",
+            "price": 39.29,
+            "href": "products/1"
+          },
+          {
+            "id": "2",
+            "name": "Tool Box",
+            "price": 49.43,
+            "href": "products/2"
+          },
+          {
+            "id": "3",
+            "name": "Claw Hammer (Set)",
+            "price": 64.82,
+            "href": "products/3"
+          },
+          {
+            "id": "4",
+            "name": "Washers (Pro)",
+            "price": 26.37,
+            "href": "products/4"
+          },
+          {
+            "id": "5",
+            "name": "Washers (XL)",
+            "price": 58.9,
+            "href": "products/5"
+          },
+          {
+            "id": "6",
+            "name": "Tape Measure (XL)",
+            "price": 37.27,
+            "href": "products/6"
+          },
+          {
+            "id": "7",
+            "name": "Orbital Sander",
+            "price": 79.36,
+            "href": "products/7"
+          },
+          {
+            "id": "8",
+            "name": "Wood Screws",
+            "price": 45.3,
+            "href": "products/8"
+          },
+          {
+            "id": "9",
+            "name": "Wall Plugs (Set)",
+            "price": 60.03,
+            "href": "products/9"
+          }
+        ]
+      }
+    },
+    {
+      "i": 1,
+      "action": "read page-1 products; picked cheapest visible: Washers (Pro) ($26.37)",
+      "url": "http://127.0.0.1:64200/s/U0fvgJRY_iw/",
+      "screenshot_path": "fixtures/mvp-demo/episodes/39b562e5e2324ca69757499afe803b39/001.png",
+      "dom_path": "fixtures/mvp-demo/episodes/39b562e5e2324ca69757499afe803b39/001.html",
+      "listing": {
+        "page": 1,
+        "products": [
+          {
+            "id": "1",
+            "name": "Wire Cutters",
+            "price": 39.29,
+            "href": "products/1"
+          },
+          {
+            "id": "2",
+            "name": "Tool Box",
+            "price": 49.43,
+            "href": "products/2"
+          },
+          {
+            "id": "3",
+            "name": "Claw Hammer (Set)",
+            "price": 64.82,
+            "href": "products/3"
+          },
+          {
+            "id": "4",
+            "name": "Washers (Pro)",
+            "price": 26.37,
+            "href": "products/4"
+          },
+          {
+            "id": "5",
+            "name": "Washers (XL)",
+            "price": 58.9,
+            "href": "products/5"
+          },
+          {
+            "id": "6",
+            "name": "Tape Measure (XL)",
+            "price": 37.27,
+            "href": "products/6"
+          },
+          {
+            "id": "7",
+            "name": "Orbital Sander",
+            "price": 79.36,
+            "href": "products/7"
+          },
+          {
+            "id": "8",
+            "name": "Wood Screws",
+            "price": 45.3,
+            "href": "products/8"
+          },
+          {
+            "id": "9",
+            "name": "Wall Plugs (Set)",
+            "price": 60.03,
+            "href": "products/9"
+          }
+        ]
+      }
+    },
+    {
+      "i": 2,
+      "action": "open product detail: Washers (Pro)",
+      "url": "http://127.0.0.1:64200/s/U0fvgJRY_iw/products/4",
+      "screenshot_path": "fixtures/mvp-demo/episodes/39b562e5e2324ca69757499afe803b39/002.png",
+      "dom_path": "fixtures/mvp-demo/episodes/39b562e5e2324ca69757499afe803b39/002.html",
+      "listing": {
+        "page": -1,
+        "products": []
+      }
+    },
+    {
+      "i": 3,
+      "action": "click 'Add to cart'",
+      "url": "http://127.0.0.1:64200/s/U0fvgJRY_iw/cart-items/1",
+      "screenshot_path": "fixtures/mvp-demo/episodes/39b562e5e2324ca69757499afe803b39/003.png",
+      "dom_path": "fixtures/mvp-demo/episodes/39b562e5e2324ca69757499afe803b39/003.html",
+      "listing": {
+        "page": -1,
+        "products": []
+      }
+    }
+  ],
+  "video_path": "fixtures/mvp-demo/episodes/39b562e5e2324ca69757499afe803b39/page@b4964f67b88b7a42ea9597878fed21fb.webm",
+  "outcome": "failed",
+  "checker": {
+    "code": "wrong_choice",
+    "expected_ids": [
+      34
+    ],
+    "passed": false,
+    "reason": "wrong cart product; expected matching price $4.23"
+  },
+  "error": null,
+  "duration_s": 37.74,
+  "failure_step": null
+}

@@ -1,0 +1,273 @@
+{
+  "schema_version": 2,
+  "mode": "scripted",
+  "status": "complete",
+  "stage": "complete",
+  "agent": "browser:auto",
+  "agent_metadata": {
+    "strategy": "auto",
+    "max_steps": 30,
+    "policy_version": "toolshop-observe-act-v2",
+    "provider": "scripted",
+    "model": null
+  },
+  "spec": {
+    "name": "toolshop-cheapest-product",
+    "site_url": "https://practicesoftwaretesting.com",
+    "tasks": [
+      {
+        "id": "shop-cheapest",
+        "instruction": "Add exactly one of the cheapest product in the store to your cart.",
+        "verifier": "cart_matching_product",
+        "params": {}
+      },
+      {
+        "id": "shop-pliers",
+        "instruction": "Add exactly one of the cheapest product in the Pliers category to your cart.",
+        "verifier": "cart_matching_product",
+        "params": {
+          "category": "Pliers"
+        }
+      },
+      {
+        "id": "shop-fasteners",
+        "instruction": "Add exactly one of the cheapest product in the Fasteners category to your cart.",
+        "verifier": "cart_matching_product",
+        "params": {
+          "category": "Fasteners"
+        }
+      },
+      {
+        "id": "shop-expensive",
+        "instruction": "Add exactly one of the most expensive product in the store to your cart.",
+        "verifier": "cart_matching_product",
+        "params": {
+          "order": "desc"
+        }
+      }
+    ],
+    "label_sets": [
+      {
+        "site_heading": "Toolshop",
+        "search_button": "Search",
+        "book_button": "Add to cart",
+        "results_heading": "Products"
+      },
+      {
+        "site_heading": "Toolshop",
+        "search_button": "Find products",
+        "book_button": "Add item",
+        "results_heading": "Available products"
+      },
+      {
+        "site_heading": "Toolshop",
+        "search_button": "Go",
+        "book_button": "Add to basket",
+        "results_heading": "Matching products"
+      },
+      {
+        "site_heading": "Toolshop",
+        "search_button": "Browse",
+        "book_button": "Add product",
+        "results_heading": "Catalog"
+      }
+    ],
+    "interaction": "product listing is paginated (9 items per page across 4-6 pages); the cheapest product is typically NOT on page 1 \u2014 the agent must click through every pagination page before choosing; picking the cheapest item visible on page 1 produces the wrong cart item",
+    "entities": {
+      "products": {
+        "generator": "products",
+        "count_range": [
+          36,
+          54
+        ],
+        "columns": {
+          "id": "INTEGER PRIMARY KEY",
+          "name": "TEXT",
+          "category": "TEXT",
+          "price": "REAL",
+          "description": "TEXT"
+        }
+      }
+    },
+    "mutations": {
+      "cart_items": {
+        "columns": {
+          "id": "INTEGER PRIMARY KEY",
+          "product_id": "INTEGER",
+          "quantity": "INTEGER",
+          "created_at": "REAL"
+        },
+        "form_fields": [
+          {
+            "name": "quantity",
+            "type": "number",
+            "label": "Quantity",
+            "required": true,
+            "default": 1,
+            "min": 1
+          }
+        ]
+      }
+    },
+    "routes": {
+      "entry": "/",
+      "detail": {
+        "path": "/products/<int:eid>",
+        "entity": "products",
+        "title_field": "name"
+      },
+      "mutation": {
+        "path": "/products/<int:eid>/cart",
+        "method": "POST",
+        "table": "cart_items",
+        "fk_column": "product_id",
+        "data_test": "add-to-cart"
+      },
+      "confirmation": {
+        "path": "/cart-items/<int:bid>",
+        "table": "cart_items",
+        "join": {
+          "table": "products",
+          "fk": "product_id",
+          "fields": [
+            "name",
+            "category",
+            "price"
+          ]
+        }
+      }
+    },
+    "component": {
+      "name": "product_listing_pagination",
+      "html": "fixtures/captured/component.html",
+      "js": "fixtures/captured/component.js",
+      "reference_markup": "fixtures/captured/real_markup.html"
+    },
+    "backend_calls": [
+      {
+        "method": "GET",
+        "path": "/api/products",
+        "table": "products",
+        "paginated": true,
+        "per_page": 9
+      }
+    ],
+    "expected_mutation": "a cart_items row whose product_id matches the task constraint (e.g. argmin(price) over all products, optionally filtered by category)",
+    "seed_data": {
+      "products_sample": [
+        {
+          "name": "Washers",
+          "price": 3.55,
+          "category": "Fasteners"
+        },
+        {
+          "name": "Slip Joint Pliers",
+          "price": 9.17,
+          "category": "Pliers"
+        },
+        {
+          "name": "Combination Pliers",
+          "price": 14.15,
+          "category": "Pliers"
+        }
+      ]
+    },
+    "failure_step": 3,
+    "failure_note": "agent read only page 1 (read page-1 products; picked cheapest visible: Slip Joint Pliers ($9.17)); verifier said: expected Washers ($3.55, id 01M5QMJ7R0V71M0W2CJZBCVAN0); cart has: Slip Joint Pliers (quantity 1)"
+  },
+  "tasks": [
+    {
+      "id": "shop-cheapest",
+      "instruction": "Add exactly one of the cheapest product in the store to your cart.",
+      "verifier": "cart_matching_product",
+      "params": {}
+    }
+  ],
+  "summary": {
+    "repro": {
+      "reproduced": true,
+      "sandbox_reproduced": true,
+      "baseline_success_rate": 0.0
+    },
+    "improve": [
+      {
+        "round": 1,
+        "train_success_rate": 0.0,
+        "eval_success_rate": 1.0,
+        "n_eval": 3,
+        "successes_distilled": 0,
+        "notes_changed": true,
+        "baseline_eval_success_rate": 0.0,
+        "evaluation_id": "02a535e0fe771957549292cae4029381b9cd5dc349b0323220c3a9a533fb84fd",
+        "distillation_mode": "rehearsal"
+      }
+    ],
+    "transfer": {
+      "passed": true,
+      "reason": "cart contains Washers ($3.55) \u2014 the cheapest of 50 products"
+    }
+  },
+  "events": [
+    {
+      "stage": "capture",
+      "elapsed_s": 0.0
+    },
+    {
+      "stage": "localize",
+      "elapsed_s": 64.47
+    },
+    {
+      "stage": "generate",
+      "elapsed_s": 64.47
+    },
+    {
+      "stage": "reproduce",
+      "elapsed_s": 68.17
+    },
+    {
+      "stage": "improve",
+      "elapsed_s": 143.5
+    },
+    {
+      "stage": "transfer",
+      "elapsed_s": 310.19
+    }
+  ],
+  "env_running": false,
+  "trajectory_path": "fixtures/mvp-demo/episodes/853f231cdba34d159cc9a62fe7a188a7/trajectory.json",
+  "elapsed_s": 382.33,
+  "spec_path": "fixtures/mvp-demo/env_spec.json",
+  "localization": "deterministic toolshop adapter",
+  "generation_report": {
+    "spec": "toolshop-cheapest-product",
+    "attempts": 0,
+    "path": "verbatim",
+    "validation_errors": [],
+    "smoke_errors": [],
+    "attempt_errors": [],
+    "browser_validation": {
+      "kind": "mechanical toolshop browser probe",
+      "passed": true,
+      "checks": [
+        {
+          "seed": 42,
+          "pages": 5,
+          "items": 39,
+          "mutation_verified": true
+        },
+        {
+          "seed": 101,
+          "pages": 6,
+          "items": 54,
+          "mutation_verified": true
+        }
+      ],
+      "errors": [],
+      "elapsed_s": 3.55
+    },
+    "elapsed_s": 3.69
+  },
+  "env_url": "http://127.0.0.1:64200",
+  "env_screenshot": "fixtures/mvp-demo/episodes/39b562e5e2324ca69757499afe803b39/000.png",
+  "reason": "Recorded scripted rehearsal; no LLM learning claim."
+}

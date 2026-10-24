@@ -1,0 +1,148 @@
+{
+  "task_id": "shop-cheapest",
+  "agent": "browser:auto",
+  "spec_failure_note": "agent read only page 1 (read page-1 products; picked cheapest visible: Slip Joint Pliers ($9.17)); verifier said: expected Washers ($3.55, id 01M5QMJ7R0V71M0W2CJZBCVAN0); cart has: Slip Joint Pliers (quantity 1)",
+  "spec_failure_step": 3,
+  "trajectory_failure_step": 3,
+  "episodes": [
+    {
+      "round": 0,
+      "task_id": "shop-cheapest",
+      "seed": 0,
+      "agent": "browser:auto",
+      "phase": "repro",
+      "session_id": "U0fvgJRY_iw",
+      "steps": 4,
+      "actions": [
+        "navigate to product listing (page 1)",
+        "read page-1 products; picked cheapest visible: Washers (Pro) ($26.37)",
+        "open product detail: Washers (Pro)",
+        "click 'Add to cart'"
+      ],
+      "memory_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "episode_id": "39b562e5e2324ca69757499afe803b39",
+      "trajectory_path": "fixtures/mvp-demo/episodes/39b562e5e2324ca69757499afe803b39/trajectory.json",
+      "video_path": "fixtures/mvp-demo/episodes/39b562e5e2324ca69757499afe803b39/page@b4964f67b88b7a42ea9597878fed21fb.webm",
+      "agent_metadata": {
+        "strategy": "auto",
+        "max_steps": 30,
+        "policy_version": "toolshop-observe-act-v2",
+        "provider": "scripted",
+        "model": null
+      },
+      "duration_s": 37.74,
+      "passed": false,
+      "reason": "wrong cart product; expected matching price $4.23",
+      "verification": {
+        "code": "wrong_choice",
+        "expected_ids": [
+          34
+        ],
+        "passed": false,
+        "reason": "wrong cart product; expected matching price $4.23"
+      },
+      "max_listing_page_seen": 1,
+      "never_paginated": true,
+      "booked_from_page1": true,
+      "signature_failure": true,
+      "failure_kind": "pagination_incomplete"
+    },
+    {
+      "round": 0,
+      "task_id": "shop-cheapest",
+      "seed": 1,
+      "agent": "browser:auto",
+      "phase": "repro",
+      "session_id": "P05XnO2uciA",
+      "steps": 4,
+      "actions": [
+        "navigate to product listing (page 1)",
+        "read page-1 products; picked cheapest visible: Combination Pliers (Mini) ($19.65)",
+        "open product detail: Combination Pliers (Mini)",
+        "click 'Add to cart'"
+      ],
+      "memory_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "episode_id": "6cacdc5bfa374f48934b030abf5b1481",
+      "trajectory_path": "fixtures/mvp-demo/episodes/6cacdc5bfa374f48934b030abf5b1481/trajectory.json",
+      "video_path": "fixtures/mvp-demo/episodes/6cacdc5bfa374f48934b030abf5b1481/page@f6b073b82d045f34b01236ff62065c4d.webm",
+      "agent_metadata": {
+        "strategy": "auto",
+        "max_steps": 30,
+        "policy_version": "toolshop-observe-act-v2",
+        "provider": "scripted",
+        "model": null
+      },
+      "duration_s": 37.61,
+      "passed": false,
+      "reason": "wrong cart product; expected matching price $4.12",
+      "verification": {
+        "code": "wrong_choice",
+        "expected_ids": [
+          33
+        ],
+        "passed": false,
+        "reason": "wrong cart product; expected matching price $4.12"
+      },
+      "max_listing_page_seen": 1,
+      "never_paginated": true,
+      "booked_from_page1": true,
+      "signature_failure": true,
+      "failure_kind": "pagination_incomplete"
+    },
+    {
+      "round": 0,
+      "task_id": "shop-cheapest",
+      "seed": 2,
+      "agent": "browser:auto",
+      "phase": "repro",
+      "session_id": "43NGL7mQvTw",
+      "steps": 4,
+      "actions": [
+        "navigate to product listing (page 1)",
+        "read page-1 products; picked cheapest visible: Rubber Mallet ($12.88)",
+        "open product detail: Rubber Mallet",
+        "click 'Add to cart'"
+      ],
+      "memory_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "episode_id": "555c997e270d4e32aa810cda759f8390",
+      "trajectory_path": "fixtures/mvp-demo/episodes/555c997e270d4e32aa810cda759f8390/trajectory.json",
+      "video_path": "fixtures/mvp-demo/episodes/555c997e270d4e32aa810cda759f8390/page@eaebfae297118fc94a8163819188e5d1.webm",
+      "agent_metadata": {
+        "strategy": "auto",
+        "max_steps": 30,
+        "policy_version": "toolshop-observe-act-v2",
+        "provider": "scripted",
+        "model": null
+      },
+      "duration_s": 37.68,
+      "passed": false,
+      "reason": "wrong cart product; expected matching price $2.21",
+      "verification": {
+        "code": "wrong_choice",
+        "expected_ids": [
+          37
+        ],
+        "passed": false,
+        "reason": "wrong cart product; expected matching price $2.21"
+      },
+      "max_listing_page_seen": 1,
+      "never_paginated": true,
+      "booked_from_page1": true,
+      "signature_failure": true,
+      "failure_kind": "pagination_incomplete"
+    }
+  ],
+  "n": 3,
+  "failures": 3,
+  "signature_failures": 3,
+  "real_failure": {
+    "failure_kind": "pagination_incomplete",
+    "listing_pages_seen": [
+      1
+    ],
+    "reason": "verified wrong page-one choice with correct item unseen",
+    "site_matches": true
+  },
+  "sandbox_reproduced": true,
+  "reproduced": true
+}
