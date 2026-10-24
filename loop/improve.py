@@ -14,13 +14,15 @@ import argparse
 import asyncio
 import json
 import os
+import hashlib
+from pathlib import Path
 
 from . import config, runner
 from .agent import make_agent
-from .distill import distill
+from .distill import distill, distill_verified
 from .llm import default_llm
 from .memory import MemoryStore
-from .metrics import append_metric, success_rate
+from .metrics import append_metric, success_rate, wilson_interval
 from .run_rollouts import _client_factory
 from .seeds import (EVAL_OVERRIDES, EVAL_SEEDS, TRAIN_OVERRIDES, TRAIN_SEEDS,
                     parse_seeds)
@@ -33,43 +35,79 @@ async def improve(client_factory, agent, task, rounds,
                   eval_overrides=EVAL_OVERRIDES,
                   rollouts_path=None, metrics_path=None,
                   cache=None, cache_path=None,
-                  timeout=120, concurrency=8):
+                  timeout=120, concurrency=8, strict=False, attempts=1):
+    train_seeds, eval_seeds = list(train_seeds), list(eval_seeds)
+    if not train_seeds or not eval_seeds or set(train_seeds) & set(eval_seeds):
+        raise ValueError("training/evaluation seeds must be nonempty and disjoint")
+    if len(set(train_seeds)) != len(train_seeds) or len(set(eval_seeds)) != len(eval_seeds):
+        raise ValueError("seed sets must not contain duplicates")
+    if rounds < 1 or attempts < 1:
+        raise ValueError("rounds and attempts must be positive")
     if llm == "__default__":
         llm = default_llm()
+    if strict and llm is None:
+        raise RuntimeError("strict improvement requires an LLM distiller")
     memory = memory or MemoryStore(config.artifact_path("skill_notes.md"))
     notes = memory.load()
     history = []
+    evaluation = {"task": task, "seeds": eval_seeds, "overrides": eval_overrides,
+                  "spec": getattr(agent, "spec", {}), "agent": getattr(agent, "metadata", {})}
+    evaluation_id = hashlib.sha256(json.dumps(evaluation, sort_keys=True).encode()).hexdigest()
+    snapshots = Path(memory.path).parent / "rounds"
+    snapshots.mkdir(parents=True, exist_ok=True)
+
+    async def evaluate(round_no):
+        # No reuse: this is a new measurement even when memory did not change.
+        records = await runner.run_round(
+            client_factory, agent, task, eval_seeds, round_no,
+            overrides=eval_overrides, skill_notes=notes, phase="eval",
+            timeout=timeout, concurrency=concurrency)
+        if rollouts_path:
+            runner.append_rollouts(rollouts_path, records)
+        passed = sum(r["passed"] for r in records)
+        if metrics_path:
+            append_metric(metrics_path, round_no, success_rate(records), len(records),
+                          phase="eval", agent=agent.agent_id, passed=passed,
+                          ci95=wilson_interval(passed, len(records)),
+                          evaluation_id=evaluation_id, seeds=eval_seeds,
+                          overrides=eval_overrides, memory_hash=memory.hash())
+        return records
+
+    (snapshots / "round-0.md").write_text(notes)
+    baseline = await evaluate(0)
+    baseline_rate = success_rate(baseline)
 
     for r in range(1, rounds + 1):
-        train_recs = await runner.run_round(
-            client_factory, agent, task, train_seeds, r,
-            overrides=train_overrides, skill_notes=notes, phase="train",
-            cache=cache, cache_path=cache_path, timeout=timeout,
-            concurrency=concurrency)
+        train_recs = []
+        for attempt in range(attempts):
+            batch = await runner.run_round(
+                client_factory, agent, task, train_seeds, r,
+                overrides=train_overrides, skill_notes=notes, phase="train",
+                cache=None if strict or attempts > 1 else cache,
+                cache_path=None if strict or attempts > 1 else cache_path,
+                timeout=timeout, concurrency=concurrency)
+            train_recs.extend({**record, "attempt": attempt} for record in batch)
         if rollouts_path:
             runner.append_rollouts(rollouts_path, train_recs)
 
         successes = [x for x in train_recs if x["passed"]]
         failures = [x for x in train_recs if not x["passed"]]
-        new_notes = distill(notes, successes, llm, failures=failures)
+        new_notes = (distill_verified(notes, successes, llm) if strict
+                     else distill(notes, successes, llm, failures=failures))
         notes_changed = new_notes != notes
         if notes_changed:
             memory.save(new_notes)
             notes = new_notes
 
-        eval_recs = await runner.run_round(
-            client_factory, agent, task, eval_seeds, r,
-            overrides=eval_overrides, skill_notes=notes, phase="eval",
-            cache=cache, cache_path=cache_path, timeout=timeout,
-            concurrency=concurrency)
-        if rollouts_path:
-            runner.append_rollouts(rollouts_path, eval_recs)
+        (snapshots / f"round-{r}.md").write_text(notes)
+        evidence = {"round": r, "mode": "verified-success-LLM" if strict else "rehearsal",
+                    "source_episode_ids": [x.get("episode_id") for x in successes],
+                    "training_seeds": train_seeds, "attempts_per_seed": attempts,
+                    "successes": len(successes), "notes_changed": notes_changed}
+        (snapshots / f"round-{r}.json").write_text(json.dumps(evidence, indent=2))
+        eval_recs = await evaluate(r)
 
         rate = success_rate(eval_recs)
-        if metrics_path:
-            append_metric(metrics_path, r, rate, len(eval_recs),
-                          phase="eval", agent=agent.agent_id,
-                          memory_hash=memory.hash())
         history.append({
             "round": r,
             "train_success_rate": success_rate(train_recs),
@@ -77,6 +115,9 @@ async def improve(client_factory, agent, task, rounds,
             "n_eval": len(eval_recs),
             "successes_distilled": len(successes),
             "notes_changed": notes_changed,
+            "baseline_eval_success_rate": baseline_rate,
+            "evaluation_id": evaluation_id,
+            "distillation_mode": "verified-success-LLM" if strict else "rehearsal",
         })
     return history
 
@@ -85,6 +126,7 @@ def write_agent_config(path, agent, task, memory, history, train_seeds,
                        eval_seeds, eval_overrides):
     cfg = {
         "agent": agent.agent_id,
+        "agent_metadata": getattr(agent, "metadata", {}),
         "task_id": task["id"],
         "rounds": len(history),
         "memory_path": memory.path,

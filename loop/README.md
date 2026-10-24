@@ -89,3 +89,19 @@ selects that run's metrics, reproduction evidence and real/rehearsal verdict.
 ## Stretch
 
 GRPO on a small model for one task — only after the above is stable.
+
+## Genuine LLM experiment
+
+`python -m loop.experiment --preflight` checks credentials and browser dependencies.
+`python -m loop.experiment --out .integration/llm-demo --headed` runs the
+evidence-gated protocol using one fixed agent configuration. See
+[`../docs/demo-runbook.md`](../docs/demo-runbook.md) for settings and artifacts.
+
+The experiment distills only verified training successes, never evaluation
+records or scripted hints. The curve includes a measured held-out baseline and
+the same evaluation seeds at each later round. No improvement is a valid result;
+it blocks transfer rather than being replaced by a scripted success.
+
+`loop.demo` remains the scripted rehearsal; use `--record-dir <directory>`
+for videos and step screenshots. Its curve now uses the same evaluation
+protocol, but it is not an LLM-learning result.

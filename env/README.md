@@ -64,3 +64,9 @@ html/js or paths), `interaction` (codegen prompt input). Canonical example:
 
 Shuffled row order, item-count range → variable page count, 4 label sets,
 popup modal. `popup`/`labels` can be pinned per-reset for deterministic eval.
+
+For the toolshop, `python -m env.generate fixtures/env_spec.json
+--component-dir .integration/component --browser-check` additionally exercises
+pagination and a verified cart mutation in Chromium. Add `--no-fallback` to
+require LLM-generated code; `--verbatim` explicitly selects the supplied
+reference. The report includes actual generation/validation elapsed time.

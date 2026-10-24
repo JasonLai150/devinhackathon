@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-24",
+  "implementation_base": "fda640c",
+  "tests_passed": 72,
+  "browser_checks_included": true,
+  "generation_probe": {
+    "source": "verbatim hand-recreated reference",
+    "passed": true,
+    "cases": [
+      {"seed": 42, "pages": 5, "items": 39, "mutation_verified": true},
+      {"seed": 101, "pages": 6, "items": 54, "mutation_verified": true}
+    ]
+  },
+  "recorded_rehearsal": {
+    "mode": "scripted",
+    "agent": "browser:auto",
+    "artifacts": ".integration/demo-ready",
+    "baseline_real_task_failed": true,
+    "sandbox_reproduced": true,
+    "evaluation_seeds": [100, 101, 102],
+    "evaluation": [
+      {"round": 0, "passed": 0, "n": 3, "ci95": [0, 0.5615]},
+      {"round": 1, "passed": 3, "n": 3, "ci95": [0.4385, 1]},
+      {"round": 2, "passed": 3, "n": 3, "ci95": [0.4385, 1]}
+    ],
+    "real_transfer_passed": true,
+    "real_transfer_result": "Washers at $3.55, minimum of 50 API products",
+    "baseline_and_transfer_videos_decoded": true,
+    "dashboard_javascript_errors": []
+  },
+  "genuine_llm_experiment": {
+    "preflight_ready": false,
+    "blocker": "Neither supported API key is configured in the shell",
+    "live_llm_generation_tested": false,
+    "autonomous_learning_demonstrated": false
+  }
+}

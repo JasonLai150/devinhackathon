@@ -24,6 +24,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import urllib.request
 from pathlib import Path
 
@@ -324,7 +325,9 @@ def write_verbatim(spec, out_dir, spec_path):
 # ----------------------------------------------------------------- main ---
 
 def generate(spec_path=_DEFAULT_SPEC, component_dir=_DEFAULT_OUT,
-             llm="__default__", max_attempts=MAX_ATTEMPTS, verbatim=False):
+             llm="__default__", max_attempts=MAX_ATTEMPTS, verbatim=False,
+             browser_check=False, allow_fallback=True):
+    started = time.monotonic()
     spec_path = os.path.abspath(spec_path)
     component_dir = os.path.abspath(component_dir)
     os.makedirs(component_dir, exist_ok=True)
@@ -335,7 +338,18 @@ def generate(spec_path=_DEFAULT_SPEC, component_dir=_DEFAULT_OUT,
     if llm == "__default__":
         llm = default_llm()
     report = {"spec": spec.get("name"), "attempts": 0, "path": None,
-              "validation_errors": [], "smoke_errors": []}
+              "validation_errors": [], "smoke_errors": [],
+              "attempt_errors": [],
+              "browser_validation": {"status": "not requested"}}
+
+    def validate_behavior():
+        errors = smoke_test(spec_path, component_dir)
+        if not errors and browser_check:
+            from .fidelity import validate
+            result = validate(spec_path, component_dir)
+            report["browser_validation"] = result
+            errors.extend(result["errors"])
+        return errors
 
     if not verbatim and llm is not None:
         prompt = build_prompt(spec)
@@ -345,10 +359,12 @@ def generate(spec_path=_DEFAULT_SPEC, component_dir=_DEFAULT_OUT,
                 html, js = parse_response(llm(prompt))
             except Exception as e:
                 report["validation_errors"] = [f"llm/parse: {e}"]
+                report["attempt_errors"].append({"attempt": attempt, "errors": report["validation_errors"]})
                 continue
             errs = static_validate(html, js, spec)
             if errs:
                 report["validation_errors"] = errs
+                report["attempt_errors"].append({"attempt": attempt, "errors": errs})
                 prompt += "\n\nPrevious attempt failed validation:\n" + \
                           "\n".join("- " + e for e in errs) + \
                           "\nFix and resubmit the full JSON object."
@@ -358,9 +374,10 @@ def generate(spec_path=_DEFAULT_SPEC, component_dir=_DEFAULT_OUT,
                 f.write(html)
             with open(os.path.join(component_dir, "component.js"), "w") as f:
                 f.write(js)
-            errs = smoke_test(spec_path, component_dir)
+            errs = validate_behavior()
             if errs:
                 report["smoke_errors"] = errs
+                report["attempt_errors"].append({"attempt": attempt, "errors": errs})
                 prompt += "\n\nPrevious attempt failed smoke test:\n" + \
                           "\n".join("- " + e for e in errs) + \
                           "\nFix and resubmit the full JSON object."
@@ -369,10 +386,10 @@ def generate(spec_path=_DEFAULT_SPEC, component_dir=_DEFAULT_OUT,
             break
 
     if report["path"] is None:
-        if spec.get("component", {}).get("html"):
+        if (allow_fallback or verbatim) and spec.get("component", {}).get("html"):
             write_verbatim(spec, component_dir, spec_path)
             # Do not call a path string or syntactically broken JS a working env.
-            report["smoke_errors"] = smoke_test(spec_path, component_dir)
+            report["smoke_errors"] = validate_behavior()
             js = Path(component_dir, "component.js").read_text()
             if shutil.which("node"):
                 check = subprocess.run(["node", "--check", "/dev/stdin"],
@@ -383,6 +400,7 @@ def generate(spec_path=_DEFAULT_SPEC, component_dir=_DEFAULT_OUT,
         else:
             report["path"] = "failed"
 
+    report["elapsed_s"] = round(time.monotonic() - started, 2)
     with open(os.path.join(component_dir, "generate_report.json"), "w") as f:
         json.dump(report, f, indent=2)
     return report
@@ -394,7 +412,10 @@ if __name__ == "__main__":
     parser.add_argument("spec", nargs="?", default=_DEFAULT_SPEC)
     parser.add_argument("--component-dir", default=_DEFAULT_OUT)
     parser.add_argument("--verbatim", action="store_true")
+    parser.add_argument("--browser-check", action="store_true")
+    parser.add_argument("--no-fallback", action="store_true")
     args = parser.parse_args()
-    rep = generate(args.spec, args.component_dir, verbatim=args.verbatim)
+    rep = generate(args.spec, args.component_dir, verbatim=args.verbatim,
+                   browser_check=args.browser_check, allow_fallback=not args.no_fallback)
     print(json.dumps(rep, indent=2))
     sys.exit(0 if rep["path"] != "failed" else 1)

@@ -96,3 +96,24 @@ def distill(notes, successes, llm=None, failures=None):
         except Exception:
             pass  # fall back to the deterministic path
     return _heuristic(notes, successes, failures)
+
+
+def distill_verified(notes, successes, llm):
+    """Strict experiment path: no evaluation data, failures, or heuristic fallback."""
+    if not successes:
+        return notes
+    if llm is None:
+        raise RuntimeError("verified-success distillation requires an LLM")
+    if any(not r.get("passed") or r.get("phase") != "train" for r in successes):
+        raise ValueError("distillation accepts verified training successes only")
+    prompt = (
+        "Distill reusable browser skills from these verified successful training episodes.\n"
+        "Keep useful existing notes. Describe only behavior supported by the action traces.\n"
+        "Do not memorize product IDs, prices, names, URLs, or seeds. Do not invent advice "
+        "not supported by the successes. Return concise Markdown skill notes only.\n"
+        f"CURRENT NOTES:\n{notes or '(empty)'}\nVERIFIED SUCCESSES:\n{_format(successes)}"
+    )
+    result = llm(prompt)
+    if not isinstance(result, str) or not result.strip() or len(result) > 8000:
+        raise ValueError("distillation returned empty or oversized notes")
+    return result.strip() + "\n"

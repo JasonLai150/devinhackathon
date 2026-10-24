@@ -16,6 +16,7 @@ import argparse
 import json
 import sys
 import time
+import hashlib
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
@@ -46,9 +47,10 @@ def run(task, strategy, out_path, run_name, headless=True, video=False,
 
     steps = []
 
-    llm_fn = memory = None
+    llm_fn = memory = model = None
     if strategy == "llm":
-        llm_fn = llm_mod.default_llm()
+        model = llm_mod.resolve_config()
+        llm_fn = llm_mod.make_llm(model)
     if memory_path:
         memory = Path(memory_path).read_text()
 
@@ -105,13 +107,18 @@ def run(task, strategy, out_path, run_name, headless=True, video=False,
         rec(f"checker: {result['reason']}")
 
         ctx.close()
+        video_path = _rel(Path(page.video.path())) if video and page.video else None
         browser.close()
 
     failed = not result["passed"]
     trajectory = {
         "task": task,
         "site_url": SITE_URL,
-        "agent": {"strategy": strategy, "memory": bool(memory)},
+        "agent": {"strategy": strategy, "memory": bool(memory), "max_steps": max_steps,
+                  "policy_version": agents.POLICY_VERSION,
+                  **(model.metadata() if model else {"provider": "scripted"})},
+        "memory_hash": hashlib.sha256((memory or "").encode()).hexdigest(),
+        "video_path": video_path,
         "steps": steps,
         "outcome": "failed" if failed else "passed",
         "failure_step": (failure_step_hint if failed and failure_step_hint is not None

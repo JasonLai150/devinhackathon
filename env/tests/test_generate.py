@@ -110,3 +110,17 @@ def test_missing_capture_is_not_a_successful_fallback(tmp_path):
     path.write_text(json.dumps(spec))
     with pytest.raises(FileNotFoundError):
         generate.generate(str(path), str(tmp_path / "out"), llm=None)
+
+
+@pytest.mark.skipif(os.environ.get("RUN_BROWSER_TESTS") != "1",
+                    reason="requires Chromium")
+def test_browser_gate_rejects_render_only_component_then_validates_fallback(tmp_path):
+    candidate = {"component_html": "<div>Rendered but no products</div>",
+                 "component_js": "console.log('no interaction');"}
+    report = generate.generate("fixtures/env_spec.json", str(tmp_path),
+                               llm=fake_llm(candidate), max_attempts=1, browser_check=True)
+    assert report["path"] == "verbatim"
+    assert report["attempt_errors"]
+    assert report["browser_validation"]["passed"]
+    assert all(c["pages"] >= 2 and c["mutation_verified"]
+               for c in report["browser_validation"]["checks"])

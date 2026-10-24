@@ -32,7 +32,9 @@ async def transfer(agent, task, target_url, notes="", timeout=180,
         res = await asyncio.wait_for(
             agent.run(env, task, session, skill_notes=notes), timeout)
         outcome = {"actions": res.actions, "steps": res.steps,
-                   "error": res.error, "verification": res.verification}
+                   "error": res.error, "verification": res.verification,
+                   "trajectory_path": res.trajectory_path, "video_path": res.video_path,
+                   "agent_metadata": res.agent_metadata}
     except asyncio.TimeoutError:
         outcome = {"actions": [], "steps": 0,
                    "error": f"timeout after {timeout}s"}
@@ -47,6 +49,9 @@ async def transfer(agent, task, target_url, notes="", timeout=180,
               "agent": agent.agent_id, "passed": bool(verdict.get("passed")),
               "reason": verdict.get("reason", outcome.get("error") or ""),
               "steps": outcome["steps"], "actions": outcome["actions"]}
+    for key in ("trajectory_path", "video_path", "agent_metadata"):
+        if outcome.get(key):
+            record[key] = outcome[key]
     return record
 
 

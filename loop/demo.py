@@ -25,7 +25,7 @@ from .seeds import (EVAL_OVERRIDES, EVAL_SEEDS, TRAIN_OVERRIDES, TRAIN_SEEDS,
 async def run(client_factory, spec, task, rounds=2,
               train_seeds=TRAIN_SEEDS, eval_seeds=EVAL_SEEDS,
               repro_seeds=None, timeout=120, agent_name="sim:auto",
-              real_transfer=False, trajectory=None):
+              real_transfer=False, trajectory=None, browser_options=None):
     rollouts_path = config.artifact_path("rollouts.jsonl")
     metrics_path = config.artifact_path("metrics.json")
     memory = MemoryStore(config.artifact_path("skill_notes.md"))
@@ -34,7 +34,8 @@ async def run(client_factory, spec, task, rounds=2,
     summary = {}
 
     # 1. repro — baseline agent, round 0.
-    naive = make_agent("sim:naive" if agent_name == "sim:auto" else agent_name, spec)
+    naive = make_agent("sim:naive" if agent_name == "sim:auto" else agent_name,
+                       spec, **(browser_options or {}))
     episodes = await repro_check.repro(
         client_factory, naive, task, repro_seeds or train_seeds[:10], spec,
         cache=cache, cache_path=cache_path, timeout=timeout)
@@ -50,7 +51,7 @@ async def run(client_factory, spec, task, rounds=2,
         "baseline_success_rate": success_rate(episodes)}
 
     # 2. improve — rounds 1..R on held-out eval seeds.
-    agent = make_agent(agent_name, spec)
+    agent = make_agent(agent_name, spec, **(browser_options or {}))
     history = await improve.improve(
         client_factory, agent, task, rounds, memory=memory,
         train_seeds=train_seeds, eval_seeds=eval_seeds,
@@ -100,6 +101,8 @@ def main(argv=None):
     ap.add_argument("--trajectory", default=None)
     ap.add_argument("--generate-report", default=None)
     ap.add_argument("--env-screenshot", default=None)
+    ap.add_argument("--record-dir", default=None, help="record browser episode screenshots, DOM and video")
+    ap.add_argument("--headed", action="store_true", help="show browser windows during rehearsal")
     ap.add_argument("--rounds", type=int, default=2)
     ap.add_argument("--repro-seeds", default="0-9")
     ap.add_argument("--train-seeds", default=None)
@@ -111,6 +114,8 @@ def main(argv=None):
     ap.add_argument("--clean", action="store_true",
                     help="wipe existing artifacts first")
     args = ap.parse_args(argv)
+    if args.agent in ("browser", "browser:llm"):
+        ap.error("use loop.experiment for LLM runs with evidence gates; loop.demo is a scripted rehearsal")
 
     spec = config.load_spec(args.spec)
     task = config.load_tasks(args.tasks, spec)[args.task]
@@ -134,7 +139,8 @@ def main(argv=None):
         eval_seeds=parse_seeds(args.eval_seeds) if args.eval_seeds
         else EVAL_SEEDS,
         repro_seeds=parse_seeds(args.repro_seeds), agent_name=args.agent,
-        real_transfer=args.real_transfer, trajectory=trajectory))
+        real_transfer=args.real_transfer, trajectory=trajectory,
+        browser_options={"artifact_dir": args.record_dir, "headed": args.headed}))
     with open(config.artifact_path("run_manifest.json"), "w") as f:
         json.dump({"spec_path": os.path.relpath(args.spec or config.spec_path(), config._REPO),
                    "spec": spec,

@@ -17,12 +17,21 @@
 
 <section id="kpis" class="kpis"></section>
 <section id="pipeline" class="pipeline"></section>
+<p id="run-status" class="sub"></p>
 
 <main class="grid">
   <div class="panel span2">
-    <h3>Success rate by round</h3>
+    <h3>Browser demonstration · recorded runs</h3>
+    <div class="browser-pair">
+      <section><h4>Baseline · no skill memory</h4><div id="baseline-player"></div></section>
+      <section><h4>Agent with saved skill memory</h4><div id="transfer-player"></div></section>
+    </div>
+  </div>
+  <div class="panel span2">
+    <h3>Success rate · fixed held-out evaluation set</h3>
     <canvas id="chart-rate" width="720" height="230"></canvas>
     <div class="legend" id="rate-legend"></div>
+    <p class="muted" id="curve-notes"></p>
   </div>
   <div class="panel">
     <h3>Failure signature (round-0 failures)</h3>

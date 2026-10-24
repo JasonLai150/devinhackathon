@@ -54,11 +54,18 @@ function drawRateChart(cv, ms) {
   ms.forEach((m, i) => i ? c.lineTo(x(i), y(m)) : c.moveTo(x(i), y(m)));
   c.stroke();
   ms.forEach((m, i) => {
+    if (m.ci95) {
+      c.strokeStyle = "#8b949e"; c.lineWidth = 1;
+      c.beginPath();
+      c.moveTo(x(i), y({success_rate: m.ci95[0]}));
+      c.lineTo(x(i), y({success_rate: m.ci95[1]}));
+      c.stroke();
+    }
     c.fillStyle = phaseColor(m);
     c.beginPath(); c.arc(x(i), y(m), 5, 0, 7); c.fill();
     c.fillStyle = "#e6edf3";
     c.fillText(`r${m.round}`, x(i) - 8, H - 10);
-    c.fillText(pct(m.success_rate), x(i) - 12, y(m) - 10);
+    c.fillText(`${pct(m.success_rate)} · n=${m.n}`, x(i) - 24, Math.max(14, y(m) - 10));
     c.fillStyle = "#8b949e"; c.font = "9px Menlo";
     if (m.phase) c.fillText(m.phase, x(i) - 12, H - 22);
     c.font = "11px Menlo";
@@ -126,10 +133,30 @@ function filmstrip(host, steps, failureStep) {
   host.appendChild(strip);
 }
 
+function replay(host, trajectory, videoPath) {
+  const video = videoPath || trajectory?.video_path;
+  if (video) {
+    const player = el("video");
+    player.controls = true; player.preload = "metadata"; player.playsInline = true;
+    player.src = A + video;
+    host.appendChild(player);
+    host.appendChild(el("p", "muted", "Recorded browser interaction"));
+  } else if (trajectory?.steps?.length) {
+    filmstrip(host, trajectory.steps, trajectory.failure_step);
+    host.appendChild(el("p", "muted", "Recorded screenshots · no video attached"));
+  } else {
+    host.appendChild(el("p", "missing", "No recording available for this run"));
+  }
+  if (trajectory?.checker)
+    host.appendChild(el("p", "verdict " + (trajectory.checker.passed ? "ok" : "bad"),
+      `${trajectory.checker.passed ? "PASS" : "FAIL"} — ${trajectory.checker.reason}`));
+}
+
 async function main() {
   const manifest = await fetchJson(`${ARTIFACTS}/run_manifest.json`);
   const [traj, spec, repro, metrics, notes, transferR, rollouts] = await Promise.all([
-    fetchJson(manifest?.trajectory_path || "fixtures/trajectory.json"),
+    manifest ? (manifest.trajectory_path ? fetchJson(manifest.trajectory_path) : Promise.resolve(null))
+             : fetchJson("fixtures/trajectory.json"),
     manifest ? Promise.resolve(manifest.spec) : fetchJson("fixtures/env_spec.json"),
     manifest ? fetchJson(`${ARTIFACTS}/repro_report.json`) : Promise.resolve(null),
     manifest ? fetchJson(`${ARTIFACTS}/metrics.json`) : Promise.resolve(null),
@@ -138,11 +165,18 @@ async function main() {
     manifest ? fetchJsonl(`${ARTIFACTS}/rollouts.jsonl`) : Promise.resolve(null),
   ]);
   const report = manifest?.generation_report;
-  const r0 = (rollouts || []).filter(r => r.round === 0);
+  const r0 = (rollouts || []).filter(r => r.phase === "repro");
   const fails = r0.filter(r => !r.passed);
   const sigFails = fails.filter(r => r.signature_failure);
   const evals = (metrics?.metrics || []).filter(m => m.phase === "eval");
   const lastEval = evals[evals.length - 1];
+  const transferTrace = transferR?.trajectory_path ? await fetchJson(transferR.trajectory_path) : null;
+  replay(document.getElementById("baseline-player"), traj);
+  replay(document.getElementById("transfer-player"), transferTrace, transferR?.video_path);
+  const model = manifest?.agent_metadata;
+  document.getElementById("run-status").textContent =
+    `${manifest?.status || "archived"} · ${manifest?.reason || "Inspect the recorded outcomes"} ` +
+    (model ? `· ${model.provider}/${model.model || model.strategy} · ${model.max_steps} steps` : "");
 
   /* ---- KPI strip ---- */
   const kpis = document.getElementById("kpis");
@@ -189,12 +223,18 @@ async function main() {
   }
 
   /* ---- success-rate chart ---- */
-  if (metrics?.metrics?.length) {
-    drawRateChart(document.getElementById("chart-rate"), metrics.metrics);
+  const comparable = evals.length && evals[0].round === 0 && evals[0].evaluation_id &&
+    evals.every(m => m.evaluation_id === evals[0].evaluation_id);
+  if (comparable) {
+    drawRateChart(document.getElementById("chart-rate"), evals);
     document.getElementById("rate-legend").innerHTML =
-      '<span><i class="sw" style="background:#f85149"></i>repro</span>' +
-      '<span><i class="sw" style="background:#58a6ff"></i>eval (held-out)</span>' +
-      '<span><i class="sw" style="background:#3fb950"></i>transfer</span>';
+      '<span><i class="sw" style="background:#58a6ff"></i>held-out evaluation</span>';
+    document.getElementById("curve-notes").textContent =
+      "Identical seeds, task and perturbations each round. Bars: 95% Wilson intervals. " +
+      "Reproduction and real-site transfer are separate results.";
+  } else {
+    document.getElementById("curve-notes").textContent =
+      "No comparable evaluation baseline yet. Repro and transfer results are not a learning curve.";
   }
 
   /* ---- failure-signature chart ---- */
@@ -234,7 +274,7 @@ async function main() {
         const cell = el("div",
           "cell " + (r.signature_failure ? "sig" : r.passed ? "pass" : "fail"));
         cell.title = `seed ${r.seed} — ${r.passed ? "PASS" : "FAIL"}`;
-        cell.onclick = () => {
+        cell.onclick = async () => {
           matrix.querySelectorAll(".cell.sel")
             .forEach(c => c.classList.remove("sel"));
           cell.classList.add("sel");
@@ -251,6 +291,10 @@ async function main() {
               trace.appendChild(el("span",
                 "hop" + (a.startsWith("POST") ? " post" : ""), a));
             detail.appendChild(trace);
+          }
+          if (r.trajectory_path || r.video_path) {
+            const recording = r.trajectory_path ? await fetchJson(r.trajectory_path) : null;
+            if (cell.classList.contains("sel")) replay(detail, recording, r.video_path);
           }
         };
         cells.appendChild(cell);
@@ -307,7 +351,9 @@ async function main() {
   /* ---- sessions ---- */
   const sess = document.getElementById("sessions");
   const envUrl = manifest?.env_url || "http://localhost:5001";
-  fetch(envUrl + "/sessions").then(r => r.json()).then(d => {
+  if (manifest?.env_running === false) {
+    sess.appendChild(el("p", "muted", "Experiment sandbox is stopped. Browser recordings and results remain available."));
+  } else fetch(envUrl + "/sessions").then(r => r.json()).then(d => {
     const list = d.sessions || d || [];
     const t = el("table", "data");
     t.innerHTML = "<tr><th>session</th><th>seed</th></tr>";

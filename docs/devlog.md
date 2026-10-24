@@ -396,3 +396,59 @@ Publication race: teammate commit `ba7a4a7` redesigned the dashboard while this
 integration was running. Rebased onto it and preserved the KPI/chart/matrix UI;
 the manifest-based data sources, transfer labels and screenshot binding remain.
 Rechecked the redesigned dashboard in Chromium, including episode selection.
+
+## 2026-10-24 — Remaining vision work and browser demo implementation
+
+Plan: [`remaining-work.md`](remaining-work.md).
+Commands and presentation guidance: [`demo-runbook.md`](demo-runbook.md).
+
+Implemented a credentialed `loop.experiment` path with explicit evidence gates:
+sample natural real-site failures, localize, generate and browser-validate the
+component, reproduce the failure, sample training episodes, distill only
+verified successes, evaluate fixed held-out cases, and verify real transfer.
+The same immutable provider/model/temperature/step budget is retained across
+phases. Missing credentials, unsuitable baselines, no successful evidence,
+flat/regressing evaluation, generation failures and transfer failures retain
+their artifacts and stop honestly. This command never substitutes `sim:auto`
+or the scripted pagination heuristic. `loop.demo` remains the disclosed
+scripted rehearsal.
+
+Both improvement paths now measure an evaluation baseline before training.
+Each point contains the evaluation fingerprint, actual seeds/knobs, passes/n,
+and a 95% Wilson interval. LLM episodes are uncached. Strict distillation
+rejects eval/failure records and propagates provider errors; no successes leave
+memory unchanged. Per-round snapshots identify source successful episodes.
+
+Added shared browser evidence (video, screenshots, DOM, metadata), a headed
+baseline/transfer option, browser replay panels and per-episode replay. The
+dashboard plots only comparable held-out evaluations; repro and transfer are
+separate. Fixed LLM observation history to retain seen products. The real-site
+checker now requires exactly one matching product with quantity 1 and a known
+matching price, preventing repeated add-to-cart clicks from falsely passing.
+
+Generation's `--browser-check` runs a mechanical Chromium probe of real
+rendering, seeded ordering, pagination, detail navigation and verified cart
+mutation. The probe is not evidence of LLM learning. Rejected candidates and
+measured elapsed time are recorded. The toolshop reference passed for seeds
+42 (39 products, 5 pages) and 101 (54 products, 6 pages).
+
+Validation:
+
+- **72 tests passed**, including HTTP/Chromium, injected model decisions for
+  testing the LLM action interface, recording/verifier linkage, strict
+  distillation boundaries, frozen model settings, experiment orchestration and
+  rejection of a component that returns HTTP 200 but has no usable interaction.
+- Fresh recorded scripted rehearsal on the real site plus sandbox: matching
+  pagination repro; fixed-evaluation curve **0/3 → 3/3 → 3/3** for seeds
+  100–102; real transfer PASS (Washers $3.55, minimum of 50 API records).
+- Baseline/transfer WebM videos decode in the dashboard; all seven stages,
+  comparable curve and episode replay work without JavaScript errors.
+- Raw rehearsal artifacts: `.integration/demo-ready/` (gitignored).
+- LLM preflight: browser and Node available; **credentials missing**.
+  `.integration/llm-demo/preflight.json` contains availability only. No live
+  LLM results, generated-code success, or autonomous learning are claimed.
+
+The remaining work is empirical: configure a provider locally, find a natural
+baseline failure, obtain verified exploratory successes, and measure real LLM
+improvement/transfer. The current scripted recordings are a presentation
+fallback, not a substitute for those acceptance gates.

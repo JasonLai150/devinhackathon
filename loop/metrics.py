@@ -4,6 +4,18 @@
 """
 import json
 import os
+import math
+
+
+def wilson_interval(passed, n):
+    if n == 0:
+        return [0.0, 1.0]
+    z = 1.96
+    p = passed / n
+    denominator = 1 + z * z / n
+    center = (p + z * z / (2 * n)) / denominator
+    radius = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / denominator
+    return [round(max(0, center - radius), 4), round(min(1, center + radius), 4)]
 
 
 def load_metrics(path):

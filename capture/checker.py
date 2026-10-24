@@ -64,7 +64,8 @@ def cart_contents(page):
             const price = cells.map(c => c.match(/\\$\\s*([0-9.]+)/)).filter(Boolean)
                                .map(m => parseFloat(m[1]));
             return {name: t ? t.textContent.replace(/\\s+/g, " ").trim() : "",
-                    price: price.length ? price[0] : null};
+                    price: price.length ? price[0] : null,
+                    quantity: Number(tr.querySelector("[data-test='product-quantity']")?.value)};
         }).filter(r => r.name)"""
     )
 
@@ -80,7 +81,8 @@ def verify(page, expected=None):
     hit = [
         r for r in rows
         if r["name"].lower() == expected["name"].lower()
-        and (r["price"] is None or abs(r["price"] - expected["price"]) < 0.01)
+        and r["price"] is not None and abs(r["price"] - expected["price"]) < 0.01
+        and r.get("quantity") == 1
     ]
     if len(hit) == 1 and len(rows) == 1:
         return {
@@ -89,7 +91,8 @@ def verify(page, expected=None):
                       f"(${expected['price']}) — the cheapest of "
                       f"{expected.get('n_products', '?')} products",
         }
-    got = ", ".join(r["name"] for r in rows if r["name"]) or "an empty cart"
+    got = ", ".join(f"{r['name']} (quantity {r.get('quantity')})"
+                    for r in rows if r["name"]) or "an empty cart"
     return {
         "passed": False,
         "reason": f"expected {expected['name']} (${expected['price']}, id "

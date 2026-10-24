@@ -69,6 +69,10 @@ async def run_episode(client, agent, task, seed, round_no, overrides=None,
         res = EpisodeResult(ok=False, error=str(e))
     rec["steps"] = res.steps
     rec["actions"] = res.actions
+    rec["memory_hash"] = hashlib.sha256(skill_notes.encode()).hexdigest()
+    for key in ("episode_id", "trajectory_path", "video_path", "agent_metadata", "duration_s"):
+        if getattr(res, key) is not None:
+            rec[key] = getattr(res, key)
 
     if not res.ok:
         rec.update(passed=False, reason=f"error: {res.error}")
@@ -79,6 +83,9 @@ async def run_episode(client, agent, task, seed, round_no, overrides=None,
         verdict = {"passed": False, "reason": f"error: verify: {e}"}
     rec.update(passed=bool(verdict.get("passed")),
                reason=verdict.get("reason", ""))
+    if res.trajectory_path:
+        from capture.recording import attach_verdict
+        attach_verdict(res.trajectory_path, verdict)
     return rec
 
 
@@ -90,10 +97,13 @@ async def run_round(client_factory, agent, task, seeds, round_no,
     cache: dict of previously computed records (baseline reuse). New
     records are written back and persisted to cache_path if given.
     """
+    if getattr(agent, "strategy", None) == "llm":
+        cache, cache_path = None, None
     sem = asyncio.Semaphore(concurrency)
 
     async def one(seed):
         context = json.dumps({"task": task, "spec": getattr(agent, "spec", {}),
+                              "agent_metadata": getattr(agent, "metadata", {}),
                               "overrides": overrides or {}}, sort_keys=True)
         key = cache_key(task["id"], seed, agent.agent_id, skill_notes) + ":" + \
             hashlib.sha256(context.encode()).hexdigest()[:16]

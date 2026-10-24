@@ -12,20 +12,46 @@ Env:
 import json
 import os
 import urllib.request
+from dataclasses import asdict, dataclass
 
 _ANTHROPIC_DEFAULT = "claude-sonnet-4-20250514"
 _OPENAI_DEFAULT = "gpt-4o-mini"
 
 
+@dataclass(frozen=True)
+class ModelConfig:
+    provider: str
+    model: str
+    temperature: float = 0.7
+
+    def metadata(self):
+        return asdict(self)
+
+
+def resolve_config(provider=None, model=None, temperature=0.7):
+    provider = provider or os.environ.get("CAPTURE_LLM_PROVIDER")
+    if not provider:
+        provider = "anthropic" if os.environ.get("ANTHROPIC_API_KEY") else "openai"
+    if provider not in ("anthropic", "openai"):
+        raise ValueError("provider must be anthropic or openai")
+    key = "ANTHROPIC_API_KEY" if provider == "anthropic" else "OPENAI_API_KEY"
+    if not os.environ.get(key):
+        raise RuntimeError(f"{key} is not configured; configure it locally to run an LLM experiment")
+    if not 0 <= temperature <= 1:
+        raise ValueError("temperature must be between 0 and 1")
+    return ModelConfig(provider, model or os.environ.get("CAPTURE_LLM_MODEL") or
+                       (_ANTHROPIC_DEFAULT if provider == "anthropic" else _OPENAI_DEFAULT),
+                       temperature)
+
+
+def make_llm(config):
+    """Freeze provider/model/sampling for all phases; credentials stay in the process."""
+    return lambda prompt: (_anthropic(prompt, config) if config.provider == "anthropic"
+                           else _openai(prompt, config))
+
+
 def default_llm():
-    """Return ``llm(prompt) -> str`` or raise RuntimeError if no key is set."""
-    if os.environ.get("ANTHROPIC_API_KEY"):
-        return _anthropic
-    if os.environ.get("OPENAI_API_KEY"):
-        return _openai
-    raise RuntimeError(
-        "no LLM key set (ANTHROPIC_API_KEY / OPENAI_API_KEY) — use scripted strategies"
-    )
+    return make_llm(resolve_config())
 
 
 def _post(url, headers, payload):
@@ -36,7 +62,7 @@ def _post(url, headers, payload):
         return json.load(r)
 
 
-def _anthropic(prompt):
+def _anthropic(prompt, config):
     body = _post(
         "https://api.anthropic.com/v1/messages",
         {
@@ -45,7 +71,8 @@ def _anthropic(prompt):
             "content-type": "application/json",
         },
         {
-            "model": os.environ.get("CAPTURE_LLM_MODEL", _ANTHROPIC_DEFAULT),
+            "model": config.model,
+            "temperature": config.temperature,
             "max_tokens": 4096,
             "messages": [{"role": "user", "content": prompt}],
         },
@@ -53,7 +80,7 @@ def _anthropic(prompt):
     return "".join(b.get("text", "") for b in body["content"])
 
 
-def _openai(prompt):
+def _openai(prompt, config):
     body = _post(
         "https://api.openai.com/v1/chat/completions",
         {
@@ -61,7 +88,8 @@ def _openai(prompt):
             "content-type": "application/json",
         },
         {
-            "model": os.environ.get("CAPTURE_LLM_MODEL", _OPENAI_DEFAULT),
+            "model": config.model,
+            "temperature": config.temperature,
             "messages": [{"role": "user", "content": prompt}],
         },
     )

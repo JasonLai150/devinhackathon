@@ -15,6 +15,7 @@ import re
 from .site_config import SEL, SITE_URL
 
 _SETTLE_MS = 1800  # SPA re-render / API latency on the real site
+POLICY_VERSION = "toolshop-observe-act-v2"
 
 
 def _dismiss_overlays(page):
@@ -163,7 +164,8 @@ _OBSERVE_JS = """() => {
   const addBtn = !!document.querySelector("button[data-test='add-to-cart'], #btn-add-to-cart");
   const cartBadge = document.querySelector("[data-test='cart-quantity'], a[href='/checkout']")?.textContent.trim();
   return {url: location.href, title: document.title, cards, pages,
-          detail: addBtn ? detailName : null, cartBadge};
+          can_add_to_cart: addBtn, detail: addBtn ? detailName : null, cartBadge,
+          visible_text: document.body.innerText.slice(0, 6000)};
 }"""
 
 _PROMPT = """You are a web-browsing agent on {site}.
@@ -183,28 +185,34 @@ def run_llm(page, rec, task, llm, memory="", max_steps=30, entry_url=SITE_URL):
     _goto_listing(page, entry_url)
     rec("navigate to product listing (page 1)")
     history = []
+    seen = {}
+    action_history = []
     for _ in range(max_steps):
         state = page.evaluate(_OBSERVE_JS)
         history.append(state)
+        for card in state["cards"]:
+            seen[str(card["id"])] = card
         raw = llm(
             _PROMPT.format(
                 site=entry_url, task=task, memory=memory,
-                state=json.dumps({"current": state, "history": history})
+                state=json.dumps({"current": state, "recent_observations": history[-3:],
+                                  "seen_products": list(seen.values()), "actions": action_history})
             )
         )
         act = json.loads(raw[raw.find("{"):raw.rfind("}") + 1])
+        action_history.append(act)
         a = act.get("action")
         if a == "done":
             rec("agent decided task is done")
             return
         if a == "goto_page":
+            previous = state["cards"][0]["id"] if state["cards"] else None
             page.locator("ul.pagination .page-link").filter(
                 has_text=re.compile(f"^{int(act['n'])}$")).first.click()
-            _wait_cards(page)
+            _wait_cards(page, prev_first_id=previous)
             rec(f"LLM: go to page {act['n']}")
         elif a == "open_product":
-            card = next((c for s in reversed(history) for c in s["cards"]
-                         if str(c["id"]) == str(act["id"])), None)
+            card = seen.get(str(act["id"]))
             if card is None:
                 raise ValueError("agent selected an unseen product")
             _open_product(page, card)

@@ -65,3 +65,15 @@ def test_agent_error_is_failed_transfer(spec, task):
 
     rec = asyncio.run(transfer.transfer(Dead(), task, "https://x"))
     assert rec["passed"] is False and "not integrated" in rec["reason"]
+
+
+def test_real_checker_requires_one_verified_cart_item(monkeypatch):
+    from capture import checker
+    expected = {"id": "washers", "name": "Washers", "price": 3.55}
+    rows = [{"name": "Washers", "price": 3.55, "quantity": 2}]
+    monkeypatch.setattr(checker, "cart_contents", lambda page: rows)
+    assert not checker.verify(None, expected)["passed"]
+    rows[0]["quantity"] = 1
+    assert checker.verify(None, expected)["passed"]
+    rows[0]["price"] = None
+    assert not checker.verify(None, expected)["passed"]

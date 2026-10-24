@@ -102,7 +102,11 @@ def test_improve_climbs_on_held_out_seeds(factory, task, spec, tmp_path):
     assert history[-1]["eval_success_rate"] == 1.0
 
     m = load_metrics(metrics)
-    assert [e["round"] for e in m["metrics"]] == [1, 2]
+    assert [e["round"] for e in m["metrics"]] == [0, 1, 2]
+    assert len({e["evaluation_id"] for e in m["metrics"]}) == 1
+    assert all(e["seeds"] == [100, 101, 102, 103] and e["n"] == 4
+               for e in m["metrics"])
+    assert m["metrics"][0]["success_rate"] < m["metrics"][-1]["success_rate"]
     assert m["metrics"][-1]["success_rate"] == 1.0
 
     lines = [json.loads(l) for l in open(rollouts)]
@@ -118,3 +122,59 @@ def test_agent_config_written(tmp_path, spec, task):
     loaded = json.load(open(tmp_path / "agent_config.json"))
     assert loaded["agent"] == "sim:auto"
     assert loaded["final_eval_success_rate"] == 1.0
+
+
+def test_strict_distillation_excludes_evaluation_and_failures():
+    from loop.distill import distill_verified
+    record = {"task_id": "shop-cheapest", "seed": 0, "passed": True,
+              "phase": "train", "reason": "verified", "actions": ["read page 2"]}
+    prompts = []
+    def llm(prompt):
+        prompts.append(prompt)
+        return "# Skills\n- Compare visible results before choosing."
+    assert "Compare" in distill_verified("", [record], llm)
+    assert "verified" in prompts[0]
+    with pytest.raises(ValueError):
+        distill_verified("", [{**record, "phase": "eval"}], llm)
+    with pytest.raises(ValueError):
+        distill_verified("", [{**record, "passed": False}], llm)
+    assert len(prompts) == 1
+
+
+def test_strict_zero_successes_keeps_memory_and_curve(factory, task, spec, tmp_path):
+    def must_not_distill(prompt):
+        raise AssertionError("no successful training evidence")
+    memory = MemoryStore(str(tmp_path / "notes.md"))
+    path = str(tmp_path / "metrics.json")
+    history = asyncio.run(improve.improve(
+        factory, SimAgent(spec, "naive"), task, 2, strict=True, attempts=2,
+        memory=memory, llm=must_not_distill, train_seeds=[0, 2], eval_seeds=[100, 101],
+        metrics_path=path))
+    assert memory.load() == ""
+    assert all(h["successes_distilled"] == 0 and not h["notes_changed"] for h in history)
+    entries = load_metrics(path)["metrics"]
+    assert [m["round"] for m in entries] == [0, 1, 2]
+    assert len({m["success_rate"] for m in entries}) == 1
+    assert len({m["evaluation_id"] for m in entries}) == 1
+
+
+def test_strict_distiller_error_does_not_fall_back():
+    from loop.distill import distill_verified
+    def failing(prompt):
+        raise RuntimeError("provider unavailable")
+    with pytest.raises(RuntimeError, match="provider unavailable"):
+        distill_verified("", [{"task_id": "t", "seed": 1, "passed": True,
+                               "phase": "train", "reason": "ok", "actions": []}], failing)
+
+
+def test_evaluation_overlap_rejected_before_rollouts(factory, task, spec):
+    with pytest.raises(ValueError, match="disjoint"):
+        asyncio.run(improve.improve(factory, SimAgent(spec), task, 1,
+                                    train_seeds=[0, 1], eval_seeds=[1, 2]))
+    assert factory().list_sessions() == []
+
+
+def test_wilson_interval_retains_uncertainty_at_extremes():
+    from loop.metrics import wilson_interval
+    assert wilson_interval(0, 10)[1] > 0.25
+    assert wilson_interval(10, 10)[0] < 0.75

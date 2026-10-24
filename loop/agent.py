@@ -16,6 +16,11 @@ class EpisodeResult:
     ok: bool = True
     error: str = None
     verification: dict = None  # A's checker, run while the browser context is alive
+    episode_id: str = None
+    trajectory_path: str = None
+    video_path: str = None
+    agent_metadata: dict = None
+    duration_s: float = None
 
     @property
     def steps(self):
@@ -32,7 +37,7 @@ class Agent:
         raise NotImplementedError
 
 
-def make_agent(name, spec=None):
+def make_agent(name, spec=None, **browser_options):
     """CLI agent names: sim:naive | sim:smart | sim:auto | browser."""
     if name.startswith("sim:"):
         if spec is None:
@@ -42,6 +47,6 @@ def make_agent(name, spec=None):
     if name == "browser" or name.startswith("browser:"):
         from .agent_browser import BrowserAgent
         return BrowserAgent(strategy=name.split(":", 1)[1] if ":" in name else "llm",
-                            spec=spec)
+                            spec=spec, **browser_options)
     raise ValueError(
         f"unknown agent {name!r} (expected sim:naive|sim:smart|sim:auto|browser)")
